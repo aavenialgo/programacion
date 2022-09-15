@@ -1,0 +1,5 @@
+Este es un archivo nuevo.
+Archivo de prueba.
+Agrego una línea.
+Agrego una línea.
+Agrego contenido al final del archivo.
