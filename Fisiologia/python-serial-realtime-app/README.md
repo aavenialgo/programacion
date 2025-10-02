@@ -6,6 +6,9 @@ Este proyecto es una aplicación en Python que lee datos del puerto serie `/dev/
 
 ```
 python-serial-realtime-app
+├──pruebas
+    ├── output_puerto_serie.py #prueba para leer puerto serie
+    ├──
 ├── src
 │   ├── main.py          # Punto de entrada de la aplicación
 │   ├── filter.py        # Contiene las funciones de filtrado

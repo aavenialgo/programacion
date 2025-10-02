@@ -1,16 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import serial
-import time
 from scipy.signal import butter, filtfilt
-
-def apply_filter(data, lowcut, highcut, fs, order=4):
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    b, a = butter(order, [low, high], btype="band")
-    y = filtfilt(b, a, data)
-    return y
+from filter import filter
 
 # ==== Parámetros ====
 fs = 100  # Frecuencia de muestreo en Hz
@@ -43,8 +35,8 @@ while True:
             red = red[-fs:]
             ir = ir[-fs:]
 
-        red_filt = apply_filter(np.array(red), lowcut, highcut, fs)
-        ir_filt = apply_filter(np.array(ir), lowcut, highcut, fs)
+        red_filt = filter(np.array(red), lowcut, highcut, fs)
+        ir_filt = filter(np.array(ir), lowcut, highcut, fs)
 
         t = np.arange(len(red)) / fs
 
