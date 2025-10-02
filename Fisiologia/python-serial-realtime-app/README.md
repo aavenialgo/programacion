@@ -1,0 +1,45 @@
+# Python Serial Real-Time Application
+
+Este proyecto es una aplicación en Python que lee datos del puerto serie `/dev/ttyUSB0`, aplica un filtro Butterworth a los datos y los grafica en tiempo real. 
+
+## Estructura del Proyecto
+
+```
+python-serial-realtime-app
+├── src
+│   ├── main.py          # Punto de entrada de la aplicación
+│   ├── filter.py        # Contiene las funciones de filtrado
+│   └── types
+│       └── __init__.py  # Paquete para definiciones de tipos
+├── requirements.txt     # Dependencias del proyecto
+└── README.md            # Documentación del proyecto
+```
+
+## Requisitos
+
+Asegúrate de tener Python 3 instalado en tu sistema. Este proyecto requiere las siguientes bibliotecas:
+
+- numpy
+- matplotlib
+- scipy
+- pyserial
+
+Puedes instalar las dependencias utilizando el siguiente comando:
+
+```
+pip install -r requirements.txt
+```
+
+## Ejecución
+
+Para ejecutar la aplicación, utiliza el siguiente comando:
+
+```
+python src/main.py
+```
+
+Asegúrate de que el dispositivo esté conectado al puerto serie `/dev/ttyUSB0` antes de ejecutar la aplicación. La aplicación comenzará a leer datos del puerto serie y graficará los resultados en tiempo real.
+
+## Contribuciones
+
+Las contribuciones son bienvenidas. Si deseas mejorar este proyecto, siéntete libre de abrir un issue o un pull request.
