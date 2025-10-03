@@ -46,6 +46,6 @@ def update(frame):
     return line_red, line_ir
 
 ani = animation.FuncAnimation(fig, update, frames=len(red_values),
-                              interval=1000/fs, blit=True, repeat=False)
+                              interval=1000/fs, blit=True, repeat=True)
 
 plt.show()
