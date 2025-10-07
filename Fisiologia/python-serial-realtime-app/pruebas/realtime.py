@@ -72,8 +72,8 @@ class realtime:
 
         # Señal filtrada: Butterworth + media móvil
         if len(ydata) > 27:
-            #y_centered = ydata - np.mean(ydata)
-            y_filt = self.butterworth_filter(y_data, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
+            y_centered = ydata - np.mean(ydata)
+            y_filt = self.butterworth_filter(ydata, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
             self.line_filt.set_data(xdata, y_filt)
 
             if len(self.red_values) > 0:
@@ -82,7 +82,7 @@ class realtime:
                 if ymin == ymax:
                     ymin -= 1
                     ymax += 1
-                self.ax.set_ylim(ymin, ymax)
+                self.ax.set_ylim(-100, 200)
         else:   
             self.line_filt.set_data([], [])
 

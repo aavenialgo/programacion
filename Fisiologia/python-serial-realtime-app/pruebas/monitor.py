@@ -92,10 +92,10 @@ class MainWindow(QtWidgets.QMainWindow):
             pen=pg.mkPen(color=(255, 0, 0), width=2),
             name="Red"
         )
-        # self.curve_ir = self.plot_widget.plot(
-        #     pen=pg.mkPen(color=(0, 200, 255), width=2),
-        #     name="IR"
-        # )
+        self.curve_ir = self.plot_widget.plot(
+            pen=pg.mkPen(color=(0, 200, 255), width=2),
+            name="IR"
+        )
 
     def update_plot(self):
         new_data = self.sr.get_data()
@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for ts, red, ir in new_data:
             self.time_deque.append(ts)
             self.data_deques[0].append(red)
-            # self.data_deques[1].append(ir)
+            self.data_deques[1].append(ir)
 
         if len(self.time_deque) < 2:
             return
