@@ -33,7 +33,7 @@ class realtime:
         return filtfilt(b, a, data)
 
     def config_plots(self):
-        self.line_raw, = self.ax.plot([], [], color="gray", alpha=0.5, label="Red (raw)")
+        #self.line_raw, = self.ax.plot([], [], color="gray", alpha=0.5, label="Red (raw)")
         self.line_filt, = self.ax.plot([], [], color="red", label="Red (filtered)")
 
         self.ax.legend()
@@ -61,36 +61,49 @@ class realtime:
                     pass
 
         # Mantener ventana de muestras
-        if len(self.red_values) > self.window_size:
-            self.red_values[:] = self.red_values[-self.window_size:]
+      #  if len(self.red_values) > self.window_size:
+       #     self.red_values[:] = self.red_values[-self.window_size:]
 
         xdata = np.arange(len(self.red_values))
         ydata = np.array(self.red_values)
 
-        # Ajustar eje Y
-        if len(self.red_values) > 0:
-            ymin = min(self.red_values)
-            ymax = max(self.red_values)
-            if ymin == ymax:
-                ymin -= 1
-                ymax += 1
-            self.ax.set_ylim(ymin, ymax)
-
         # Señal cruda
-        self.line_raw.set_data(xdata, ydata)
+       # self.line_raw.set_data(xdata, ydata)
 
         # Señal filtrada: Butterworth + media móvil
         if len(ydata) > 27:
-            y_centered = ydata - np.mean(ydata)
-            y_filt = self.butterworth_filter(y_centered, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
+            #y_centered = ydata - np.mean(ydata)
+            y_filt = self.butterworth_filter(y_data, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
             self.line_filt.set_data(xdata, y_filt)
+
+            if len(self.red_values) > 0:
+                ymin = min(y_filt)
+                ymax = max(y_filt)
+                if ymin == ymax:
+                    ymin -= 1
+                    ymax += 1
+                self.ax.set_ylim(ymin, ymax)
         else:   
             self.line_filt.set_data([], [])
 
-        return self.line_raw, self.line_filt
+
+            # Mantener ventana de muestras
+        if len(self.red_values) > self.window_size:
+            self.red_values[:] = self.red_values[-self.window_size:]
+
+            # Ajustar eje Y
+        # if len(self.red_values) > 0:
+        #     ymin = min(y_filt)
+        #     ymax = max(y_filt)
+        #     if ymin == ymax:
+        #         ymin -= 1
+        #         ymax += 1
+        #     self.ax.set_ylim(ymin, ymax)
+
+        return self.line_filt
 
     def animation(self):
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1000/self.fs, blit=True,
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1000/self.fs, blit=False,
                                            cache_frame_data=False)   
         plt.show()
         self.ser.close()

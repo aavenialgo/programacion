@@ -1,51 +1,112 @@
 import serial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import re
-import threading
+import numpy as np
+from scipy.signal import butter, filtfilt
+# Cambios
+# - eliminar filtro de media movil 
+# - 
 
-gData = []
-gData.append([0])
-gData.append([0])
+class realtime:
+    def __init__(self):
+        self.fs = 100
+        self.window_sec = 1
+        self.window_size = self.fs * self.window_sec
+        self.serial_port = '/dev/ttyUSB0'
+        self.baudrate = 115200
+        self.red_values = []
+        self.fig, self.ax = plt.subplots()
+        self.line_raw = None
+        self.line_filt = None
+        self.ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1) #por defecto
 
-#Configuramos la gráfica
-fig = plt.figure()
-ax = fig.add_subplot(111)
-hl, = plt.plot(gData[0], gData[1])
-plt.ylim(-90, 90)
-plt.xlim(0,200)
 
-# Función que se va a ejecutar en otro thread
-# y que guardará los datos del serial en 'out_data'
-def GetData(out_data):
-    with serial.Serial('/dev/ttyUSB0',115200, timeout=1) as ser:
-        print(ser.isOpen())
-        while True:
-            line = ser.readline().decode('utf-8')
-        # Si la línea tiene 'Roll' la parseamos y extraemos el valor
-            if "Roll" in line:
-                res = re.search("Roll: ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)", line)
+        self.red_values = []
 
-        # Añadimos el nuevo valor, si hay más de 200 muestras quitamos la primera
-        # para que no se nos acumulen demasiados datos en la gráfica
-            out_data[1].append( float(res.group(1)) )
-            if len(out_data[1]) > 200:
-                out_data[1].pop(0)
+        self.config_plots()
 
-# Función que actualizará los datos de la gráfica
-# Se llama periódicamente desde el 'FuncAnimation'
-def update_line(num, hl, data):
-    hl.set_data(range(len(data[1])), data[1])
-    return hl,
+    def set_configSerial(self, serial_port, baudrate):
 
-# Configuramos la función que "animará" nuestra gráfica
-line_ani = animation.FuncAnimation(fig, update_line, fargs=(hl, gData),
-    interval=50, blit=False)
+        self.ser = serial.Serial(serial_port, baudrate, timeout=1)
 
-# Configuramos y lanzamos el hilo encargado de leer datos del serial
-dataCollector = threading.Thread(target = GetData, args=(gData,))
-dataCollector.start()
+    def butterworth_filter(self, data, fs, cutoff, btype='low', order=4):
+        nyq = 0.5 * fs
+        normal_cutoff = np.array(cutoff) / nyq
+        b, a = butter(order, normal_cutoff, btype=btype, analog=False)
+        return filtfilt(b, a, data)
 
-plt.show()
+    def config_plots(self):
+        #self.line_raw, = self.ax.plot([], [], color="gray", alpha=0.5, label="Red (raw)")
+        self.line_filt, = self.ax.plot([], [], color="red", label="Red (filtered)")
 
-dataCollector.join()
+        self.ax.legend()
+        self.ax.set_xlim(0, self.window_size)  
+
+        self.ax.set_ylabel("Intensidad (a.u.)")
+        self.ax.legend()
+        self.ax.set_title("PPG - Señal cruda vs filtrada (tiempo real)")
+
+    @staticmethod
+    def moving_average(data, window_size=10):
+        if len(data) < window_size:
+            return np.array([])
+        return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
+
+    def update(self, frame):
+        if self.ser.in_waiting > 0:
+            data = self.ser.readline().decode('utf-8', errors='replace').strip()
+            if "Red:" in data:
+                try:
+                    red = int(data.split("Red:")[1].split(",")[0])
+                    self.red_values.append(red)
+                except Exception:
+                    pass
+
+    
+        xdata = np.arange(len(self.red_values))
+        ydata = np.array(self.red_values)
+
+        # Señal cruda
+        # self.line_raw.set_data(xdata, ydata)
+
+        # Señal filtrada: Butterworth + media móvil
+        if len(ydata) > 27:
+            #y_centered = ydata - np.mean(ydata)
+            y_centered = self.moving_average(ydata)
+            y_filt = self.butterworth_filter(y_centered, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
+            y_centered = self.moving_average(ydata)
+        #    y_filt = self.butterworth_filter(ydata, fs=self.fs, cutoff=[0.5, 15], btype="bandpass", order=4)
+
+            self.line_filt.set_data(xdata, y_filt)
+
+            if len(self.red_values) > 0:
+                ymin = min(y_filt)
+                ymax = max(y_filt)
+                if ymin == ymax:
+                    ymin -= 1
+                    ymax += 1
+                #self.ax.set_ylim(ymin, ymax)
+                self.ax.set_ylim(-300, +300)
+        else:   
+            self.line_filt.set_data([], [])
+
+
+        # Mantener ventana de muestras
+        if len(self.red_values) > self.window_size:
+            self.red_values[:] = self.red_values[-self.window_size:]
+
+        return self.line_filt
+
+    def animation(self):
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1000/self.fs, blit=False,
+                                           cache_frame_data=False)   
+        plt.show()
+        self.ser.close()
+
+
+if __name__ == "__main__":
+
+    prueba = realtime()
+    prueba.animation()
+
