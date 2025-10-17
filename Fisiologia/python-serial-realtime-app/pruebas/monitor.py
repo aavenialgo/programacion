@@ -7,6 +7,7 @@ from collections import deque
 from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
 import re
+# source env/bin/activate
 
 # === CONFIGURACIÓN ===
 PORT = '/dev/ttyUSB0'   # 
@@ -109,14 +110,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if len(self.time_deque) < 2:
             return
+        
+        windows_seconds = 10
 
         # Eje de tiempo relativo
-        t0 = self.time_deque[0]
-        times = [t - t0 for t in self.time_deque]
+        t_last = self.time_deque[-1]
+        times = [t - t_last for t in self.time_deque]
 
         self.curve_red.setData(times, list(self.data_deques[0]))
         self.curve_ir.setData(times, list(self.data_deques[1]))
 
+        self.plot_widget.setXRange(-windows_seconds, 0) #mostrar ultimos 10 seg
     def closeEvent(self, event):
         self.sr.stop()
         event.accept()
