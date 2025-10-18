@@ -9,7 +9,8 @@ import pyqtgraph as pg
 import re
 import numpy as np
 # Importar el módulo de filtros
-from filter import filterPassBand
+sys.path.append('src')
+from src.filter import filterPassBand
 
 
 # source env/bin/activate
