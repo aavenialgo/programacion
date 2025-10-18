@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.defaultInterpreterPath": "./env/bin/python",
+		"python.analysis.extraPaths": [
+			"./src"
+		],
+		"python.terminal.activateEnvironment": true,
+		"python.envFile": "${workspaceFolder}/.env",
+		"files.exclude": {
+			"**/__pycache__": true,
+			"**/*.pyc": true,
+			"env/": true
+		},
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": false,
+		"python.linting.flake8Enabled": true
+	}
+}

@@ -6,8 +6,8 @@ from scipy.signal import butter, filtfilt
 
 class realtime:
     def __init__(self):
-        self.fs = 100
-        self.window_sec = 1
+        self.fs = 125
+        self.window_sec = 5
         self.window_size = self.fs * self.window_sec
         self.serial_port = '/dev/ttyUSB0'
         self.baudrate = 115200
@@ -82,7 +82,7 @@ class realtime:
                 if ymin == ymax:
                     ymin -= 1
                     ymax += 1
-                self.ax.set_ylim(-100, 200)
+                self.ax.set_ylim(-ymin,ymax)
         else:   
             self.line_filt.set_data([], [])
 

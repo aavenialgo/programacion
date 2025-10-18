@@ -7,14 +7,25 @@ from collections import deque
 from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
 import re
+import numpy as np
+# Importar el módulo de filtros
+from filter import filterPassBand
+
+
 # source env/bin/activate
 
 # === CONFIGURACIÓN ===
 PORT = '/dev/ttyUSB0'   # 
 BAUD = 115200
 FS = 125                # frecuencia de muestreo (Hz)
-MAX_POINTS = 10 * FS    # ~10 segundos en pantalla
-SAVE_CSV = 'red_ir_log.csv'
+MAX_POINTS = 3 * FS    #  segundos en pantalla
+SAVE_CSV = 'red_ir_log3.csv'
+
+# Parámetros del filtro pasabanda
+LOWCUT = 0.5    # Hz - frecuencia de corte baja
+HIGHCUT = 15.0  # Hz - frecuencia de corte alta
+FILTER_ORDER = 4
+MIN_SAMPLES_FILTER = 3 * FS  # mínimo de muestras para aplicar filtro (3 segundos)
 
 # === LECTOR SERIE ===
 class SerialReader(threading.Thread):
@@ -68,8 +79,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, serial_reader):
         super().__init__()
         self.sr = serial_reader
-        self.data_deques = [deque(maxlen=MAX_POINTS),deque(maxlen=MAX_POINTS)]
+        self.data_deques = [deque(maxlen=MAX_POINTS)]
         self.time_deque = deque(maxlen=MAX_POINTS)
+        
+        # Buffer para el filtrado (necesitamos más muestras para filtrar correctamente)
+        self.filter_buffer_ir = deque(maxlen=MAX_POINTS * 2)
+        self.filter_buffer_time = deque(maxlen=MAX_POINTS * 2)
+        self.filtered_data = deque(maxlen=MAX_POINTS)
+        
         self.init_ui()
 
         # Actualizacin segun frecuencia de muestreo
@@ -78,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start(int(1000 / FS))
 
     def init_ui(self):
-        self.setWindowTitle("Monitor Serie - Señales Red & IR (125 Hz)")
+        self.setWindowTitle("Monitor Serie - Señal IR Filtrada (0.5-20 Hz)")
         cw = QtWidgets.QWidget()
         self.setCentralWidget(cw)
         layout = QtWidgets.QVBoxLayout(cw)
@@ -86,16 +103,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.showGrid(x=True, y=True)
         self.plot_widget.addLegend()
+        
         layout.addWidget(self.plot_widget)
 
-        #Dos curvas: Red y IR
-        self.curve_red = self.plot_widget.plot(
-            pen=pg.mkPen(color=(255, 0, 0), width=2),
-            name="Red"
-        )
-        self.curve_ir = self.plot_widget.plot(
-            pen=pg.mkPen(color=(0, 200, 255), width=2),
-            name="IR"
+        self.curve_ir_filtered = self.plot_widget.plot(
+            pen=pg.mkPen(color=(255, 100, 100), width=2),
+            name="IR Filtrada (0.5-20 Hz)"
         )
 
     def update_plot(self):
@@ -103,24 +116,58 @@ class MainWindow(QtWidgets.QMainWindow):
         if not new_data:
             return
 
+        # Agregar nuevos datos a los buffers
         for ts, red, ir in new_data:
             self.time_deque.append(ts)
-            self.data_deques[0].append(red)
-            self.data_deques[1].append(ir)
-
+            self.data_deques[0].append(ir)
+            
+            # Buffer para filtrado (más datos para mayor estabilidad)
+            self.filter_buffer_time.append(ts)
+            self.filter_buffer_ir.append(-1*ir)
+            
         if len(self.time_deque) < 2:
             return
         
+        # Aplicar filtro si tenemos suficientes muestras
+        if len(self.filter_buffer_ir) >= MIN_SAMPLES_FILTER:
+
+# source env/bin/activate
+
+# === CONFIGURA
+            try:
+                # Convertir a numpy array para el filtrado
+                ir_data = np.array(list(self.filter_buffer_ir))
+                
+                # Aplicar filtro pasabanda
+                filtered_ir = filterPassBand(ir_data, LOWCUT, HIGHCUT, FS, FILTER_ORDER)
+                
+                # Actualizar datos filtrados (solo los últimos MAX_POINTS)
+                self.filtered_data.clear()
+                start_idx = max(0, len(filtered_ir) - MAX_POINTS)
+                for i in range(start_idx, len(filtered_ir)):
+                    self.filtered_data.append(filtered_ir[i])
+                
+                # Eje de tiempo relativo
+                t_last = self.time_deque[-1]
+                times = [t - t_last for t in list(self.time_deque)[-len(self.filtered_data):]]
+                
+                # Graficar solo la señal filtrada
+                self.curve_ir_filtered.setData(times, list(self.filtered_data))
+                
+            except Exception as e:
+                print(f"Error en filtrado: {e}")
+                # Si falla el filtro, mostrar señal original
+                t_last = self.time_deque[-1]
+                times = [t - t_last for t in self.time_deque]
+                self.curve_ir_filtered.setData(times, list(self.data_deques[0]))
+        else:
+            # Mostrar señal original hasta tener suficientes datos para filtrar
+            t_last = self.time_deque[-1]
+            times = [t - t_last for t in self.time_deque]
+            self.curve_ir_filtered.setData(times, list(self.data_deques[0]))
+        
         windows_seconds = 10
-
-        # Eje de tiempo relativo
-        t_last = self.time_deque[-1]
-        times = [t - t_last for t in self.time_deque]
-
-        self.curve_red.setData(times, list(self.data_deques[0]))
-        self.curve_ir.setData(times, list(self.data_deques[1]))
-
-        self.plot_widget.setXRange(-windows_seconds, 0) #mostrar ultimos 10 seg
+        self.plot_widget.setXRange(-windows_seconds, 0)  # mostrar últimos 10 seg
     def closeEvent(self, event):
         self.sr.stop()
         event.accept()
