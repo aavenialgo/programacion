@@ -8,9 +8,10 @@ from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
 import re
 import numpy as np
-# Importar el módulo de filtros
-sys.path.append('src')
-from src.filter import filterPassBand
+# Importar el módulo de filtros - agregar el directorio padre al path
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+from filter import filterPassBand, moving_average
 
 
 # source env/bin/activate
@@ -20,7 +21,7 @@ PORT = '/dev/ttyUSB0'   #
 BAUD = 115200
 FS = 125                # frecuencia de muestreo (Hz)
 MAX_POINTS = 3 * FS    #  segundos en pantalla
-SAVE_CSV = 'red_ir_log3.csv'
+SAVE_CSV = 'sensor_data_log.csv'
 
 # Parámetros del filtro pasabanda
 LOWCUT = 0.5    # Hz - frecuencia de corte baja
@@ -40,23 +41,27 @@ class SerialReader(threading.Thread):
         # Archivo CSV
         self.csvfile = open(SAVE_CSV, 'w', newline='')
         self.csvwriter = csv.writer(self.csvfile)
-        self.csvwriter.writerow(['timestamp', 'Red', 'IR'])
+        self.csvwriter.writerow(['timestamp', 'Crudo', 'Filtrado', 'Normalizado'])
 
-        # Regex para extraer Red e IR (por ejemplo: >Red:713,IR:706)
-        self.pattern = re.compile(r"Red:(\d+),IR:(\d+)", re.IGNORECASE)
+        # Regex para extraer los nuevos valores (Crudo:-385.00,Filtrado:15.7351,Normalizado:0.7565)
+        self.pattern = re.compile(r"Crudo:(-?\d+(?:\.\d+)?),Filtrado:(-?\d+(?:\.\d+)?),Normalizado:(-?\d+(?:\.\d+)?)", re.IGNORECASE)
 
     def run(self):
         while self.running:
             try:
                 line = self.ser.readline().decode(errors='ignore').strip()
+
                 match = self.pattern.search(line)
                 if match:
-                    red_val = float(match.group(1))
-                    ir_val = float(match.group(2))
+                    crudo_val = float(match.group(1))
+                    filtrado_val = float(match.group(2))
+                    normalizado_val = float(match.group(3))
+                    
+                    print(f"Crudo: {crudo_val}, Filtrado: {filtrado_val}, Normalizado: {normalizado_val}")  # Debug
                     ts = time.time()
                     with self.lock:
-                        self.buffer.append((ts, red_val, ir_val))
-                    self.csvwriter.writerow([ts, red_val, ir_val])
+                        self.buffer.append((ts, crudo_val, filtrado_val, normalizado_val))
+                    self.csvwriter.writerow([ts, crudo_val, filtrado_val, normalizado_val])
             except Exception as e:
                 print("Error:", e)
                 time.sleep(0.1)
@@ -80,23 +85,27 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, serial_reader):
         super().__init__()
         self.sr = serial_reader
-        self.data_deques = [deque(maxlen=MAX_POINTS)]
+        
+        # Deques para cada tipo de dato
+        self.data_crudo = deque(maxlen=MAX_POINTS)
+        self.data_filtrado = deque(maxlen=MAX_POINTS)
+        self.data_normalizado = deque(maxlen=MAX_POINTS)
         self.time_deque = deque(maxlen=MAX_POINTS)
         
-        # Buffer para el filtrado (necesitamos más muestras para filtrar correctamente)
-        self.filter_buffer_ir = deque(maxlen=MAX_POINTS * 2)
+        # Buffer para el filtrado adicional (si es necesario)
+        self.filter_buffer_data = deque(maxlen=MAX_POINTS * 2)
         self.filter_buffer_time = deque(maxlen=MAX_POINTS * 2)
-        self.filtered_data = deque(maxlen=MAX_POINTS)
+        self.additional_filtered_data = deque(maxlen=MAX_POINTS)
         
         self.init_ui()
 
-        # Actualizacin segun frecuencia de muestreo
+        # Actualización según frecuencia de muestreo
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_plot)
         self.timer.start(int(1000 / FS))
 
     def init_ui(self):
-        self.setWindowTitle("Monitor Serie - Señal IR Filtrada (0.5-20 Hz)")
+        self.setWindowTitle("Monitor Serie - Datos del Sensor (Crudo, Filtrado, Normalizado)")
         cw = QtWidgets.QWidget()
         self.setCentralWidget(cw)
         layout = QtWidgets.QVBoxLayout(cw)
@@ -107,68 +116,77 @@ class MainWindow(QtWidgets.QMainWindow):
         
         layout.addWidget(self.plot_widget)
 
-        self.curve_ir_filtered = self.plot_widget.plot(
+        # Curvas para cada tipo de dato
+        self.curve_crudo = self.plot_widget.plot(
+            pen=pg.mkPen(color=(100, 100, 255), width=1),
+            name="Crudo"
+        )
+        
+        self.curve_filtrado = self.plot_widget.plot(
             pen=pg.mkPen(color=(255, 100, 100), width=2),
-            name="IR Filtrada (0.5-20 Hz)"
+            name="Filtrado"
+        )
+        
+        self.curve_normalizado = self.plot_widget.plot(
+            pen=pg.mkPen(color=(100, 255, 100), width=2),
+            name="Normalizado"
         )
 
     def update_plot(self):
         new_data = self.sr.get_data()
+        print("lee un dato")
         if not new_data:
             return
 
         # Agregar nuevos datos a los buffers
-        for ts, red, ir in new_data:
+        for ts, crudo, filtrado, normalizado in new_data:
             self.time_deque.append(ts)
-            self.data_deques[0].append(ir)
+            self.data_crudo.append(crudo)
+            self.data_filtrado.append(filtrado)
+            self.data_normalizado.append(normalizado)
             
-            # Buffer para filtrado (más datos para mayor estabilidad)
+            # Buffer para filtrado adicional (usando el valor filtrado)
             self.filter_buffer_time.append(ts)
-            self.filter_buffer_ir.append(-1*ir)
+            self.filter_buffer_data.append(filtrado)
             
         if len(self.time_deque) < 2:
             return
         
-        # Aplicar filtro si tenemos suficientes muestras
-        if len(self.filter_buffer_ir) >= MIN_SAMPLES_FILTER:
-
-# source env/bin/activate
-
-# === CONFIGURA
+        # Eje de tiempo relativo
+        t_last = self.time_deque[-1]
+        times = [t - t_last for t in self.time_deque]
+        
+        # Graficar las tres señales
+        self.curve_crudo.setData(times, list(self.data_crudo))
+        self.curve_filtrado.setData(times, list(self.data_filtrado))
+        self.curve_normalizado.setData(times, list(self.data_normalizado))
+        
+        # Aplicar filtro adicional si es necesario (opcional)
+        if len(self.filter_buffer_data) >= MIN_SAMPLES_FILTER:
             try:
-                # Convertir a numpy array para el filtrado
-                ir_data = np.array(list(self.filter_buffer_ir))
+                # Convertir a numpy array para el filtrado adicional
+                data_array = np.array(list(self.filter_buffer_data))
                 
-                # Aplicar filtro pasabanda
-                filtered_ir = filterPassBand(ir_data, LOWCUT, HIGHCUT, FS, FILTER_ORDER)
+                # Aplicar filtro pasabanda adicional
+                additional_filtered = filterPassBand(data_array, LOWCUT, HIGHCUT, FS, FILTER_ORDER)
+                additional_filtered = moving_average(additional_filtered, window_size=10)
                 
-                # Actualizar datos filtrados (solo los últimos MAX_POINTS)
-                self.filtered_data.clear()
-                start_idx = max(0, len(filtered_ir) - MAX_POINTS)
-                for i in range(start_idx, len(filtered_ir)):
-                    self.filtered_data.append(filtered_ir[i])
+                # Actualizar datos con filtrado adicional (solo los últimos MAX_POINTS)
+                self.additional_filtered_data.clear()
+                start_idx = max(0, len(additional_filtered) - MAX_POINTS)
+                for i in range(start_idx, len(additional_filtered)):
+                    self.additional_filtered_data.append(additional_filtered[i])
                 
-                # Eje de tiempo relativo
-                t_last = self.time_deque[-1]
-                times = [t - t_last for t in list(self.time_deque)[-len(self.filtered_data):]]
-                
-                # Graficar solo la señal filtrada
-                self.curve_ir_filtered.setData(times, list(self.filtered_data))
+                # Opcional: Agregar curva adicional para el filtro extra
+                # self.curve_additional_filter.setData(times[-len(self.additional_filtered_data):], 
+                #                                     list(self.additional_filtered_data))
                 
             except Exception as e:
-                print(f"Error en filtrado: {e}")
-                # Si falla el filtro, mostrar señal original
-                t_last = self.time_deque[-1]
-                times = [t - t_last for t in self.time_deque]
-                self.curve_ir_filtered.setData(times, list(self.data_deques[0]))
-        else:
-            # Mostrar señal original hasta tener suficientes datos para filtrar
-            t_last = self.time_deque[-1]
-            times = [t - t_last for t in self.time_deque]
-            self.curve_ir_filtered.setData(times, list(self.data_deques[0]))
+                print(f"Error en filtrado adicional: {e}")
         
         windows_seconds = 10
         self.plot_widget.setXRange(-windows_seconds, 0)  # mostrar últimos 10 seg
+        
     def closeEvent(self, event):
         self.sr.stop()
         event.accept()

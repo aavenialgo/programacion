@@ -31,3 +31,8 @@ def filterPassBand(data, lowcut, highcut, fs, order=4):
     # Opcional: poner los últimos "delay" valores a NaN
     y_corrected[-delay:] = np.nan
     return y
+
+def moving_average(data, window_size=10):
+    if len(data) < window_size:
+        return np.array([])
+    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
