@@ -27,7 +27,7 @@ SAVE_CSV = 'sensor_data_log.csv'
 LOWCUT = 0.5    # Hz - frecuencia de corte baja
 HIGHCUT = 15.0  # Hz - frecuencia de corte alta
 FILTER_ORDER = 4
-MIN_SAMPLES_FILTER = 3 * FS  # mínimo de muestras para aplicar filtro (3 segundos)
+MIN_SAMPLES_FILTER = 4 * FS  # mínimo de muestras para aplicar filtro (3 segundos)
 
 # === LECTOR SERIE ===
 class SerialReader(threading.Thread):
@@ -57,7 +57,7 @@ class SerialReader(threading.Thread):
                     filtrado_val = float(match.group(2))
                     normalizado_val = float(match.group(3))
                     
-                    print(f"Crudo: {crudo_val}, Filtrado: {filtrado_val}, Normalizado: {normalizado_val}")  # Debug
+                   # print(f"Crudo: {crudo_val}, Filtrado: {filtrado_val}, Normalizado: {normalizado_val}")  # Debug
                     ts = time.time()
                     with self.lock:
                         self.buffer.append((ts, crudo_val, filtrado_val, normalizado_val))
@@ -106,35 +106,55 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Monitor Serie - Datos del Sensor (Crudo, Filtrado, Normalizado)")
-        cw = QtWidgets.QWidget()
-        self.setCentralWidget(cw)
-        layout = QtWidgets.QVBoxLayout(cw)
-
-        self.plot_widget = pg.PlotWidget()
-        self.plot_widget.showGrid(x=True, y=True)
-        self.plot_widget.addLegend()
         
-        layout.addWidget(self.plot_widget)
-
-        # Curvas para cada tipo de dato
-        self.curve_crudo = self.plot_widget.plot(
-            pen=pg.mkPen(color=(100, 100, 255), width=1),
+        # Crear el widget principal
+        central_widget = QtWidgets.QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QtWidgets.QVBoxLayout(central_widget)
+        
+        # Crear GraphicsLayoutWidget para múltiples plots
+        self.win = pg.GraphicsLayoutWidget()
+        layout.addWidget(self.win)
+        
+        # Plot 1: Datos Crudos
+        self.plt_crudo = self.win.addPlot(title="Señal Cruda")
+        self.plt_crudo.showGrid(x=True, y=True)
+        self.plt_crudo.setLabel('left', 'Amplitud')
+        self.plt_crudo.setLabel('bottom', 'Tiempo (s)')
+        self.curve_crudo = self.plt_crudo.plot(
+            pen=pg.mkPen(color=(100, 100, 255), width=2),
             name="Crudo"
         )
         
-        self.curve_filtrado = self.plot_widget.plot(
+        # Nueva fila
+        self.win.nextRow()
+        
+        # Plot 2: Datos Filtrados
+        self.plt_filtrado = self.win.addPlot(title="Señal Filtrada")
+        self.plt_filtrado.showGrid(x=True, y=True)
+        self.plt_filtrado.setLabel('left', 'Amplitud')
+        self.plt_filtrado.setLabel('bottom', 'Tiempo (s)')
+        self.curve_filtrado = self.plt_filtrado.plot(
             pen=pg.mkPen(color=(255, 100, 100), width=2),
             name="Filtrado"
         )
         
-        self.curve_normalizado = self.plot_widget.plot(
+        # Nueva fila
+        self.win.nextRow()
+        
+        # Plot 3: Datos Normalizados
+        self.plt_normalizado = self.win.addPlot(title="Señal Normalizada")
+        self.plt_normalizado.showGrid(x=True, y=True)
+        self.plt_normalizado.setLabel('left', 'Amplitud')
+        self.plt_normalizado.setLabel('bottom', 'Tiempo (s)')
+        self.curve_normalizado = self.plt_normalizado.plot(
             pen=pg.mkPen(color=(100, 255, 100), width=2),
             name="Normalizado"
         )
 
     def update_plot(self):
         new_data = self.sr.get_data()
-        print("lee un dato")
+        
         if not new_data:
             return
 
@@ -161,32 +181,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.curve_filtrado.setData(times, list(self.data_filtrado))
         self.curve_normalizado.setData(times, list(self.data_normalizado))
         
-        # Aplicar filtro adicional si es necesario (opcional)
-        if len(self.filter_buffer_data) >= MIN_SAMPLES_FILTER:
-            try:
-                # Convertir a numpy array para el filtrado adicional
-                data_array = np.array(list(self.filter_buffer_data))
-                
-                # Aplicar filtro pasabanda adicional
-                additional_filtered = filterPassBand(data_array, LOWCUT, HIGHCUT, FS, FILTER_ORDER)
-                additional_filtered = moving_average(additional_filtered, window_size=10)
-                
-                # Actualizar datos con filtrado adicional (solo los últimos MAX_POINTS)
-                self.additional_filtered_data.clear()
-                start_idx = max(0, len(additional_filtered) - MAX_POINTS)
-                for i in range(start_idx, len(additional_filtered)):
-                    self.additional_filtered_data.append(additional_filtered[i])
-                
-                # Opcional: Agregar curva adicional para el filtro extra
-                # self.curve_additional_filter.setData(times[-len(self.additional_filtered_data):], 
-                #                                     list(self.additional_filtered_data))
-                
-            except Exception as e:
-                print(f"Error en filtrado adicional: {e}")
         
-        windows_seconds = 10
-        self.plot_widget.setXRange(-windows_seconds, 0)  # mostrar últimos 10 seg
-        
+        windows_seconds = 7
+        self.plt_crudo.setXRange(-windows_seconds, 0)
+        self.plt_filtrado.setXRange(-windows_seconds, 0)
+        self.plt_normalizado.setXRange(-windows_seconds, 0)
+                
     def closeEvent(self, event):
         self.sr.stop()
         event.accept()
@@ -198,7 +198,7 @@ def main():
 
     app = QtWidgets.QApplication(sys.argv)
     win = MainWindow(sr)
-    win.resize(900, 500)
+    win.resize(1000, 750)
     win.show()
 
     sys.exit(app.exec_())
