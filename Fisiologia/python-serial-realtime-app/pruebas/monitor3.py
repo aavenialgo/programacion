@@ -20,7 +20,7 @@ from filter import filterPassBand, moving_average
 PORT = '/dev/ttyUSB0'   # 
 BAUD = 115200
 FS = 125                # frecuencia de muestreo (Hz)
-MAX_POINTS = 3 * FS    #  segundos en pantalla
+MAX_POINTS = FS    
 SAVE_CSV = 'sensor_data_log.csv'
 
 # Parámetros del filtro pasabanda
@@ -182,7 +182,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.curve_normalizado.setData(times, list(self.data_normalizado))
         
         
-        windows_seconds = 7
+        windows_seconds = 2.5
         self.plt_crudo.setXRange(-windows_seconds, 0)
         self.plt_filtrado.setXRange(-windows_seconds, 0)
         self.plt_normalizado.setXRange(-windows_seconds, 0)
