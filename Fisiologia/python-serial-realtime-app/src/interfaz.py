@@ -12,7 +12,7 @@ import numpy as np
 from scipy import signal
 from filter import filterPassBand, moving_average
 
-# === CONFIGURACIÓN ===
+# === CONFIGURACION ===
 PORT = '/dev/ttyUSB0'
 BAUD = 115200
 FS = 125  # frecuencia de muestreo (Hz)
@@ -47,22 +47,22 @@ class SerialReader(threading.Thread):
             return False
     
     def start_acquisition(self):
-        """Iniciar adquisición de datos"""
+        """Iniciar adquisicion de datos"""
         self.running = True
         self.paused = False
         if not self.is_alive():
             self.start()
     
     def pause_acquisition(self):
-        """Pausar adquisición de datos"""
+        """Pausar adquisicion de datos"""
         self.paused = True
     
     def resume_acquisition(self):
-        """Reanudar adquisición de datos"""
+        """Reanudar adquisicion de datos"""
         self.paused = False
     
     def stop_acquisition(self):
-        """Detener adquisición de datos"""
+        """Detener adquisicion de datos"""
         self.running = False
         if self.ser and self.ser.is_open:
             self.ser.close()
@@ -95,7 +95,7 @@ class SerialReader(threading.Thread):
         return data
 
 class PPGAnalyzer:
-    """Clase para análisis de señales PPG"""
+    """Clase para analisis de señales PPG"""
     
     @staticmethod
     def calculate_amplitude(data):
@@ -115,7 +115,7 @@ class PPGAnalyzer:
         fft = np.fft.fft(windowed_data)
         freqs = np.fft.fftfreq(len(data), 1/fs)
         
-        # Buscar frecuencia dominante en rango fisiológico (0.5-4 Hz)
+        # Buscar frecuencia dominante en rango fisiologico (0.5-4 Hz)
         valid_idx = (freqs >= 0.5) & (freqs <= 4.0)
         if np.any(valid_idx):
             dominant_freq = freqs[valid_idx][np.argmax(np.abs(fft[valid_idx]))]
@@ -131,7 +131,7 @@ class PPGAnalyzer:
         return peaks
 
 class MainWindow(QtWidgets.QMainWindow):
-    """Ventana principal de la aplicación"""
+    """Ventana principal de la aplicacion"""
     
     def __init__(self):
         super().__init__()
@@ -144,15 +144,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.data_normalizado = deque(maxlen=MAX_POINTS)
         self.time_data = deque(maxlen=MAX_POINTS)
         
-        # Configuración de timestamps relativos
-        self.start_timestamp = None  # Timestamp del inicio de adquisición
+        # Configuracion de timestamps relativos
+        self.start_timestamp = None  # Timestamp del inicio de adquisicion
         
-        # Configuración de visualización
+        # Configuracion de visualizacion
         self.window_size = DEFAULT_WINDOW_SIZE
         self.current_channel = "filtrado"  # canal por defecto
         self.is_paused_display = False
         
-        # Configuración de filtros
+        # Configuracion de filtros
         self.filter_enabled = False
         self.filter_lowcut = 0.5
         self.filter_highcut = 15.0
@@ -163,7 +163,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
     def init_ui(self):
         """Inicializar la interfaz de usuario"""
-        self.setWindowTitle("Monitor PPG - Análisis de Señales")
+        self.setWindowTitle("Monitor PPG - Analisis de Señales")
         self.setGeometry(100, 100, 1400, 900)
         
         # Widget central
@@ -177,7 +177,7 @@ class MainWindow(QtWidgets.QMainWindow):
         control_panel = self.create_control_panel()
         main_layout.addWidget(control_panel, 1)
         
-        # Panel de gráficos derecho
+        # Panel de graficos derecho
         plot_panel = self.create_plot_panel()
         main_layout.addWidget(plot_panel, 4)
         
@@ -185,17 +185,17 @@ class MainWindow(QtWidgets.QMainWindow):
         """Crear panel de controles"""
         # Crear un scroll area para el panel de controles
         scroll_area = QtWidgets.QScrollArea()
-        scroll_area.setMaximumWidth(370)  # Un poco más ancho para incluir el scrollbar
+        scroll_area.setMaximumWidth(370)  # Un poco mas ancho para incluir el scrollbar
         scroll_area.setWidgetResizable(True)
         scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         
-        # Widget interno que contendrá todos los controles
+        # Widget interno que contendra todos los controles
         panel = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout(panel)
         
-        # === Sección de Conexión ===
-        conn_group = QtWidgets.QGroupBox("Conexión Serie")
+        # === Seccion de Conexion ===
+        conn_group = QtWidgets.QGroupBox("Conexion Serie")
         conn_layout = QtWidgets.QVBoxLayout(conn_group)
         
         self.port_combo = QtWidgets.QComboBox()
@@ -214,8 +214,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         layout.addWidget(conn_group)
         
-        # === Sección de Control de Adquisición ===
-        acq_group = QtWidgets.QGroupBox("Control de Adquisición")
+        # === Seccion de Control de Adquisicion ===
+        acq_group = QtWidgets.QGroupBox("Control de Adquisicion")
         acq_layout = QtWidgets.QVBoxLayout(acq_group)
         
         self.start_btn = QtWidgets.QPushButton("Iniciar")
@@ -236,8 +236,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         layout.addWidget(acq_group)
         
-        # === Sección de Visualización ===
-        vis_group = QtWidgets.QGroupBox("Visualización")
+        # === Seccion de Visualizacion ===
+        vis_group = QtWidgets.QGroupBox("Visualizacion")
         vis_layout = QtWidgets.QVBoxLayout(vis_group)
         
         vis_layout.addWidget(QtWidgets.QLabel("Canal:"))
@@ -254,13 +254,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.window_spin.valueChanged.connect(self.change_window_size)
         vis_layout.addWidget(self.window_spin)
         
-        self.pause_display_btn = QtWidgets.QPushButton("Pausar Gráfico")
+        self.pause_display_btn = QtWidgets.QPushButton("Pausar Grafico")
         self.pause_display_btn.clicked.connect(self.toggle_pause_display)
         vis_layout.addWidget(self.pause_display_btn)
         
         layout.addWidget(vis_group)
         
-        # === Sección de Filtros ===
+        # === Seccion de Filtros ===
         filter_group = QtWidgets.QGroupBox("Filtros Digitales")
         filter_layout = QtWidgets.QVBoxLayout(filter_group)
         
@@ -289,8 +289,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         layout.addWidget(filter_group)
         
-        # === Sección de Análisis ===
-        analysis_group = QtWidgets.QGroupBox("Análisis")
+        # === Seccion de Analisis ===
+        analysis_group = QtWidgets.QGroupBox("Analisis")
         analysis_layout = QtWidgets.QVBoxLayout(analysis_group)
         
         self.amplitude_label = QtWidgets.QLabel("Amplitud: 0")
@@ -307,8 +307,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         layout.addWidget(analysis_group)
         
-        # === Sección de Gestión de Datos ===
-        data_group = QtWidgets.QGroupBox("Gestión de Datos")
+        # === Seccion de Gestion de Datos ===
+        data_group = QtWidgets.QGroupBox("Gestion de Datos")
         data_layout = QtWidgets.QVBoxLayout(data_group)
         
         self.import_btn = QtWidgets.QPushButton("Importar CSV")
@@ -329,15 +329,15 @@ class MainWindow(QtWidgets.QMainWindow):
         return scroll_area
     
     def create_plot_panel(self):
-        """Crear panel de gráficos"""
+        """Crear panel de graficos"""
         panel = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout(panel)
         
-        # Widget de gráficos
+        # Widget de graficos
         self.plot_widget = pg.GraphicsLayoutWidget()
         layout.addWidget(self.plot_widget)
         
-        # Gráfico principal
+        # Grafico principal
         self.main_plot = self.plot_widget.addPlot(title="Señal PPG")
         self.main_plot.showGrid(x=True, y=True)
         self.main_plot.setLabel('left', 'Amplitud')
@@ -356,10 +356,10 @@ class MainWindow(QtWidgets.QMainWindow):
         return panel
     
     def setup_timer(self):
-        """Configurar timer para actualización"""
+        """Configurar timer para actualizacion"""
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(int(1000 / FS))  # Actualizar según la frecuencia de muestreo
+        self.timer.start(int(1000 / FS))  # Actualizar segun la frecuencia de muestreo
     
     def connect_serial(self):
         """Conectar al puerto serie"""
@@ -372,11 +372,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.connect_btn.setText("Desconectar")
             self.start_btn.setEnabled(True)
         else:
-            self.status_label.setText("Error de conexión")
+            self.status_label.setText("Error de conexion")
             self.status_label.setStyleSheet("color: red")
     
     def start_acquisition(self):
-        """Iniciar adquisición de datos"""
+        """Iniciar adquisicion de datos"""
         # Establecer timestamp de inicio
         self.start_timestamp = time.time()
         
@@ -390,7 +390,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.apply_filter_btn.setEnabled(True)
     
     def pause_acquisition(self):
-        """Pausar/reanudar adquisición"""
+        """Pausar/reanudar adquisicion"""
         if self.serial_reader.paused:
             self.serial_reader.resume_acquisition()
             self.pause_btn.setText("Pausar")
@@ -399,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pause_btn.setText("Reanudar")
     
     def stop_acquisition(self):
-        """Detener adquisición"""
+        """Detener adquisicion"""
         self.serial_reader.stop_acquisition()
         self.start_btn.setEnabled(True)
         self.pause_btn.setEnabled(False)
@@ -411,7 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.start_timestamp = None
     
     def change_channel(self, channel):
-        """Cambiar canal de visualización"""
+        """Cambiar canal de visualizacion"""
         self.current_channel = channel
         self.update_visible_curves()
     
@@ -425,12 +425,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.window_size = size
     
     def toggle_pause_display(self):
-        """Pausar/reanudar visualización del gráfico"""
+        """Pausar/reanudar visualizacion del grafico"""
         self.is_paused_display = not self.is_paused_display
         if self.is_paused_display:
-            self.pause_display_btn.setText("Reanudar Gráfico")
+            self.pause_display_btn.setText("Reanudar Grafico")
         else:
-            self.pause_display_btn.setText("Pausar Gráfico")
+            self.pause_display_btn.setText("Pausar Grafico")
     
     def toggle_filter(self, enabled):
         """Habilitar/deshabilitar filtro adicional"""
@@ -469,7 +469,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         data_array = np.array(visible_data)
         
-        # Calcular parámetros
+        # Calcular parametros
         amplitude = self.analyzer.calculate_amplitude(data_array)
         frequency = self.analyzer.calculate_frequency(data_array, FS)
         peaks = self.analyzer.detect_peaks(data_array)
@@ -516,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def export_csv(self):
         """Exportar datos a CSV"""
         if not self.time_data:
-            QtWidgets.QMessageBox.information(self, "Información", "No hay datos para exportar")
+            QtWidgets.QMessageBox.information(self, "Informacion", "No hay datos para exportar")
             return
         
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
@@ -537,7 +537,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.data_normalizado[i]
                         ])
                 
-                QtWidgets.QMessageBox.information(self, "Éxito", f"Datos exportados a {file_path}")
+                QtWidgets.QMessageBox.information(self, "exito", f"Datos exportados a {file_path}")
             except Exception as e:
                 QtWidgets.QMessageBox.warning(self, "Error", f"Error exportando archivo: {e}")
     
@@ -549,7 +549,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.time_data.clear()
     
     def update_plot(self):
-        """Actualizar gráficos"""
+        """Actualizar graficos"""
         if self.is_paused_display:
             return
         
@@ -587,7 +587,7 @@ class MainWindow(QtWidgets.QMainWindow):
             filtrado_window = list(self.data_filtrado)
             normalizado_window = list(self.data_normalizado)
         
-        # Usar el tiempo relativo directamente (ya está calculado desde el inicio)
+        # Usar el tiempo relativo directamente (ya esta calculado desde el inicio)
         if time_window:
             # Actualizar curvas con el tiempo relativo
             self.curves['crudo'].setData(time_window, crudo_window)
@@ -601,12 +601,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.main_plot.setXRange(t_min, t_max)
     
     def closeEvent(self, event):
-        """Manejar cierre de la aplicación"""
+        """Manejar cierre de la aplicacion"""
         self.serial_reader.stop_acquisition()
         event.accept()
 
 def main():
-    """Función principal"""
+    """Funcion principal"""
     app = QtWidgets.QApplication(sys.argv)
     
     # Establecer estilo

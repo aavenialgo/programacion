@@ -26,6 +26,11 @@ Asegúrate de tener Python 3 instalado en tu sistema. Este proyecto requiere las
 - matplotlib
 - scipy
 - pyserial
+- PyQt5==5.15.11
+- PyQt5-Qt5==5.15.17
+- PyQt5_sip==12.17.0
+- pyqtgraph==0.13.7
+- pyserial==3.5
 
 Puedes instalar las dependencias utilizando el siguiente comando:
 
