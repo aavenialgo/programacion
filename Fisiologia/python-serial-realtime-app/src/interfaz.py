@@ -64,8 +64,19 @@ class SerialReader(threading.Thread):
     def stop_acquisition(self):
         """Detener adquisicion de datos"""
         self.running = False
+        self.paused = False  # Asegurar que no quede pausado
         if self.ser and self.ser.is_open:
-            self.ser.close()
+            try:
+                self.ser.close()
+            except Exception as e:
+                print(f"Error cerrando puerto serie: {e}")
+        
+        # Esperar a que el hilo termine
+        if self.is_alive():
+            try:
+                self.join(timeout=2.0)  # Esperar máximo 2 segundos
+            except Exception as e:
+                print(f"Error esperando fin de hilo: {e}")
     
     def run(self):
         while self.running:
@@ -119,6 +130,7 @@ class PPGAnalyzer:
         valid_idx = (freqs >= 0.5) & (freqs <= 4.0)
         if np.any(valid_idx):
             dominant_freq = freqs[valid_idx][np.argmax(np.abs(fft[valid_idx]))]
+    
             return dominant_freq * 60  # Convertir a BPM
         return 0
     
@@ -135,7 +147,8 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.serial_reader = SerialReader(PORT, BAUD)
+        #self.serial_reader = SerialReader(PORT, BAUD)
+        self.serial_reader = None
         self.analyzer = PPGAnalyzer()
         
         # Buffers de datos
@@ -364,26 +377,54 @@ class MainWindow(QtWidgets.QMainWindow):
     def connect_serial(self):
         """Conectar al puerto serie"""
         port = self.port_combo.currentText()
-        self.serial_reader.port = port
         
-        if self.serial_reader.connect():
+        # Crear una instancia temporal solo para probar la conexion
+        test_reader = SerialReader(port, BAUD)
+        
+        if test_reader.connect():
             self.status_label.setText("Conectado")
             self.status_label.setStyleSheet("color: green")
             self.connect_btn.setText("Desconectar")
             self.start_btn.setEnabled(True)
+            # Cerrar la conexion de prueba
+            test_reader.stop_acquisition()
         else:
             self.status_label.setText("Error de conexion")
             self.status_label.setStyleSheet("color: red")
     
     def start_acquisition(self):
         """Iniciar adquisicion de datos"""
+        # Detener cualquier adquisicion anterior
+        if self.serial_reader is not None:
+            try:
+                self.serial_reader.stop_acquisition()
+                # Dar tiempo para que termine el hilo anterior
+                time.sleep(0.2)
+            except Exception as e:
+                print(f"Error deteniendo adquisicion anterior: {e}")
+            finally:
+                self.serial_reader = None
+
+        # Crear una nueva instancia del SerialReader
+        port = self.port_combo.currentText()
+        self.serial_reader = SerialReader(port, BAUD)     
+        
+        # Intentar conectar
+        if not self.serial_reader.connect():
+            QtWidgets.QMessageBox.warning(self, "Error", "No se pudo conectar al puerto serie")
+            self.serial_reader = None
+            return
+        
         # Establecer timestamp de inicio
         self.start_timestamp = time.time()
         
         # Limpiar datos anteriores
         self.clear_data()
         
+        # Iniciar adquisicion
         self.serial_reader.start_acquisition()
+        
+        # Actualizar botones
         self.start_btn.setEnabled(False)
         self.pause_btn.setEnabled(True)
         self.stop_btn.setEnabled(True)
@@ -391,6 +432,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def pause_acquisition(self):
         """Pausar/reanudar adquisicion"""
+        if self.serial_reader is None:
+            return
+            
         if self.serial_reader.paused:
             self.serial_reader.resume_acquisition()
             self.pause_btn.setText("Pausar")
@@ -400,7 +444,17 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def stop_acquisition(self):
         """Detener adquisicion"""
-        self.serial_reader.stop_acquisition()
+        if self.serial_reader is not None:
+            try:
+                self.serial_reader.stop_acquisition()
+                # Dar tiempo para que el hilo termine correctamente
+                time.sleep(0.1)
+            except Exception as e:
+                print(f"Error deteniendo serial reader: {e}")
+            finally:
+                self.serial_reader = None
+        
+        # Actualizar interfaz
         self.start_btn.setEnabled(True)
         self.pause_btn.setEnabled(False)
         self.stop_btn.setEnabled(False)
@@ -550,7 +604,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def update_plot(self):
         """Actualizar graficos"""
-        if self.is_paused_display:
+        if self.is_paused_display or self.serial_reader is None:
             return
         
         # Obtener nuevos datos
@@ -602,7 +656,14 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def closeEvent(self, event):
         """Manejar cierre de la aplicacion"""
-        self.serial_reader.stop_acquisition()
+        if self.serial_reader is not None:
+            try:
+                self.serial_reader.stop_acquisition()
+                time.sleep(0.2)  # Dar tiempo para que termine el hilo
+            except Exception as e:
+                print(f"Error cerrando serial reader: {e}")
+            finally:
+                self.serial_reader = None
         event.accept()
 
 def main():
