@@ -144,6 +144,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.data_normalizado = deque(maxlen=MAX_POINTS)
         self.time_data = deque(maxlen=MAX_POINTS)
         
+        # Configuración de timestamps relativos
+        self.start_timestamp = None  # Timestamp del inicio de adquisición
+        
         # Configuración de visualización
         self.window_size = DEFAULT_WINDOW_SIZE
         self.current_channel = "filtrado"  # canal por defecto
@@ -374,6 +377,12 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def start_acquisition(self):
         """Iniciar adquisición de datos"""
+        # Establecer timestamp de inicio
+        self.start_timestamp = time.time()
+        
+        # Limpiar datos anteriores
+        self.clear_data()
+        
         self.serial_reader.start_acquisition()
         self.start_btn.setEnabled(False)
         self.pause_btn.setEnabled(True)
@@ -397,6 +406,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stop_btn.setEnabled(False)
         self.pause_btn.setText("Pausar")
         self.apply_filter_btn.setEnabled(False)
+        
+        # Resetear timestamp de inicio
+        self.start_timestamp = None
     
     def change_channel(self, channel):
         """Cambiar canal de visualización"""
@@ -478,18 +490,26 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.clear_data()
                 with open(file_path, 'r') as file:
                     reader = csv.DictReader(file)
+                    first_timestamp = None
+                    
                     for row in reader:
                         ts = float(row.get('timestamp', time.time()))
                         crudo = float(row.get('Crudo', 0))
                         filtrado = float(row.get('Filtrado', 0))
                         normalizado = float(row.get('Normalizado', 0))
                         
-                        self.time_data.append(ts)
+                        # Convertir a tiempo relativo desde el primer timestamp del archivo
+                        if first_timestamp is None:
+                            first_timestamp = ts
+                            relative_time = 0
+                        else:
+                            relative_time = ts - first_timestamp
+                        
+                        self.time_data.append(relative_time)
                         self.data_crudo.append(crudo)
                         self.data_filtrado.append(filtrado)
-                        self.data_normalizado.append(normalizado)
-                
-                print(f"Datos importados: {len(self.time_data)} muestras")
+                        self.data_normalizado.append(normalizado)                
+                        print(f"Datos importados: {len(self.time_data)} muestras")
             except Exception as e:
                 QtWidgets.QMessageBox.warning(self, "Error", f"Error importando archivo: {e}")
     
@@ -507,7 +527,7 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 with open(file_path, 'w', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow(['timestamp', 'Crudo', 'Filtrado', 'Normalizado'])
+                    writer.writerow(['tiempo_relativo_s', 'Crudo', 'Filtrado', 'Normalizado'])
                     
                     for i in range(len(self.time_data)):
                         writer.writerow([
@@ -538,7 +558,13 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if new_data:
             for ts, crudo, filtrado, normalizado in new_data:
-                self.time_data.append(ts)
+                # Convertir timestamp a tiempo relativo desde el inicio
+                if self.start_timestamp is not None:
+                    relative_time = ts - self.start_timestamp
+                else:
+                    relative_time = 0
+                
+                self.time_data.append(relative_time)
                 self.data_crudo.append(crudo)
                 self.data_filtrado.append(filtrado)
                 self.data_normalizado.append(normalizado)
@@ -561,18 +587,18 @@ class MainWindow(QtWidgets.QMainWindow):
             filtrado_window = list(self.data_filtrado)
             normalizado_window = list(self.data_normalizado)
         
-        # Crear eje de tiempo relativo
+        # Usar el tiempo relativo directamente (ya está calculado desde el inicio)
         if time_window:
-            t_last = time_window[-1]
-            times_rel = [t - t_last for t in time_window]
-            
-            # Actualizar curvas
-            self.curves['crudo'].setData(times_rel, crudo_window)
-            self.curves['filtrado'].setData(times_rel, filtrado_window)
-            self.curves['normalizado'].setData(times_rel, normalizado_window)
+            # Actualizar curvas con el tiempo relativo
+            self.curves['crudo'].setData(time_window, crudo_window)
+            self.curves['filtrado'].setData(time_window, filtrado_window)
+            self.curves['normalizado'].setData(time_window, normalizado_window)
     
-            # Ajustar rango X
-            self.main_plot.setXRange(-self.window_size, 0)
+            # Ajustar rango X para mostrar la ventana deslizante
+            if len(time_window) > 0:
+                t_max = max(time_window)
+                t_min = max(0, t_max - self.window_size)
+                self.main_plot.setXRange(t_min, t_max)
     
     def closeEvent(self, event):
         """Manejar cierre de la aplicación"""
