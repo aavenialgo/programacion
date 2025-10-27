@@ -10,6 +10,7 @@ import pyqtgraph as pg
 import re
 import numpy as np
 from scipy import signal
+from scipy.signal import find_peaks
 from filter import filterPassBand, moving_average
 
 # === CONFIGURACION ===
@@ -117,22 +118,15 @@ class PPGAnalyzer:
     
     @staticmethod
     def calculate_frequency(data, fs):
-        """Calcular frecuencia dominante usando FFT"""
+        """Calcular frecuencia cardiaca promedio"""
         if len(data) < fs:
             return 0
-        
-        # Aplicar ventana y FFT
-        windowed_data = data * np.hanning(len(data))
-        fft = np.fft.fft(windowed_data)
-        freqs = np.fft.fftfreq(len(data), 1/fs)
-        
-        # Buscar frecuencia dominante en rango fisiologico (0.5-4 Hz)
-        valid_idx = (freqs >= 0.5) & (freqs <= 4.0)
-        if np.any(valid_idx):
-            dominant_freq = freqs[valid_idx][np.argmax(np.abs(fft[valid_idx]))]
-    
-            return dominant_freq * 60  # Convertir a BPM
-        return 0
+        peaks, _ = find_peaks(data, height=0.5, distance=fs*0.5, prominence=0.3)
+        peak_intervals = np.diff(peaks) / fs
+
+        hr_inst = 60 / peak_intervals  # BPM instantáneos
+        frequency_mean = np.mean(hr_inst)
+        return frequency_mean
     
     @staticmethod
     def detect_peaks(data, prominence=0.1):
@@ -306,13 +300,13 @@ class MainWindow(QtWidgets.QMainWindow):
         analysis_group = QtWidgets.QGroupBox("Analisis")
         analysis_layout = QtWidgets.QVBoxLayout(analysis_group)
         
-        self.amplitude_label = QtWidgets.QLabel("Amplitud: 0")
-        self.frequency_label = QtWidgets.QLabel("Frecuencia: 0 BPM")
-        self.peaks_label = QtWidgets.QLabel("Picos detectados: 0")
+       # self.amplitude_label = QtWidgets.QLabel("Amplitud: 0")
+        self.frequency_label = QtWidgets.QLabel("BEAP: 0 BPM")
+       # self.peaks_label = QtWidgets.QLabel("Picos detectados: 0")
         
-        analysis_layout.addWidget(self.amplitude_label)
+     #   analysis_layout.addWidget(self.amplitude_label)
         analysis_layout.addWidget(self.frequency_label)
-        analysis_layout.addWidget(self.peaks_label)
+     #   analysis_layout.addWidget(self.peaks_label)
         
         self.analyze_btn = QtWidgets.QPushButton("Analizar Señal Visible")
         self.analyze_btn.clicked.connect(self.analyze_signal)
@@ -524,14 +518,14 @@ class MainWindow(QtWidgets.QMainWindow):
         data_array = np.array(visible_data)
         
         # Calcular parametros
-        amplitude = self.analyzer.calculate_amplitude(data_array)
+        #amplitude = self.analyzer.calculate_amplitude(data_array)
         frequency = self.analyzer.calculate_frequency(data_array, FS)
-        peaks = self.analyzer.detect_peaks(data_array)
+        #peaks = self.analyzer.detect_peaks(data_array)
         
         # Actualizar labels
-        self.amplitude_label.setText(f"Amplitud: {amplitude:.2f}")
-        self.frequency_label.setText(f"Frecuencia: {frequency:.1f} BPM")
-        self.peaks_label.setText(f"Picos detectados: {len(peaks)}")
+       # self.amplitude_label.setText(f"Amplitud: {amplitude:.2f}")
+        self.frequency_label.setText(f"BEAP: {frequency:.1f} BPM")
+       # self.peaks_label.setText(f"Picos detectados: {len(peaks)}")
     
     def import_csv(self):
         """Importar datos desde CSV"""
