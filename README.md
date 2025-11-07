@@ -1,2 +1,2 @@
 # programacion
-Aqui iran los repositorios de programacion de materias
+Aqui van los repositorios de programacion de materias
