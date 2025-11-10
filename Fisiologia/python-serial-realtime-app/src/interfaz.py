@@ -341,6 +341,7 @@ class MainWindow(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout(panel)
         
         # Widget de graficos
+        
         self.plot_widget = pg.GraphicsLayoutWidget()
         layout.addWidget(self.plot_widget)
         

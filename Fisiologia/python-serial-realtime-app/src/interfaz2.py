@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLineEdit, QSplitter, QStatusBar, QTabWidget,
     QLabel, QFileDialog, QSizePolicy, QScrollArea, QTableWidget,
-    QTableWidgetItem, QMessageBox, QComboBox
+    QTableWidgetItem, QMessageBox, QComboBox, QInputDialog
 )
 from PyQt5.QtCore import (
     QTimer, QRunnable, QThreadPool, pyqtSignal, QObject, Qt, QSize
@@ -25,7 +25,7 @@ import pyqtgraph as pg
 # --- Configuraciones de PyQTGraph y Estilo ---
 pg.setConfigOption('background', '#FFFFFF') # Fondo blanco para los gráficos
 pg.setConfigOption('foreground', '#333333') # Eje y texto gris oscuro
-pg.setConfigOption('leftButtonPan', False) # Deshabilita arrastrar para mover
+pg.setConfigOptions(antialias=True, leftButtonPan=False, useOpenGL=True) # Deshabilita arrastrar para mover
 
 # --- Clases de Lógica y Modelo ---
 
@@ -118,15 +118,12 @@ class PPGProcessor:
     """Clase para manejar el procesamiento, análisis y cálculo de parámetros PPG."""
     
     def __init__(self):
-        # Datos de simulación para el puerto serie
-        self.t_base = 0.0
+        # Datos para el procesamiento
         self.fs = 125.0 # Frecuencia de muestreo real del sensor
         self.time = np.array([])
         self.raw = np.array([])
         self.filtered = np.array([])
         self.normalized = np.array([])
-        self.current_index = 0
-        self.is_simulation = True  # Flag para alternar entre simulación y datos reales
         self.serial_reader = None
         self.start_timestamp = None
         
@@ -140,7 +137,6 @@ class PPGProcessor:
                 
             self.serial_reader = SerialReader(port, baudrate)
             if self.serial_reader.connect():
-                self.is_simulation = False
                 self.start_timestamp = time.time()
                 return True
             else:
@@ -160,12 +156,16 @@ class PPGProcessor:
         if self.serial_reader is not None:
             self.serial_reader.pause_acquisition()
     
+    def resume_real_acquisition(self):
+        """Reanuda la adquisición de datos reales."""
+        if self.serial_reader is not None:
+            self.serial_reader.resume_acquisition()
+    
     def stop_real_acquisition(self):
         """Detiene la adquisición de datos reales."""
         if self.serial_reader is not None:
             self.serial_reader.stop_acquisition()
             self.serial_reader = None
-        self.is_simulation = True
     
     def get_real_data(self):
         """Obtiene datos reales del puerto serial."""
@@ -191,35 +191,19 @@ class PPGProcessor:
         
         return np.array(t_new), np.array(raw_new), np.array(filtered_new), np.array(normalized_new)
 
-    def generate_dummy_data(self, num_points):
-        """Genera datos de PPG simulados con componentes para Crudo, Filtrado y Normalizado."""
-        
-        t = np.arange(self.t_base, self.t_base + num_points / self.fs, 1 / self.fs)
-        
-        # Simulación de señal PPG con ruido y muesca dicrotica (complejo de sin/cos)
-        ppg_base = 0.5 + 0.5 * np.sin(2 * np.pi * 1.2 * t) + 0.1 * np.cos(2 * np.pi * 6 * t)
-        noise = 0.05 * np.random.randn(len(t))
-        raw_signal = (ppg_base + noise) * 100000 - 60000 # Escala similar a un sensor real
-        
-        # Simulación de filtrado (usando un suavizado simple para este ejemplo)
-        filtered_signal = savgol_filter(raw_signal, window_length=15, polyorder=3)
-        
-        # Simulación de normalización
-        min_val = np.min(filtered_signal)
-        max_val = np.max(filtered_signal)
-        normalized_signal = (filtered_signal - min_val) / (max_val - min_val)
-        
-        # Actualizar el tiempo base para la próxima generación
-        self.t_base = t[-1] + 1 / self.fs
-        
-        return t, raw_signal, filtered_signal, normalized_signal
-
     def update_data(self, t, raw, filtered, normalized):
         """Añade nuevos datos a los arrays internos."""
         self.time = np.append(self.time, t)
         self.raw = np.append(self.raw, raw)
         self.filtered = np.append(self.filtered, filtered)
         self.normalized = np.append(self.normalized, normalized)
+
+    def clear_data(self):
+        """Limpia todos los datos almacenados."""
+        self.time = np.array([])
+        self.raw = np.array([])
+        self.filtered = np.array([])
+        self.normalized = np.array([])
 
     def load_csv(self, filepath):
         """Carga datos desde un archivo CSV."""
@@ -240,7 +224,7 @@ class PPGProcessor:
         except Exception as e:
             print(f"Error al cargar CSV: {e}")
             return False
-
+    
     def calculate_derivatives(self, data):
         """Calcula la primera y segunda derivada usando diferencias centrales."""
         if len(data) < 3:
@@ -598,34 +582,71 @@ class AnalysisTab(QWidget):
             self.plot_widget.addItem(self.fiducial_scatter)
 
     def save_analysis_data(self):
-        """Guarda la ventana analizada y los parámetros en un archivo CSV."""
-        path, _ = QFileDialog.getSaveFileName(self, "Guardar Resultados de Análisis", 
-                                                "analisis_ppg.csv", 
-                                                "CSV Files (*.csv)")
-        if path:
-            try:
-                # 1. Crear DataFrame con la señal, d1 y d2
-                df_signal = pd.DataFrame({
-                    'Tiempo (s)': self.t_aligned,
-                    'PPG Suavizada': self.ppg_smooth,
-                    'Primera Derivada': self.d1,
-                    'Segunda Derivada': self.d2,
+        """Guarda la ventana analizada y los parámetros en múltiples archivos CSV separados."""
+        # Solicitar directorio donde guardar los archivos
+        directory = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta para Guardar Análisis", "")
+        if not directory:
+            return
+            
+        # Solicitar nombre base para los archivos
+        from PyQt5.QtWidgets import QInputDialog
+        base_name, ok = QInputDialog.getText(self, "Nombre de Archivos", 
+                                           "Ingrese un nombre base para los archivos de análisis:", 
+                                           text="analisis_ppg")
+        if not ok or not base_name:
+            return
+            
+        try:
+            import os
+            
+            # 1. Guardar la señal PPG suavizada del análisis
+            df_signal = pd.DataFrame({
+                'tiempo_s': self.t_aligned,
+                'ppg_suavizada': self.ppg_smooth
+            })
+            signal_path = os.path.join(directory, f"{base_name}_senal_suavizada.csv")
+            df_signal.to_csv(signal_path, index=False)
+            
+            # 2. Guardar las derivadas primera y segunda
+            df_derivatives = pd.DataFrame({
+                'tiempo_s': self.t_aligned,
+                'primera_derivada': self.d1,
+                'segunda_derivada': self.d2
+            })
+            derivatives_path = os.path.join(directory, f"{base_name}_derivadas.csv")
+            df_derivatives.to_csv(derivatives_path, index=False)
+            
+            # 3. Guardar los parámetros calculados
+            df_params = pd.DataFrame(list(self.parameters.items()), columns=['Parametro', 'Valor'])
+            params_path = os.path.join(directory, f"{base_name}_parametros.csv")
+            df_params.to_csv(params_path, index=False)
+            
+            # 4. Guardar datos del canal crudo original (si están disponibles)
+            if hasattr(self, 'ppg_raw') and len(self.ppg_raw) > 0:
+                df_raw = pd.DataFrame({
+                    'tiempo_s': self.t_aligned,
+                    'canal_crudo': self.ppg_raw
                 })
+                raw_path = os.path.join(directory, f"{base_name}_canal_crudo.csv")
+                df_raw.to_csv(raw_path, index=False)
+            
+            # Mensaje de éxito
+            saved_files = []
+            if os.path.exists(signal_path):
+                saved_files.append(f"• {base_name}_senal_suavizada.csv")
+            if os.path.exists(derivatives_path):
+                saved_files.append(f"• {base_name}_derivadas.csv")
+            if os.path.exists(params_path):
+                saved_files.append(f"• {base_name}_parametros.csv")
+            if 'raw_path' in locals() and os.path.exists(raw_path):
+                saved_files.append(f"• {base_name}_canal_crudo.csv")
+            
+            files_list = "\n".join(saved_files)
+            QMessageBox.information(self, "Archivos Guardados", 
+                                  f"Análisis guardado exitosamente en:\n{directory}\n\nArchivos creados:\n{files_list}")
                 
-                # 2. Crear DataFrame con los parámetros
-                df_params = pd.DataFrame(self.parameters.items(), columns=['Parámetro', 'Valor'])
-                
-                # Guardar señal y derivadas (con delimitador que no cause conflicto)
-                df_signal.to_csv(path, index=False)
-                
-                # Adjuntar parámetros al mismo archivo CSV, separados por una línea
-                with open(path, 'a') as f:
-                    f.write('\n\n--- Parámetros Calculados ---\n')
-                    df_params.to_csv(f, index=False, header=True)
-                    
-                QMessageBox.information(self, "Éxito", f"Datos de análisis guardados exitosamente en:\n{path}")
-            except Exception as e:
-                QMessageBox.critical(self, "Error al Guardar", f"No se pudo guardar el archivo: {e}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error al Guardar", f"Error al guardar los archivos de análisis: {e}")
 
 # Muestra visual de los puntos fiduciales de PPG
 # 
@@ -633,13 +654,15 @@ class AnalysisTab(QWidget):
 class AcquisitionTab(QWidget):
     """Pestaña principal para la adquisición de datos y visualización en tiempo real."""
     
-    def __init__(self, processor, parent=None):
-        super().__init__(parent)
+    def __init__(self, processor, parent_app=None):
+        super().__init__()
         self.processor = processor
+        self.parent_app = parent_app  # Referencia a la aplicación principal
         self.is_paused = False
         self.serial_connected = False
-        self.default_window_s = 5.0 # Duración por defecto para el ROI
-        self.current_channel = "crudo"  # Canal por defecto para visualización
+        self.default_window_s = 5.0
+        self.current_channel = "crudo"
+        self.data_acquisition_active = False  # Nueva variable para controlar adquisición
         
         self.setup_ui()
         self.init_timer()
@@ -648,7 +671,7 @@ class AcquisitionTab(QWidget):
         main_layout = QVBoxLayout(self)
         
         # --- 1. Indicadores Superiores ---
-        indicator_style = "QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; }"
+        indicator_style = "QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: black; }"
         
         self.status_label = QLabel("DESCONECTADO")
         self.status_label.setStyleSheet(indicator_style + "background-color: #EF4444;")
@@ -710,11 +733,42 @@ class AcquisitionTab(QWidget):
         self.roi.setZValue(10)
         self.plot_widget.addItem(self.roi)
         
+        # *** NUEVA LÍNEA: Conectar señal del ROI ***
+        self.roi.sigRegionChanged.connect(self.on_roi_changed)
+        
         main_layout.addWidget(self.plot_widget, 1) # Expandir
         
         # Inicializar la visibilidad de las curvas
         self.update_visible_curves()
 
+    def on_roi_changed(self):
+        """Callback cuando el usuario cambia la región del ROI con el mouse"""
+        try:
+            region = self.roi.getRegion()
+            t_start, t_end = region
+            window_duration = t_end - t_start
+            
+            # Validar que la ventana no sea menor a 1 segundo durante adquisición activa
+            if self.data_acquisition_active and window_duration < 1.0:
+                # Restaurar el tamaño mínimo
+                self.roi.sigRegionChanged.disconnect()
+                self.roi.setRegion([t_start, t_start + 1.0])
+                self.roi.sigRegionChanged.connect(self.on_roi_changed)
+                window_duration = 1.0
+            
+            # Actualizar la duración de la ventana
+            self.default_window_s = window_duration
+            
+            # Actualizar el label visual
+            self.window_label.setText(f"Ventana de Análisis: {window_duration:.2f} s")
+            
+            # Actualizar el valor en el sidebar (si existe referencia al parent)
+            if hasattr(self, 'parent_app') and self.parent_app:
+                self.parent_app.window_input.setText(f"{window_duration:.2f}")
+                
+        except Exception as e:
+            print(f"Error actualizando ROI: {e}")
+        
     def change_channel(self, channel):
         """Cambiar canal de visualización"""
         self.current_channel = channel
@@ -749,12 +803,19 @@ class AcquisitionTab(QWidget):
 
     def start_acquisition(self):
         """Inicia o reanuda la adquisición de datos."""
+        if not self.serial_connected and self.processor.serial_reader is None:
+            QMessageBox.warning(self, "Error", "No hay conexión serial establecida. Configure el puerto primero.")
+            return
+            
         self.is_paused = False
-        self.serial_connected = True
+        self.data_acquisition_active = True
         
         # Iniciar adquisición real si está conectado al puerto serial
-        if not self.processor.is_simulation:
-            self.processor.start_real_acquisition()
+        if self.processor.serial_reader is not None:
+            if not self.processor.serial_reader.running:
+                self.processor.start_real_acquisition()
+            else:
+                self.processor.resume_real_acquisition()
         
         self.status_label.setText("CONECTADO")
         self.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #10B981; }")
@@ -770,7 +831,7 @@ class AcquisitionTab(QWidget):
         self.elapsed_timer.stop()
         
         # Pausar adquisición real si está conectado al puerto serial
-        if not self.processor.is_simulation:
+        if self.processor.serial_reader is not None:
             self.processor.pause_real_acquisition()
         
         self.total_elapsed_time = time.time() - self.start_time
@@ -781,16 +842,14 @@ class AcquisitionTab(QWidget):
     def reset_acquisition(self):
         """Reinicia la adquisición y limpia los datos."""
         self.pause_acquisition()
+        self.data_acquisition_active = False
         
         # Detener adquisición real si está conectado
-        if not self.processor.is_simulation:
+        if self.processor.serial_reader is not None:
             self.processor.stop_real_acquisition()
             
-        self.processor.time = np.array([])
-        self.processor.raw = np.array([])
-        self.processor.filtered = np.array([])
-        self.processor.normalized = np.array([])
-        self.processor.t_base = 0.0
+        # Limpiar todos los datos
+        self.processor.clear_data()
         
         self.curve_raw.setData([], [])
         self.curve_filtered.setData([], [])
@@ -799,9 +858,9 @@ class AcquisitionTab(QWidget):
         self.total_elapsed_time = 0.0
         self.time_label.setText("Tiempo Transcurrido: 0.00 s")
         
+        self.serial_connected = False
         self.status_label.setText("DESCONECTADO")
         self.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #EF4444; }")
-
 
     def update_elapsed_time(self):
         """Actualiza el indicador de tiempo transcurrido."""
@@ -810,17 +869,12 @@ class AcquisitionTab(QWidget):
         self.time_label.setText(f"Tiempo Transcurrido: {self.total_elapsed_time:.2f} s")
 
     def update_plot_data(self):
-        """Lee datos del puerto serie (real o simulado) y actualiza el gráfico."""
-        if self.is_paused or not self.serial_connected:
+        """Lee datos del puerto serie real y actualiza el gráfico."""
+        if self.is_paused or not self.serial_connected or not self.data_acquisition_active:
             return
 
-        # Obtener datos (reales o simulados)
-        if self.processor.is_simulation:
-            # Simular lectura de datos (20 puntos por actualización)
-            t_new, raw_new, filtered_new, normalized_new = self.processor.generate_dummy_data(20)
-        else:
-            # Leer datos reales del puerto serial
-            t_new, raw_new, filtered_new, normalized_new = self.processor.get_real_data()
+        # Obtener datos reales del puerto serial
+        t_new, raw_new, filtered_new, normalized_new = self.processor.get_real_data()
         
         # Solo actualizar si hay datos válidos
         if len(t_new) > 0:
@@ -828,35 +882,45 @@ class AcquisitionTab(QWidget):
         
         # Obtener todos los datos
         t = self.processor.time
-        raw = self.processor.raw
         
+        if len(t) == 0:
+            return
+            
         # Limitar la ventana visible a los últimos 10 segundos
         max_visible_time = 10
-        if len(t) > 0:
-            t_start = max(t[-1] - max_visible_time, 0)
-            
-            # Recortar datos para una mejor visualización de alto rendimiento
-            idx_start = np.searchsorted(t, t_start)
-            t_view = t[idx_start:]
-            raw_view = self.processor.raw[idx_start:]
-            filtered_view = self.processor.filtered[idx_start:]
-            normalized_view = self.processor.normalized[idx_start:]
-            
-            # Actualizar solo las curvas visibles basado en la selección actual
-            self.curve_raw.setData(t_view, raw_view)
-            self.curve_filtered.setData(t_view, filtered_view)
-            self.curve_normalized.setData(t_view, normalized_view)
+        t_start = max(t[-1] - max_visible_time, 0)
+        
+        # Recortar datos para una mejor visualización de alto rendimiento
+        idx_start = np.searchsorted(t, t_start)
+        t_view = t[idx_start:]
+        raw_view = self.processor.raw[idx_start:]
+        filtered_view = self.processor.filtered[idx_start:]
+        normalized_view = self.processor.normalized[idx_start:]
+        
+        # Actualizar solo las curvas visibles basado en la selección actual
+        self.curve_raw.setData(t_view, raw_view)
+        self.curve_filtered.setData(t_view, filtered_view)
+        self.curve_normalized.setData(t_view, normalized_view)
 
-            # Reajustar el rango X
-            self.plot_widget.setXRange(t_view[0], t_view[-1] if len(t_view) > 1 else t_view[0] + 1)
+        # Reajustar el rango X
+        self.plot_widget.setXRange(t_view[0], t_view[-1] if len(t_view) > 1 else t_view[0] + 1)
+        
+        # Ajustar la posición inicial del ROI al final de la ventana
+        if len(t) > 0:
+            end_pos = t[-1]
+            start_pos = end_pos - self.default_window_s  # Mantener siempre el tamaño original
             
-            # Ajustar la posición inicial del ROI al final de la ventana
-            if len(t) > self.processor.fs * self.default_window_s:
-                end_pos = t[-1]
-                start_pos = end_pos - self.default_window_s
+            # Solo mover el ROI si tenemos suficientes datos
+            if end_pos >= self.default_window_s:
+                # Desconectar temporalmente la señal para evitar bucles
+                self.roi.sigRegionChanged.disconnect()
                 self.roi.setRegion([start_pos, end_pos])
+                self.roi.sigRegionChanged.connect(self.on_roi_changed)
             else:
+                # Si no tenemos suficientes datos, mantener desde 0
+                self.roi.sigRegionChanged.disconnect()
                 self.roi.setRegion([0, self.default_window_s])
+                self.roi.sigRegionChanged.connect(self.on_roi_changed)
 
     def load_csv_file(self):
         """Abre un diálogo para cargar un archivo CSV."""
@@ -865,9 +929,9 @@ class AcquisitionTab(QWidget):
         if path:
             self.reset_acquisition()
             if self.processor.load_csv(path):
-                # La carga de CSV simula la adquisición completa
+                # La carga de CSV permite visualización completa
                 self.serial_connected = True
-                self.pause_acquisition()
+                self.data_acquisition_active = False  # No está adquiriendo en tiempo real
                 self.status_label.setText("CSV CARGADO")
                 self.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #3B82F6; }")
                 
@@ -1005,6 +1069,13 @@ class PPGAnalyzerApp(QMainWindow):
         sidebar_layout.addWidget(QLabel("Ventana de Análisis (s):"))
         sidebar_layout.addWidget(self.window_input)
         sidebar_layout.addWidget(self.analyze_button)
+        sidebar_layout.addSpacing(15)
+        
+        # Botón de Guardado de Datos
+        self.save_data_button = QPushButton("Guardar Datos de Adquisición")
+        self.save_data_button.setProperty("class", "mainAction")
+        self.save_data_button.clicked.connect(self.save_acquisition_data)
+        sidebar_layout.addWidget(self.save_data_button)
         sidebar_layout.addSpacing(20)
         
         # Botones Finales
@@ -1043,7 +1114,7 @@ class PPGAnalyzerApp(QMainWindow):
         """)
         
         # Pestaña de Adquisición
-        self.acquisition_tab = AcquisitionTab(self.processor)
+        self.acquisition_tab = AcquisitionTab(self.processor, parent_app=self)
         self.tab_widget.addTab(self.acquisition_tab, "Adquisición y Visualización")
         
         # Ahora conectar los botones después de crear acquisition_tab
@@ -1072,15 +1143,14 @@ class PPGAnalyzerApp(QMainWindow):
         if self.processor.connect_serial(port, baud_rate):
             QMessageBox.information(self, "Conexión Serial", f"Conectado exitosamente a {port}")
             self.acquisition_tab.serial_connected = True
-            self.acquisition_tab.status_label.setText("CONECTADO - REAL")
+            self.acquisition_tab.status_label.setText("CONECTADO - LISTO")
             self.acquisition_tab.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #10B981; }")
         else:
-            # Si falla la conexión real, usar modo simulación
-            QMessageBox.warning(self, "Conexión Fallida", 
-                               f"No se pudo conectar a {port}. Usando modo simulación.")
-            self.acquisition_tab.serial_connected = True
-            self.acquisition_tab.status_label.setText("MODO SIMULACIÓN")
-            self.acquisition_tab.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #F59E0B; }")
+            QMessageBox.critical(self, "Error de Conexión", 
+                               f"No se pudo conectar a {port}. Verifique que el puerto esté disponible y el dispositivo conectado.")
+            self.acquisition_tab.serial_connected = False
+            self.acquisition_tab.status_label.setText("SIN CONEXIÓN")
+            self.acquisition_tab.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #EF4444; }")
 
     def update_window_length(self, text):
         """Actualiza la duración de la ventana de análisis y el indicador."""
@@ -1089,13 +1159,108 @@ class PPGAnalyzerApp(QMainWindow):
             if length > 0:
                 self.acquisition_tab.default_window_s = length
                 self.acquisition_tab.window_label.setText(f"Ventana de Análisis: {length:.1f} s")
+                
+                # Actualizar el ROI para reflejar el nuevo tamaño
+                if hasattr(self.acquisition_tab, 'roi'):
+                    current_region = self.acquisition_tab.roi.getRegion()
+                    t_start = current_region[0]
+                    # Mantener la posición inicial, solo cambiar el final
+                    self.acquisition_tab.roi.sigRegionChanged.disconnect()
+                    self.acquisition_tab.roi.setRegion([t_start, t_start + length])
+                    self.acquisition_tab.roi.sigRegionChanged.connect(self.acquisition_tab.on_roi_changed)
             else:
                 raise ValueError
         except ValueError:
             # Si el input no es válido, usa el valor anterior
-            self.acquisition_tab.window_label.setText(f"Ventana de Análisis: {self.acquisition_tab.default_window_s:.1f} s")
-            self.window_input.setText(str(self.acquisition_tab.default_window_s))
+            self.acquisition_tab.default_window_s = 5.0
+            self.acquisition_tab.window_label.setText(f"Ventana de Análisis: 5.0 s")
+            self.window_input.setText("5.0")
 
+    def save_acquisition_data(self):
+        """Guarda los datos de adquisición en múltiples archivos CSV separados."""
+        if len(self.processor.time) == 0:
+            QMessageBox.warning(self, "Advertencia", "No hay datos para guardar. Inicie la adquisición o cargue un CSV.")
+            return
+            
+        # Solicitar directorio donde guardar los archivos
+        directory = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta para Guardar Datos", "")
+        if not directory:
+            return
+            
+        # Solicitar nombre base para los archivos
+        base_name, ok = QInputDialog.getText(self, "Nombre de Archivos", 
+                                           "Ingrese un nombre base para los archivos:", 
+                                           text="datos_ppg")
+        if not ok or not base_name:
+            return
+            
+        try:
+            import os
+            
+            # 1. Guardar datos del canal crudo (PPG sin procesar)
+            df_raw = pd.DataFrame({
+                'tiempo_relativo_s': self.processor.time,
+                'valor_crudo': self.processor.raw
+            })
+            raw_path = os.path.join(directory, f"{base_name}_canal_crudo.csv")
+            df_raw.to_csv(raw_path, index=False)
+            
+            # 2. Guardar PPG filtrada
+            df_filtered = pd.DataFrame({
+                'tiempo_relativo_s': self.processor.time,
+                'valor_filtrado': self.processor.filtered
+            })
+            filtered_path = os.path.join(directory, f"{base_name}_ppg_filtrada.csv")
+            df_filtered.to_csv(filtered_path, index=False)
+            
+            # 3. Guardar derivadas (primera y segunda) usando la señal filtrada
+            if len(self.processor.filtered) > 2:
+                d1, d2 = self.processor.calculate_derivatives(self.processor.filtered)
+                df_derivatives = pd.DataFrame({
+                    'tiempo_relativo_s': self.processor.time,
+                    'primera_derivada': d1,
+                    'segunda_derivada': d2
+                })
+                derivatives_path = os.path.join(directory, f"{base_name}_derivadas.csv")
+                df_derivatives.to_csv(derivatives_path, index=False)
+            
+            # 4. Calcular y guardar parámetros básicos de toda la señal
+            # Usar una ventana representativa (últimos 10 segundos o toda la señal si es menor)
+            analysis_window_duration = min(10.0, self.processor.time[-1] if len(self.processor.time) > 0 else 0)
+            if analysis_window_duration > 2.0:  # Solo si hay al menos 2 segundos de datos
+                t_end = self.processor.time[-1]
+                t_start = t_end - analysis_window_duration
+                idx_start = np.searchsorted(self.processor.time, t_start)
+                
+                t_segment = self.processor.time[idx_start:]
+                raw_segment = self.processor.raw[idx_start:]
+                
+                # Analizar el segmento para obtener parámetros
+                analysis_data, parameters = self.processor.analyze_segment(t_segment, raw_segment)
+                
+                if parameters:
+                    df_params = pd.DataFrame(list(parameters.items()), columns=['Parametro', 'Valor'])
+                    params_path = os.path.join(directory, f"{base_name}_parametros_calculados.csv")
+                    df_params.to_csv(params_path, index=False)
+            
+            # Mensaje de éxito
+            saved_files = []
+            if os.path.exists(raw_path):
+                saved_files.append(f"• {base_name}_canal_crudo.csv")
+            if os.path.exists(filtered_path):
+                saved_files.append(f"• {base_name}_ppg_filtrada.csv")
+            if 'derivatives_path' in locals() and os.path.exists(derivatives_path):
+                saved_files.append(f"• {base_name}_derivadas.csv")
+            if 'params_path' in locals() and os.path.exists(params_path):
+                saved_files.append(f"• {base_name}_parametros_calculados.csv")
+            
+            files_list = "\n".join(saved_files)
+            QMessageBox.information(self, "Archivos Guardados", 
+                                  f"Datos guardados exitosamente en:\n{directory}\n\nArchivos creados:\n{files_list}")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error al Guardar", f"Error al guardar los archivos: {e}")
+    
     def open_analysis_tab(self):
         """
         Pausa la adquisición, toma el segmento de datos de la ROI y abre la pestaña de análisis.
@@ -1163,6 +1328,7 @@ if __name__ == '__main__':
     # Usar el estilo "Fusion" para un aspecto moderno si está disponible
     app = QApplication(sys.argv)
     app.setStyle("Fusion") 
+
     
     # Configuración de fuente legible
     font = QFont("Inter", 10)
