@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def load_ppg_from_csv(filepath):
     """
-    Carga una señal PPG desde el formato CSV especificado.
+    Carga una señal PPG desde el formato CSV 
     """
     try:
         df = pd.read_csv(
@@ -33,7 +33,7 @@ def load_ppg_from_csv(filepath):
 # --- SCRIPT PRINCIPAL ---
 
 # 1. Carga la señal desde tu CSV
-ARCHIVO_CSV = './archivos_csv/analisis_ppg_prueba_1_senal_suavizada.csv'
+ARCHIVO_CSV = './archivos_csv/para_prueba_senal_suavizada.csv'
 signal, fs = load_ppg_from_csv(ARCHIVO_CSV)
 
 if signal is not None and fs is not None:
@@ -41,7 +41,7 @@ if signal is not None and fs is not None:
     duracion_segundos = len(signal) / fs
     print(f"Analizando señal de {duracion_segundos:.2f} segundos...\n")
 
-    # --- Análisis Temporal (¡AHORA DEVUELVE 5 VALORES!) ---
+    # --- Análisis Temporal ---
     fc, ppi, peaks, heartpy_wd, heartpy_m = ppg.get_temporal_features(signal, fs)
     
     print("--- Características Temporales (HeartPy) ---")

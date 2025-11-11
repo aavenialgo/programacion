@@ -1,4 +1,7 @@
-""" modulo de analisis de señales PPG """
+""" 
+Modulo de analisis de señales PPG.
+Lo que haces es analizar señales PPG para extraer características temporales y de amplitud.
+Usa la librería HeartPy para el análisis temporal y SciPy para el análisis de amplitud """
 import numpy as np
 import heartpy as hp
 from scipy.signal import butter, filtfilt
@@ -86,6 +89,7 @@ def get_ac_component(ppg_signal, fs, dc_cutoff=0.5, ac_noise_cutoff=4.0):
     ac_signal = ppg_signal - dc_signal
     ac_signal_filtered = _butter_lowpass_filter(ac_signal, ac_noise_cutoff, fs)
     return np.max(ac_signal_filtered) - np.min(ac_signal_filtered)
+
 
 
 if '__main__' == __name__:
