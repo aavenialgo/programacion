@@ -36,3 +36,27 @@ def moving_average(data, window_size=10):
     if len(data) < window_size:
         return np.array([])
     return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
+if '__main__' == __name__:
+    from ../data/read_data.py import read_data
+    import matplotlib.pyplot as plt
+
+    filepath = 'para_prueba_senal_suavizada.csv'
+    signal, fs = read_data.load_ppg_from_csv(filepath)
+    if signal is not None and fs is not None:
+        filtered_signal = apply_filter(signal, 0.5, 5.0, fs, order=4)
+        print("Filtered signal:", filtered_signal)
+        time_axis = np.arange(len(signal)) / fs
+        plt.figure(figsize=(12, 6))
+        plt.subplot(2, 1, 1)
+        plt.plot(time_axis, signal, label='Original Signal')
+        plt.title('Original PPG Signal')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Amplitude')
+        plt.subplot(2, 1, 2)
+        plt.plot(time_axis, filtered_signal, label='Filtered Signal', color='orange')
+        plt.title('Filtered PPG Signal (0.5-5 Hz Bandpass)')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Amplitude')
+        plt.tight_layout()
+        plt.show()

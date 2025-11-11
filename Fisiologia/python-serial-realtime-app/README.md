@@ -7,15 +7,22 @@ Este proyecto es una aplicación en Python que lee datos del puerto serie `/dev/
 ```
 python-serial-realtime-app
 ├──pruebas
-    ├── output_puerto_serie.py #prueba para leer puerto serie
-    ├──
+│    ├── output_puerto_serie.py #prueba para leer puerto serie
+│    ├──
 ├── src
-│   ├── main.py          # Punto de entrada de la aplicación
-│   ├── filter.py        # Contiene las funciones de filtrado
+│    ├── core
+│        └── filter.py          # Contiene las funciones de filtrado 
+│        └── ppg_analisis.py
+│    ├── data
+│    ├── ui
+|        └── interfaz.py 
+|       └── graficador_ppg_analisis.py 
+│    ├── main.py                # Punto de entrada de la aplicación
+│   
 │   └── types
-│       └── __init__.py  # Paquete para definiciones de tipos
-├── requirements.txt     # Dependencias del proyecto
-└── README.md            # Documentación del proyecto
+│       └── __init__.py         # Paquete para definiciones de tipos
+├── requirements.txt            # Dependencias del proyecto
+└── README.md                   # Documentación del proyecto
 ```
 
 ## Requisitos

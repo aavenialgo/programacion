@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import ppg_analisis as ppg 
+from ..core import ppg_analisis as ppg 
 import heartpy as hp
 
 import matplotlib.pyplot as plt
