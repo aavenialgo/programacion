@@ -7,6 +7,7 @@ import pyqtgraph as pg
 import serial
 import threading
 import re
+import platform
 from scipy.signal import find_peaks, savgol_filter, butter, filtfilt
 
 # Importaciones de PyQt5
