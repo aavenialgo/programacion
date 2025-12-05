@@ -37,12 +37,14 @@ def moving_average(data, window_size=10):
         return np.array([])
     return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
 
-if '__main__' == __name__:
-    from ../data/read_data.py import read_data
+if __name__ == '__main__':
+    from src.data.read_data import load_ppg_from_csv
+    
     import matplotlib.pyplot as plt
 
-    filepath = 'para_prueba_senal_suavizada.csv'
-    signal, fs = read_data.load_ppg_from_csv(filepath)
+    filepath = 'src/data/para_prueba_senal_suavizada.csv'
+    signal, fs = load_ppg_from_csv(filepath)
+
     if signal is not None and fs is not None:
         filtered_signal = apply_filter(signal, 0.5, 5.0, fs, order=4)
         print("Filtered signal:", filtered_signal)

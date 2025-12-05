@@ -8,11 +8,9 @@ Este paquete contiene módulos para:
 - Utilidades de procesamiento de señales
 
 Autor: Andrés Venialgo
-Fecha: Noviembre 2024
+Fecha: Noviembre 2025
 """
 
-# Versión del paquete
-__version__ = "1.0.0"
 
 # Importar las funciones principales para facilitar el acceso
 try:
@@ -40,6 +38,6 @@ __all__ = [
 ]
 
 # Metadatos del paquete
-__author__ = "Andrés"
+__author__ = "Andrés Venialgo"
 __email__ = "andres.venialgo@ingenieria.uner.edu.ar"  # Cambia por tu email
 __description__ = "Paquete para análisis de señales PPG en tiempo real"

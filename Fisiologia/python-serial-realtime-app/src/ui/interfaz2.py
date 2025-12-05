@@ -577,7 +577,7 @@ class AnalysisTab(QWidget):
                 symbol='o', 
                 size=10, 
                 pen=pg.mkPen(None), 
-                brush=pg.mkBrush('#EF4444')
+                brush=pg.mkBrush("#EB1818")
             )
             self.plot_widget.addItem(self.fiducial_scatter)
 
