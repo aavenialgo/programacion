@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from PyQt5.QtWidgets import QApplication
-from ui.interfaz2 import PPGAnalyzerApp  # Temporalmente usando interfaz2
+from ui.interfaz2_refactored import PPGAnalyzerApp  # Versión refactorizada
 from config.settings import DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT
 
 def main():

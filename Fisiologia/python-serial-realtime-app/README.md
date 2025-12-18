@@ -9,18 +9,17 @@ python-serial-realtime-app
 ├──pruebas
 │    ├── output_puerto_serie.py #prueba para leer puerto serie
 │    ├──
-├── src
-│    ├── core
-│        └── filter.py          # Contiene las funciones de filtrado 
-│        └── ppg_analisis.py
-│    ├── data
-│    ├── ui
-|        └── interfaz.py 
-|       └── graficador_ppg_analisis.py 
-│    ├── main.py                # Punto de entrada de la aplicación
-│   
-│   └── types
-│       └── __init__.py         # Paquete para definiciones de tipos
+src/
+├── config/                    # Configuraciones centralizadas
+├── ui/
+│   ├── widgets/              # Widgets reutilizables
+│   ├── styles/               # Estilos CSS/PyQt
+│   ├── serial_reader.py      # Gestión puerto serie
+│   ├── ppg_processor.py      # Procesamiento PPG
+│   ├── acquisition_tab.py    # Pestaña adquisición
+│   ├── interfaz2_refactored.py # App principal modular
+│   └── interfaz2.py          # 
+└── main.py                   #
 ├── requirements.txt            # Dependencias del proyecto
 └── README.md                   # Documentación del proyecto
 ```
