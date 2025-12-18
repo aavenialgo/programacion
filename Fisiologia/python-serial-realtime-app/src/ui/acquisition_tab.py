@@ -143,14 +143,6 @@ class AcquisitionTab(QWidget):
         self.filtered_curve = self.filtered_plot.plot(pen=pg.mkPen('#4ECDC4', width=2))
         plots_layout.addWidget(self.filtered_plot)
         
-        # Gráfico de señal normalizada
-        self.normalized_plot = pg.PlotWidget(title="Señal PPG Normalizada")
-        self.normalized_plot.setLabel('left', 'Amplitud Normalizada')
-        self.normalized_plot.setLabel('bottom', 'Tiempo (s)')
-        self.normalized_plot.showGrid(x=True, y=True)
-        self.normalized_curve = self.normalized_plot.plot(pen=pg.mkPen('#45B7D1', width=2))
-        plots_layout.addWidget(self.normalized_plot)
-        
         plots_widget.setLayout(plots_layout)
         return plots_widget
         
@@ -170,7 +162,6 @@ class AcquisitionTab(QWidget):
                 # Actualizar curvas
                 self.raw_curve.setData(time_data, raw_data)
                 self.filtered_curve.setData(time_data, filtered_data)
-                self.normalized_curve.setData(time_data, normalized_data)
                 
                 # Auto-scroll en el eje X (mostrar últimos 30 segundos)
                 if time_data:
@@ -180,7 +171,6 @@ class AcquisitionTab(QWidget):
                     
                     self.raw_plot.setXRange(start_time, latest_time)
                     self.filtered_plot.setXRange(start_time, latest_time)
-                    self.normalized_plot.setXRange(start_time, latest_time)
                 
         except Exception as e:
             self.log_message(f"Error actualizando gráficos: {e}")

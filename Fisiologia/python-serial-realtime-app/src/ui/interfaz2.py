@@ -1146,7 +1146,7 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.serial_connected = True
             self.acquisition_tab.status_label.setText("CONECTADO - LISTO")
             self.acquisition_tab.status_label.setStyleSheet("QLabel { font-weight: bold; padding: 5px; border-radius: 6px; color: white; background-color: #10B981; }")
-        else:cada archivo tiene
+        else:
             QMessageBox.critical(self, "Error de Conexión", 
                                f"No se pudo conectar a {port}. Verifique que el puerto esté disponible y el dispositivo conectado.")
             self.acquisition_tab.serial_connected = False

@@ -29,6 +29,7 @@ from PyQt5.QtGui import QFont, QColor
 from .serial_reader import SerialReader
 from .ppg_processor import PPGProcessor
 from .acquisition_tab import AcquisitionTab
+from .analysis_tab import AnalysisTab
 
 # --- Configuraciones de PyQTGraph y Estilo ---
 pg.setConfigOption('background', '#FFFFFF')  # Fondo blanco para los gráficos
@@ -70,32 +71,12 @@ class PPGAnalyzerApp(QMainWindow):
         self.acquisition_tab = AcquisitionTab(self.ppg_processor)
         self.tab_widget.addTab(self.acquisition_tab, "Adquisición de Datos")
         
-        # Pestaña de análisis (mantener código existente por ahora)
-        self.analysis_tab = self.create_analysis_tab()
+        # Pestaña de análisis (nueva versión completa)
+        self.analysis_tab = AnalysisTab(self.ppg_processor)
         self.tab_widget.addTab(self.analysis_tab, "Análisis de Datos")
         
         layout.addWidget(self.tab_widget)
         central_widget.setLayout(layout)
-        
-    def create_analysis_tab(self):
-        """Crear pestaña de análisis (código existente simplificado)"""
-        analysis_widget = QWidget()
-        layout = QVBoxLayout()
-        
-        # Mensaje temporal
-        info_label = QLabel("Pestaña de análisis - Por implementar funcionalidad completa")
-        info_label.setAlignment(Qt.AlignCenter)
-        info_label.setStyleSheet("""
-            QLabel {
-                font-size: 16px;
-                color: #7F8C8D;
-                padding: 50px;
-            }
-        """)
-        layout.addWidget(info_label)
-        
-        analysis_widget.setLayout(layout)
-        return analysis_widget
         
     def setup_connections(self):
         """Configurar conexiones entre componentes"""
@@ -111,6 +92,7 @@ class PPGAnalyzerApp(QMainWindow):
         controls.start_acquisition.connect(self.start_acquisition)
         controls.stop_acquisition.connect(self.stop_acquisition)
         controls.reset_data.connect(self.reset_data)
+        controls.analyze_data.connect(self.go_to_analysis)  # Nueva conexión
         
     def setup_status_bar(self):
         """Configurar barra de estado"""
@@ -211,10 +193,24 @@ class PPGAnalyzerApp(QMainWindow):
             # Limpiar gráficos
             self.acquisition_tab.raw_curve.setData([], [])
             self.acquisition_tab.filtered_curve.setData([], [])
-            self.acquisition_tab.normalized_curve.setData([], [])
             
         except Exception as e:
             error_msg = f"Error reseteando datos: {e}"
+            self.acquisition_tab.log_message(error_msg)
+            
+    def go_to_analysis(self):
+        """Cambiar a la pestaña de análisis y cargar datos de adquisición"""
+        try:
+            # Cambiar a la pestaña de análisis
+            self.tab_widget.setCurrentWidget(self.analysis_tab)
+            
+            # Cargar datos de adquisición en la pestaña de análisis
+            self.analysis_tab.load_acquisition_data()
+            
+            self.acquisition_tab.log_message("Cambiando a pestaña de análisis")
+            
+        except Exception as e:
+            error_msg = f"Error cambiando a análisis: {e}"
             self.acquisition_tab.log_message(error_msg)
             
     def process_serial_data(self, data_line):

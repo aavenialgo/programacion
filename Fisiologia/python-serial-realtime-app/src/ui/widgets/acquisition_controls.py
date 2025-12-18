@@ -16,6 +16,7 @@ class AcquisitionControls(QWidget):
     start_acquisition = pyqtSignal()
     stop_acquisition = pyqtSignal()
     reset_data = pyqtSignal()
+    analyze_data = pyqtSignal()  # Nueva señal para análisis
     
     def __init__(self):
         super().__init__()
@@ -83,6 +84,26 @@ class AcquisitionControls(QWidget):
         self.reset_btn.clicked.connect(self.reset_data.emit)
         reset_layout.addWidget(self.reset_btn)
         acquisition_layout.addLayout(reset_layout)
+        
+        # Botón de análisis
+        analysis_layout = QHBoxLayout()
+        self.analyze_btn = QPushButton("Analizar Datos")
+        self.analyze_btn.clicked.connect(self.analyze_data.emit)
+        self.analyze_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #9B59B6;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #8E44AD;
+            }
+        """)
+        analysis_layout.addWidget(self.analyze_btn)
+        acquisition_layout.addLayout(analysis_layout)
         
         acquisition_group.setLayout(acquisition_layout)
         layout.addWidget(acquisition_group)

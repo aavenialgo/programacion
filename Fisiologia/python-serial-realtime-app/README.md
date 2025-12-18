@@ -262,5 +262,4 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 - **Repositorio:** [URL del repositorio]
 
 
-
 **⚡ PPG Analyzer v2.0** - Análisis cardiovascular en tiempo real con arquitectura modular
