@@ -258,7 +258,7 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## Contacto y Soporte
 
-- **Autor:** Andrés Avendaño
+- **Autor:** Andrés Venialgo
 - **Repositorio:** [URL del repositorio]
 
 
