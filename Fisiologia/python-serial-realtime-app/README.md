@@ -1,6 +1,6 @@
 # PPG Analyzer - Analizador de Señales PPG en Tiempo Real
 
-Esta aplicación es un analizador avanzado de señales fotopletismográficas (PPG) que captura datos en tiempo real desde un puerto serie, aplica filtros digitales y realiza análisis.
+Esta aplicación es un analizador de señales fotopletismográficas (PPG) que captura datos en tiempo real desde un puerto serie, aplica filtros digitales y realiza análisis.
 
 ## Características Principales
 
