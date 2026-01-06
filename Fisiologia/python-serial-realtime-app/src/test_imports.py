@@ -7,7 +7,7 @@ import os
 # Agregar el directorio src al path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-print("🔍 Probando imports de los módulos refactorizados...")
+print("Probando imports de los módulos refactorizados...")
 
 try:
     from ui.serial_reader import SerialReader

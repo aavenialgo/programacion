@@ -16,10 +16,10 @@
 
 ### Próximos Pasos de Refactorización
 
-1. **Dividir `interfaz2.py`** en módulos más pequeños
+1. **Dividir `interfaz2.py`** en módulos más pequeños  (listo)
 2. **Mover lógica de procesamiento** a `src/core/processing/`
 3. **Crear widgets reutilizables** en `src/ui/widgets/`
-4. **Implementar pruebas unitarias**
+4. **Implementar pruebas unitarias** 
 
 ## Configuración
 

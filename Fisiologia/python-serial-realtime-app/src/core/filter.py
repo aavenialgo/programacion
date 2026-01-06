@@ -1,41 +1,63 @@
 from scipy.signal import butter, filtfilt, firwin, lfilter
 import numpy as np
 
-def butter_bandpass(lowcut, highcut, fs, order=4):
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    b, a = butter(order, [low, high], btype="band")
-    return b, a
+# def butter_bandpass(lowcut, highcut, fs, order=4):
+#     nyq = 0.5 * fs
+#     low = lowcut / nyq
+#     high = highcut / nyq
+#     b, a = butter(order, [low, high], btype="band")
+#     return b, a
+
+# def apply_filter(data, lowcut, highcut, fs, order=4):
+#     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+#     y = filtfilt(b, a, data)
+#     return y
 
 def apply_filter(data, lowcut, highcut, fs, order=4):
-    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = filtfilt(b, a, data)
-    return y
-
-def filter(data, lowcut, highcut, fs, order=4):
+    # Calcular coeficientes Butterworth (se hace aquí porque butter_bandpass estaba comentada)
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
     b, a = butter(order, [low, high], btype="band")
     y = filtfilt(b, a, data)
-    return y
 
-def filterPassBand(data, lowcut, highcut, fs, order=4):
-    numtaps = 501
-    b = firwin(numtaps, [lowcut, highcut], pass_zero=False, fs=fs)
-    y = lfilter(b, 1.0, data)
-    # Compensar retraso
-    delay = (numtaps - 1) // 2
-    y_corrected = np.roll(y, -delay)
-    # Opcional: poner los últimos "delay" valores a NaN
-    y_corrected[-delay:] = np.nan
-    return y
+    # Eliminar componente DC usando FFT (sobre la señal ya filtrada)
+    N = len(y)
+    if N == 0:
+        return y
+    F = np.fft.fft(y)
+    freqs = np.fft.fftfreq(N, d=1/fs)
+    F_noDC = F.copy()
+    # Buscar el índice más cercano a 0 Hz (evita comparar floats exactamente)
+    idx_dc = np.argmin(np.abs(freqs))
+    F_noDC[idx_dc] = 0
+    y_noDC = np.fft.ifft(F_noDC).real
 
-def moving_average(data, window_size=10):
-    if len(data) < window_size:
-        return np.array([])
-    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+    return y_noDC
+
+# def filter(data, lowcut, highcut, fs, order=4):
+#     nyq = 0.5 * fs
+#     low = lowcut / nyq
+#     high = highcut / nyq
+#     b, a = butter(order, [low, high], btype="band")
+#     y = filtfilt(b, a, data)
+#     return y
+
+# def filterPassBand(data, lowcut, highcut, fs, order=4):
+#     numtaps = 501
+#     b = firwin(numtaps, [lowcut, highcut], pass_zero=False, fs=fs)
+#     y = lfilter(b, 1.0, data)
+#     # Compensar retraso
+#     delay = (numtaps - 1) // 2
+#     y_corrected = np.roll(y, -delay)
+#     # Opcional: poner los últimos "delay" valores a NaN
+#     y_corrected[-delay:] = np.nan
+#     return y
+
+# def moving_average(data, window_size=10):
+#     if len(data) < window_size:
+#         return np.array([])
+#     return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
 
 if __name__ == '__main__':
     from src.data.read_data import load_ppg_from_csv
