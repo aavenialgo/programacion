@@ -18,7 +18,7 @@ from datetime import datetime
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.filter import apply_filter
+from core.filter import apply_filter, linebase_removal
 
 class AnalysisTab(QWidget):
     """Pestaña para el análisis de datos"""
@@ -356,11 +356,10 @@ class AnalysisTab(QWidget):
                 self.log_message("Línea base restaurada")
                 
     def sacar_linea_base(self):
-        """Función para eliminar línea base - por implementar"""
-        #TODO: Esta función será implementada más tarde
-        
-        self.log_message("Función sacar_linea_base() - pendiente de implementación")
-        pass
+        """Función para eliminar línea base"""
+        self.filtered_data = linebase_removal(self.filtered_data, self.fs_spin.value())
+        self.update_filtered_plot()
+        #TODO: ver si esta bien implementado
         
     def update_original_plot(self):
        """Actualizar gráfico de señal original""" 
