@@ -50,8 +50,8 @@ def get_temporal_features(ppg_signal, fs):
     - FC (Frecuencia Cardíaca) en BPM.
     - PPI (Intervalo Pulso-Pulso) promedio en ms.
     - Índices de los picos sistólicos.
-    - (NUEVO) working_data: Diccionario de HeartPy con datos procesados.
-    - (NUEVO) measures: Diccionario de HeartPy con las métricas.
+    - working_data: Diccionario de HeartPy con datos procesados.
+    - measures: Diccionario de HeartPy con las métricas.
     """
     try:
         # Usamos heartpy.process para obtener el análisis

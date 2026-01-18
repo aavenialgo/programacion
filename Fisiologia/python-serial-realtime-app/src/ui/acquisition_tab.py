@@ -21,7 +21,8 @@ class AcquisitionTab(QWidget):
         # Timer para actualización de gráficos
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.update_plots)
-        self.update_timer.start(50)  # Actualizar cada 50ms (20 FPS)
+        self.update_timer.start(25)  # Actualizar cada 25ms (40 FPS)
+        #TODO: ajuste a 25 ms como se solicito, ver luego si es necesario cambiar
         
         # Variables para manejo de datos de gráficos
         self.plot_data_cache = {
@@ -154,7 +155,7 @@ class AcquisitionTab(QWidget):
         self.ppg_processor.buffer_full.connect(self.on_buffer_full)
         
     def update_plots(self):
-        """Actualizar gráficos con nuevos datos"""
+        """Actualiza los gráficos con nuevos datos"""
         try:
             time_data, raw_data, filtered_data, normalized_data = self.ppg_processor.get_display_data(2500)
             
@@ -176,7 +177,7 @@ class AcquisitionTab(QWidget):
             self.log_message(f"Error actualizando gráficos: {e}")
             
     def update_status(self):
-        """Actualizar información de estado"""
+        """Actualiza la información de estado"""
         stats = self.ppg_processor.get_current_stats()
         
         self.data_points_label.setText(str(stats['data_points']))

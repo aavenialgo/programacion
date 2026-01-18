@@ -1,5 +1,7 @@
 """
-Pestaña de análisis de datos PPG
+Este archivo implementa la pestaña de adquisición de datos
+en tiempo real utilizando PyQt5 y PyQtGraph.
+
 """
 import pandas as pd
 import numpy as np
@@ -19,9 +21,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.filter import apply_filter
 
 class AnalysisTab(QWidget):
-    """Pestaña para análisis avanzado de datos PPG"""
+    """Pestaña para el análisis de datos"""
     
     def __init__(self, ppg_processor):
+        """
+        Constructor de la pestaña de análisis
+        
+        :param ppg_processor: Instancia del procesador PPG 
+        para obtener datos de adquisición
+        """
         super().__init__()
         self.ppg_processor = ppg_processor
         self.current_data = None  # Datos cargados o transferidos
@@ -31,7 +39,7 @@ class AnalysisTab(QWidget):
         self.setup_ui()
         
     def setup_ui(self):
-        """Configurar la interfaz de usuario"""
+        """Configuracion de la interfaz de usuario"""
         layout = QHBoxLayout()
         
         # Splitter principal
@@ -54,7 +62,7 @@ class AnalysisTab(QWidget):
         self.setLayout(layout)
         
     def create_control_panel(self):
-        """Crear panel de control izquierdo"""
+        """ Crea el panel de control """
         control_widget = QWidget()
         control_layout = QVBoxLayout()
         
@@ -80,7 +88,7 @@ class AnalysisTab(QWidget):
         """)
         data_layout.addWidget(self.load_csv_btn)
         
-        # Botón para usar datos de adquisición
+        # Botón para usar los datos de adquisición
         self.use_acquisition_btn = QPushButton("Usar datos de adquisición")
         self.use_acquisition_btn.clicked.connect(self.load_acquisition_data)
         self.use_acquisition_btn.setStyleSheet("""
@@ -98,7 +106,7 @@ class AnalysisTab(QWidget):
         """)
         data_layout.addWidget(self.use_acquisition_btn)
         
-        # Información de datos cargados
+        # Información de los datos cargados
         self.data_info_label = QLabel("No hay datos cargados")
         self.data_info_label.setStyleSheet("color: #7F8C8D; font-size: 11px;")
         data_layout.addWidget(self.data_info_label)
@@ -203,7 +211,7 @@ class AnalysisTab(QWidget):
         return control_widget
         
     def create_plots_panel(self):
-        """Crear panel de gráficos"""
+        """Crea el panel de gráficos"""
         plots_widget = QWidget()
         plots_layout = QVBoxLayout()
         
@@ -231,7 +239,7 @@ class AnalysisTab(QWidget):
         return plots_widget
         
     def load_csv_file(self):
-        """Cargar datos desde archivo CSV"""
+        """Carga los datos desde archivo CSV"""
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
             self, "Seleccionar archivo CSV", "", "Archivos CSV (*.csv)"
@@ -268,7 +276,7 @@ class AnalysisTab(QWidget):
                 self.log_message(f"Error cargando CSV: {e}")
                 
     def load_acquisition_data(self):
-        """Cargar datos de la adquisición en tiempo real"""
+        """Carga de datos de la adquisición en tiempo real"""
         try:
             # Obtener datos del procesador PPG
             time_data, raw_data, filtered_data, _ = self.ppg_processor.get_display_data()
@@ -281,7 +289,7 @@ class AnalysisTab(QWidget):
                 self.data_info_label.setText(f"Datos de adquisición: {len(self.current_data)} puntos")
                 self.apply_filter_btn.setEnabled(True)
                 
-                # Mostrar datos originales
+                # Mostrar los datos originales
                 self.update_original_plot()
                 
                 # Log
@@ -349,13 +357,13 @@ class AnalysisTab(QWidget):
                 
     def sacar_linea_base(self):
         """Función para eliminar línea base - por implementar"""
-        # Esta función será implementada más tarde
-        # Por ahora solo hace un placeholder
+        #TODO: Esta función será implementada más tarde
+        
         self.log_message("Función sacar_linea_base() - pendiente de implementación")
         pass
         
     def update_original_plot(self):
-        """Actualizar gráfico de señal original"""
+       """Actualizar gráfico de señal original""" 
         if self.current_data is not None:
             self.original_curve.setData(self.time_data, self.current_data)
             
@@ -365,7 +373,7 @@ class AnalysisTab(QWidget):
             self.filtered_curve.setData(self.time_data, self.filtered_data)
             
     def log_message(self, message):
-        """Agregar mensaje al log de análisis"""
+        """Agrega el mensaje al log de análisis"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         formatted_message = f"[{timestamp}] {message}"
         self.analysis_log.append(formatted_message)
@@ -375,13 +383,13 @@ class AnalysisTab(QWidget):
         scrollbar.setValue(scrollbar.maximum())
         
     def clear_data(self):
-        """Limpiar todos los datos"""
+        """Limpia todos los datos"""
         self.current_data = None
         self.filtered_data = None
         self.time_data = None
         self.baseline_removed = False
         
-        # Limpiar gráficos
+        # Limpia los gráficos
         self.original_curve.setData([], [])
         self.filtered_curve.setData([], [])
         

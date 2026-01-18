@@ -20,20 +20,29 @@ def apply_filter(data, lowcut, highcut, fs, order=4):
     high = highcut / nyq
     b, a = butter(order, [low, high], btype="band")
     y = filtfilt(b, a, data)
+    return y
 
-    # Eliminar componente DC usando FFT (sobre la señal ya filtrada)
-    N = len(y)
+def linebase_removal(data, fs):
+    """Elimina la línea base de la señal
+    Args:
+        data (np.ndarray): señal de entrada
+        fs (int): frecuencia de muestreo
+
+    Returns:
+        np.ndarray: señal sin componente DC 
+    """
+    N = len(data)
     if N == 0:
-        return y
-    F = np.fft.fft(y)
+        return data
+    F = np.fft.fft(data)
     freqs = np.fft.fftfreq(N, d=1/fs)
     F_noDC = F.copy()
     # Buscar el índice más cercano a 0 Hz (evita comparar floats exactamente)
     idx_dc = np.argmin(np.abs(freqs))
     F_noDC[idx_dc] = 0
     y_noDC = np.fft.ifft(F_noDC).real
-
     return y_noDC
+
 
 # def filter(data, lowcut, highcut, fs, order=4):
 #     nyq = 0.5 * fs
