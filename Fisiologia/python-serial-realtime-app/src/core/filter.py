@@ -14,7 +14,17 @@ import numpy as np
 #     return y
 
 def apply_filter(data, lowcut, highcut, fs, order=4):
-    # Calcular coeficientes Butterworth (se hace aquí porque butter_bandpass estaba comentada)
+    """Aplica un filtro butterworth pasa banda a los datos
+    Args:
+        data (np.ndarray): señal de entrada
+        lowcut (float): frecuencia de corte baja
+        highcut (float): frecuencia de corte alta
+        fs (int): frecuencia de muestreo
+        order (int, optional): orden del filtro. Defaults to 4.
+
+    Returns:
+        np.ndarray: señal filtrada
+    """
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
