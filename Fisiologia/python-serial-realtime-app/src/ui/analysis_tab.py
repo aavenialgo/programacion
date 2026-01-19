@@ -301,13 +301,9 @@ class AnalysisTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error cargando datos de adquisición:\n{e}")
             self.log_message(f"Error cargando datos de adquisición: {e}")
-    #TODO: cambiar la implementacion al modulo filter.py        
+    #TODO: ver si funciona     
     def apply_filter(self):
         """Aplicar filtro Butterworth a los datos"""
-        if self.current_data is None:
-            QMessageBox.warning(self, "Advertencia", "No hay datos cargados para filtrar")
-            return
-            
         try:
             # Obtener parámetros del filtro
             lowcut = self.lowcut_spin.value()
@@ -315,16 +311,7 @@ class AnalysisTab(QWidget):
             fs = self.fs_spin.value()
             order = self.order_spin.value()
             
-            # Validar parámetros
-            if lowcut >= highcut:
-                QMessageBox.warning(self, "Error", "La frecuencia de corte baja debe ser menor que la alta")
-                return
-                
-            if highcut >= fs/2:
-                QMessageBox.warning(self, "Error", "La frecuencia de corte alta debe ser menor que fs/2")
-                return
-            
-            # Aplicar filtro
+            # Aplicar filtro (las validaciones están en el módulo filter)
             self.filtered_data = apply_filter(self.current_data, lowcut, highcut, fs, order)
             
             # Actualizar el gráfico filtrado
@@ -333,7 +320,12 @@ class AnalysisTab(QWidget):
             # Log
             self.log_message(f"Filtro aplicado: {lowcut}-{highcut} Hz, orden {order}")
             
+        except ValueError as e:
+            # Errores de validación de parámetros
+            QMessageBox.warning(self, "Error de validación", str(e))
+            self.log_message(f"Error de validación: {e}")
         except Exception as e:
+            # Otros errores
             QMessageBox.critical(self, "Error", f"Error aplicando filtro:\n{e}")
             self.log_message(f"Error aplicando filtro: {e}")
             

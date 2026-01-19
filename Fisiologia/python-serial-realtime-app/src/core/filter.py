@@ -24,8 +24,29 @@ def apply_filter(data, lowcut, highcut, fs, order=4):
 
     Returns:
         np.ndarray: señal filtrada
+        
+    Raises:
+        ValueError: si los parámetros no son válidos
     """
+    # Validar que hay datos
+    if data is None or len(data) == 0:
+        raise ValueError("No hay datos para filtrar")
+    
+    # Validar parámetros del filtro
+    if lowcut >= highcut:
+        raise ValueError("La frecuencia de corte baja debe ser menor que la alta")
+    
     nyq = 0.5 * fs
+    if highcut >= nyq:
+        raise ValueError(f"La frecuencia de corte alta debe ser menor que fs/2 ({nyq} Hz)")
+    
+    if lowcut <= 0:
+        raise ValueError("La frecuencia de corte baja debe ser positiva")
+    
+    if order < 1:
+        raise ValueError("El orden del filtro debe ser al menos 1")
+    
+    # Aplicar el filtro
     low = lowcut / nyq
     high = highcut / nyq
     b, a = butter(order, [low, high], btype="band")
