@@ -14,12 +14,18 @@ class AcquisitionControls(QWidget):
     """Widget de control para la adquisición de datos del puerto serie"""
     
     # Señales
-    connection_requested = pyqtSignal(str, int)  # puerto, baudrate
+    #: Señal emitida cuando se solicita conexión. Parámetros: puerto (str), baudrate (int)
+    connection_requested = pyqtSignal(str, int)  
+    #: Señal emitida cuando se solicita desconexión.
     disconnection_requested = pyqtSignal()
+    #: Señal emitida cuando se solicita iniciar adquisición.
     start_acquisition = pyqtSignal()
+    #: Señal emitida cuando se solicita detener adquisición.
     stop_acquisition = pyqtSignal()
+    #: Señal emitida cuando se solicita resetear datos.
     reset_data = pyqtSignal()
-    analyze_data = pyqtSignal()  # Nueva señal para análisis
+    #: Señal emitida cuando se solicita analizar datos.
+    analyze_data = pyqtSignal()  
     
     def __init__(self):
         super().__init__()

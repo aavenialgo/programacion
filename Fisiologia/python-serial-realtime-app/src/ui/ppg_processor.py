@@ -5,7 +5,7 @@ from collections import deque
 import numpy as np
 import time
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, savgol_filter
 
 class PPGProcessor(QObject):
     """Procesador de señales PPG con análisis en tiempo real"""
@@ -25,6 +25,7 @@ class PPGProcessor(QObject):
         super().__init__()
         self.sample_rate = sample_rate
         self.buffer_size = buffer_size
+        self.fs = sample_rate
         
         # Buffers de datos
         self.time_buffer = deque(maxlen=buffer_size)
@@ -174,6 +175,122 @@ class PPGProcessor(QObject):
         except Exception as e:
             print(f"Error analizando segmento: {e}")
             return None
+
+    def calculate_derivatives(self, data):
+        """Calcula la primera y segunda derivada usando diferencias centrales."""
+        if len(data) < 3:
+            return np.array([]), np.array([])
+
+        dt = 1.0 / self.fs
+
+        d1_dt = np.gradient(data, dt)
+        d2_dt2 = np.gradient(d1_dt, dt)
+
+        return d1_dt, d2_dt2
+
+    def analyze_segment(self, t_segment, ppg_segment):
+        """Analiza morfología en una ventana PPG y calcula puntos/parametros."""
+        if len(ppg_segment) < 100:
+            return None, {}
+
+        try:
+            ppg_smooth = savgol_filter(ppg_segment, window_length=int(self.fs / 5) + 1, polyorder=3)
+        except Exception:
+            ppg_smooth = ppg_segment
+
+        d1, d2 = self.calculate_derivatives(ppg_smooth)
+        t_aligned = t_segment
+
+        peaks, _ = find_peaks(ppg_smooth, height=np.mean(ppg_smooth), distance=int(self.fs / 2))
+        if not list(peaks):
+            peaks, _ = find_peaks(ppg_smooth, distance=int(self.fs / 2))
+
+        systolic_peak_idx = peaks
+
+        dicrotic_notch_idx = []
+        for p_idx in systolic_peak_idx:
+            search_start = min(p_idx + int(self.fs * 0.1), len(ppg_smooth) - 1)
+            search_end = min(p_idx + int(self.fs * 0.5), len(ppg_smooth))
+            if search_start < search_end:
+                valley_idx_local = np.argmin(ppg_smooth[search_start:search_end])
+                dicrotic_notch_idx.append(search_start + valley_idx_local)
+
+        d2_peaks, _ = find_peaks(d2, distance=int(self.fs / 4))
+        d2_valleys, _ = find_peaks(-d2, distance=int(self.fs / 4))
+
+        fiducial_points = {
+            'systolic_peak': t_aligned[systolic_peak_idx],
+            'dicrotic_notch': t_aligned[dicrotic_notch_idx],
+            'd2_a': t_aligned[d2_peaks[0]] if len(d2_peaks) > 0 else None,
+            'd2_b': t_aligned[d2_valleys[0]] if len(d2_valleys) > 0 else None,
+            'd2_c': t_aligned[d2_peaks[1]] if len(d2_peaks) > 1 else None,
+            'd2_d': t_aligned[d2_valleys[1]] if len(d2_valleys) > 1 else None,
+            'd2_e': t_aligned[d2_peaks[2]] if len(d2_peaks) > 2 else None,
+        }
+
+        if len(systolic_peak_idx) > 1:
+            ppi_samples = np.diff(systolic_peak_idx)
+            ppi_seconds = ppi_samples / self.fs
+            avg_ppi = np.mean(ppi_seconds)
+            fc = 60 / avg_ppi
+        else:
+            fc = np.nan
+            avg_ppi = np.nan
+
+        ac = np.max(ppg_segment) - np.min(ppg_segment)
+        dc = np.mean(ppg_segment)
+
+        rt = np.nan
+        st_dt_ratio = np.nan
+
+        if len(systolic_peak_idx) > 0 and len(dicrotic_notch_idx) > 0:
+            pico_idx = systolic_peak_idx[0]
+            valle_idx = np.argmin(ppg_segment[:pico_idx])
+            notch_idx = dicrotic_notch_idx[0]
+
+            rt = (t_aligned[pico_idx] - t_aligned[valle_idx]) if valle_idx < pico_idx else np.nan
+
+            systolic_time = t_aligned[notch_idx] - t_aligned[pico_idx]
+            diastolic_time = (t_aligned[-1] - t_aligned[notch_idx]) if len(t_aligned) > 1 else np.nan
+
+            if not np.isnan(systolic_time) and not np.isnan(diastolic_time) and diastolic_time > 0:
+                st_dt_ratio = systolic_time / diastolic_time
+
+        a = ppg_smooth[d2_peaks[0]] if len(d2_peaks) > 0 else np.nan
+        b = ppg_smooth[d2_valleys[0]] if len(d2_valleys) > 0 else np.nan
+        c = ppg_smooth[d2_peaks[1]] if len(d2_peaks) > 1 else np.nan
+        d = ppg_smooth[d2_valleys[1]] if len(d2_valleys) > 1 else np.nan
+        e = ppg_smooth[d2_peaks[2]] if len(d2_peaks) > 2 else np.nan
+
+        ai = np.nan
+        if len(dicrotic_notch_idx) > 0:
+            ai = ppg_smooth[dicrotic_notch_idx[0]] / ppg_smooth[systolic_peak_idx[0]]
+
+        parameters = {
+            'FC (LPM)': f'{fc:.2f}' if not np.isnan(fc) else 'N/A',
+            'PPI (s)': f'{avg_ppi:.3f}' if not np.isnan(avg_ppi) else 'N/A',
+            'AC (Unidades)': f'{ac:.2f}',
+            'DC (Unidades)': f'{dc:.2f}',
+            'AI (Proxy)': f'{ai:.3f}' if not np.isnan(ai) else 'N/A',
+            'RT (ms)': f'{rt * 1000:.1f}' if not np.isnan(rt) else 'N/A',
+            'ST/DT': f'{st_dt_ratio:.2f}' if not np.isnan(st_dt_ratio) else 'N/A',
+            'Ratio b/a': f'{(b/a):.2f}' if not np.isnan(a) and not np.isnan(b) and a != 0 else 'N/A',
+            'Ratio c/a': f'{(c/a):.2f}' if not np.isnan(a) and not np.isnan(c) and a != 0 else 'N/A',
+            'Ratio d/a': f'{(d/a):.2f}' if not np.isnan(a) and not np.isnan(d) and a != 0 else 'N/A',
+            'Ratio e/a': f'{(e/a):.2f}' if not np.isnan(a) and not np.isnan(e) and a != 0 else 'N/A',
+        }
+
+        analysis_data = {
+            'time': t_aligned,
+            'ppg': ppg_segment,
+            'ppg_smooth': ppg_smooth,
+            'd1': d1,
+            'd2': d2,
+            'fiducials': fiducial_points,
+            'parameters': parameters
+        }
+
+        return analysis_data, parameters
             
     def analyze_custom_segment(self, start_time, end_time):
         """Analiza un segmento específico de la señal"""

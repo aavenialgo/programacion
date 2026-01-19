@@ -10,8 +10,14 @@ class SerialReader(QObject):
     """Clase para leer datos del puerto serie en un hilo separado"""
     
     # Señales para comunicación con la UI
+    #: Señal emitida cuando se reciben datos.
+    #: Parámetro: línea de datos (str)
     data_received = pyqtSignal(str)
+    #: Señal emitida cuando cambia el estado de conexión. 
+    #:Parámetro: estado (bool)
     connection_status_changed = pyqtSignal(bool)
+    #: Señal emitida cuando ocurre un error. 
+    #: Parámetro: mensaje de error (str)
     error_occurred = pyqtSignal(str)
     
     def __init__(self):

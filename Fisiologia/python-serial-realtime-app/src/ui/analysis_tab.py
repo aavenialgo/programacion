@@ -35,6 +35,7 @@ class AnalysisTab(QWidget):
         self.current_data = None  # Datos cargados o transferidos
         self.filtered_data = None  # Datos filtrados
         self.baseline_removed = False
+        self.fiducials = None
         
         self.setup_ui()
         
@@ -110,6 +111,25 @@ class AnalysisTab(QWidget):
         self.data_info_label = QLabel("No hay datos cargados")
         self.data_info_label.setStyleSheet("color: #7F8C8D; font-size: 11px;")
         data_layout.addWidget(self.data_info_label)
+
+        # Botón para limpiar / resetear datos cargados
+        self.reset_btn = QPushButton("Limpiar datos")
+        self.reset_btn.setEnabled(False)
+        self.reset_btn.clicked.connect(self.clear_data)
+        self.reset_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #95A5A6;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #7F8C8D;
+            }
+        """)
+        data_layout.addWidget(self.reset_btn)
         
         data_group.setLayout(data_layout)
         control_layout.addWidget(data_group)
@@ -180,6 +200,25 @@ class AnalysisTab(QWidget):
         self.baseline_checkbox = QCheckBox("Sacar línea base")
         self.baseline_checkbox.stateChanged.connect(self.toggle_baseline_removal)
         process_layout.addWidget(self.baseline_checkbox)
+
+        # Botón para detectar puntos fiduciales en la señal PPG
+        self.detect_fiducials_btn = QPushButton("Detectar puntos fiduciales")
+        self.detect_fiducials_btn.setEnabled(False)
+        self.detect_fiducials_btn.clicked.connect(self.detect_fiducials)
+        self.detect_fiducials_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B5CF6;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #7C3AED;
+            }
+        """)
+        process_layout.addWidget(self.detect_fiducials_btn)
         
         process_group.setLayout(process_layout)
         control_layout.addWidget(process_group)
@@ -233,6 +272,8 @@ class AnalysisTab(QWidget):
         self.filtered_plot.setLabel('bottom', 'Tiempo (s)')
         self.filtered_plot.showGrid(x=True, y=True)
         self.filtered_curve = self.filtered_plot.plot(pen=pg.mkPen('#4ECDC4', width=2))
+        self.fiducial_scatter = pg.ScatterPlotItem(symbol='o', size=9, pen=pg.mkPen(None), brush=pg.mkBrush('#EF4444'))
+        self.filtered_plot.addItem(self.fiducial_scatter)
         plots_layout.addWidget(self.filtered_plot)
         
         plots_widget.setLayout(plots_layout)
@@ -263,6 +304,9 @@ class AnalysisTab(QWidget):
                 # Actualizar UI
                 self.data_info_label.setText(f"CSV cargado: {len(self.current_data)} puntos")
                 self.apply_filter_btn.setEnabled(True)
+                self.detect_fiducials_btn.setEnabled(True)
+                self.reset_btn.setEnabled(True)
+                self.clear_fiducials()
                 
                 # Mostrar datos originales
                 self.update_original_plot()
@@ -288,6 +332,9 @@ class AnalysisTab(QWidget):
                 # Actualizar UI
                 self.data_info_label.setText(f"Datos de adquisición: {len(self.current_data)} puntos")
                 self.apply_filter_btn.setEnabled(True)
+                self.detect_fiducials_btn.setEnabled(True)
+                self.reset_btn.setEnabled(True)
+                self.clear_fiducials()
                 
                 # Mostrar los datos originales
                 self.update_original_plot()
@@ -388,5 +435,62 @@ class AnalysisTab(QWidget):
         self.data_info_label.setText("No hay datos cargados")
         self.apply_filter_btn.setEnabled(False)
         self.baseline_checkbox.setChecked(False)
+        self.detect_fiducials_btn.setEnabled(False)
+        self.reset_btn.setEnabled(False)
+        self.clear_fiducials()
         
         self.log_message("Datos limpiados")
+
+    def detect_fiducials(self):
+        """Detecta puntos fiduciales (pico sistólico y muesca dicrotica) en la señal PPG filtrada."""
+        if self.current_data is None or getattr(self, 'time_data', None) is None:
+            QMessageBox.warning(self, "Sin datos", "Cargue datos antes de detectar fiduciales")
+            return
+
+        if self.filtered_data is None:
+            QMessageBox.warning(self, "Sin filtro", "Aplique un filtro antes de detectar fiduciales")
+            return
+
+        signal = self.filtered_data
+        time_data = self.time_data
+
+        analysis, _ = self.ppg_processor.analyze_segment(time_data, signal)
+        if not analysis:
+            QMessageBox.information(self, "Sin resultado", "No se pudieron detectar fiduciales en esta ventana")
+            return
+
+        fid = analysis.get('fiducials', {})
+        systolic_t = fid.get('systolic_peak', [])
+        notch_t = fid.get('dicrotic_notch', [])
+
+        times = []
+        values = []
+
+        def add_points(t_array):
+            for t_val in np.atleast_1d(t_array):
+                idx = int(np.argmin(np.abs(time_data - t_val)))
+                if 0 <= idx < len(signal):
+                    times.append(time_data[idx])
+                    values.append(signal[idx])
+
+        add_points(systolic_t)
+        add_points(notch_t)
+
+        self.fiducials = {'time': times, 'value': values}
+        self.update_fiducial_plot()
+
+        self.log_message(f"Fiduciales detectados: {len(times)} puntos (picos sistólicos y muescas dicroticas)")
+
+    def update_fiducial_plot(self):
+        """Actualiza la capa de puntos fiduciales sobre la señal PPG."""
+        if not self.fiducials or not self.fiducials.get('time'):
+            self.fiducial_scatter.clear()
+            return
+
+        spots = [{'pos': (t, y)} for t, y in zip(self.fiducials['time'], self.fiducials['value'])]
+        self.fiducial_scatter.setData(spots)
+
+    def clear_fiducials(self):
+        """Limpia los puntos fiduciales del gráfico."""
+        self.fiducials = None
+        self.fiducial_scatter.clear()

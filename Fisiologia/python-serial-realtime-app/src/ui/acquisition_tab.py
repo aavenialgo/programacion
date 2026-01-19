@@ -33,7 +33,7 @@ class AcquisitionTab(QWidget):
         }
         
     def setup_ui(self):
-        """Configurar la interfaz de usuario"""
+        """Configura la interfaz de usuario"""
         layout = QHBoxLayout()
         
         # Splitter principal
@@ -56,7 +56,7 @@ class AcquisitionTab(QWidget):
         self.setLayout(layout)
         
     def create_control_panel(self):
-        """Crear panel de control izquierdo"""
+        """Crea el panel de control izquierdo"""
         control_widget = QWidget()
         control_layout = QVBoxLayout()
         
@@ -119,7 +119,7 @@ class AcquisitionTab(QWidget):
         return control_widget
         
     def create_plots_panel(self):
-        """Crear panel de gráficos"""
+        """Crea el panel de gráficos"""
         plots_widget = QWidget()
         plots_layout = QVBoxLayout()
         
@@ -148,7 +148,7 @@ class AcquisitionTab(QWidget):
         return plots_widget
         
     def setup_connections(self):
-        """Configurar conexiones de señales"""
+        """Configura  las conexiones de señales"""
         # Conexiones del procesador PPG
         self.ppg_processor.new_data_processed.connect(self.update_status)
         self.ppg_processor.analysis_complete.connect(self.on_analysis_complete)
@@ -194,7 +194,7 @@ class AcquisitionTab(QWidget):
             self.hrv_label.setText("-- ms")
             
     def on_analysis_complete(self, results):
-        """Manejar resultados de análisis completo"""
+        """Maneja los resultados de análisis completo"""
         if results and results.get('heart_rate', 0) > 0:
             hr = results.get('heart_rate', 0)
             hrv = results.get('hrv', 0)
@@ -203,11 +203,11 @@ class AcquisitionTab(QWidget):
             self.log_message(f"Análisis: FC={hr:.1f} BPM, HRV={hrv:.1f} ms, Calidad={quality}")
             
     def on_buffer_full(self):
-        """Manejar buffer lleno"""
+        """Maneja buffer lleno"""
         self.log_message("Buffer lleno - datos más antiguos siendo sobrescritos")
         
     def set_connection_status(self, connected, acquiring=False):
-        """Actualizar estado de conexión en la UI"""
+        """Actualiza el estado de conexión en la UI"""
         if connected:
             if acquiring:
                 self.status_label.setText("Adquiriendo datos")
@@ -220,7 +220,7 @@ class AcquisitionTab(QWidget):
             self.status_label.setStyleSheet("font-weight: bold; color: #E74C3C;")
             
     def log_message(self, message):
-        """Agregar mensaje al log"""
+        """Agrega un mensaje al log"""
         timestamp = datetime.now().strftime("%H:%M:%S")
         formatted_message = f"[{timestamp}] {message}"
         self.log_text.append(formatted_message)
@@ -230,6 +230,6 @@ class AcquisitionTab(QWidget):
         scrollbar.setValue(scrollbar.maximum())
         
     def clear_log(self):
-        """Limpiar el log"""
+        """Limpia el log"""
         self.log_text.clear()
         self.log_message("Log limpiado")

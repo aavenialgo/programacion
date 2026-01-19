@@ -86,8 +86,14 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clase para leer datos del puerto serie en un hilo separado&quot;&quot;&quot;</span>
     
     <span class="c1"># Señales para comunicación con la UI</span>
+    <span class="c1">#: Señal emitida cuando se reciben datos.</span>
+    <span class="c1">#: Parámetro: línea de datos (str)</span>
     <span class="n">data_received</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="c1">#: Señal emitida cuando cambia el estado de conexión. </span>
+    <span class="c1">#:Parámetro: estado (bool)</span>
     <span class="n">connection_status_changed</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="c1">#: Señal emitida cuando ocurre un error. </span>
+    <span class="c1">#: Parámetro: mensaje de error (str)</span>
     <span class="n">error_occurred</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
     
 <div class="viewcode-block" id="SerialReader.__init__">
