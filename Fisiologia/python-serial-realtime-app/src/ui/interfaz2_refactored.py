@@ -58,7 +58,7 @@ class PPGAnalyzerApp(QMainWindow):
         self.setup_status_bar()
         
     def setup_ui(self):
-        """Configurar interfaz de usuario"""
+        """Configura la interfaz del usuario"""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
@@ -79,7 +79,7 @@ class PPGAnalyzerApp(QMainWindow):
         central_widget.setLayout(layout)
         
     def setup_connections(self):
-        """Configurar conexiones entre componentes"""
+        """Configura las conexiones entre componentes"""
         # Conexiones del lector serie
         self.serial_reader.data_received.connect(self.process_serial_data)
         self.serial_reader.connection_status_changed.connect(self.on_connection_changed)
@@ -95,7 +95,7 @@ class PPGAnalyzerApp(QMainWindow):
         controls.analyze_data.connect(self.go_to_analysis)  # Nueva conexión
         
     def setup_status_bar(self):
-        """Configurar barra de estado"""
+        """Configura la barra de estado"""
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         
@@ -116,7 +116,7 @@ class PPGAnalyzerApp(QMainWindow):
         self.last_data_count = 0
         
     def connect_serial(self, port, baudrate):
-        """Conectar al puerto serie"""
+        """Conecta al puerto serie"""
         try:
             self.serial_port = serial.Serial(port, baudrate, timeout=1)
             self.connected = True
@@ -131,7 +131,7 @@ class PPGAnalyzerApp(QMainWindow):
             QMessageBox.critical(self, "Error de Conexión", error_msg)
             
     def disconnect_serial(self):
-        """Desconectar del puerto serie"""
+        """Desconecta el puerto serie"""
         try:
             self.stop_acquisition()
             
@@ -149,7 +149,7 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.log_message(error_msg)
             
     def start_acquisition(self):
-        """Iniciar adquisición de datos"""
+        """Inicia la adquisición de datos"""
         if self.connected and self.serial_port and self.serial_port.is_open:
             try:
                 self.serial_reader.start_reading(self.serial_port)
@@ -168,7 +168,7 @@ class PPGAnalyzerApp(QMainWindow):
             QMessageBox.warning(self, "Advertencia", "Debe conectarse primero al puerto serie")
             
     def stop_acquisition(self):
-        """Detener adquisición de datos"""
+        """Detiene la adquisición de datos"""
         try:
             self.serial_reader.stop_reading()
             self.ppg_processor.stop_processing()
@@ -185,7 +185,7 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.log_message(error_msg)
             
     def reset_data(self):
-        """Resetear todos los datos"""
+        """Resetea todos los datos"""
         try:
             self.ppg_processor.reset_data()
             self.acquisition_tab.log_message("Datos reseteados")
@@ -199,7 +199,7 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.log_message(error_msg)
             
     def go_to_analysis(self):
-        """Cambiar a la pestaña de análisis y cargar datos de adquisición"""
+        """Cambia a la pestaña de análisis y carga datos de adquisición"""
         try:
             # Cambiar a la pestaña de análisis
             self.tab_widget.setCurrentWidget(self.analysis_tab)
@@ -214,7 +214,7 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.log_message(error_msg)
             
     def process_serial_data(self, data_line):
-        """Procesar línea de datos recibida por serie"""
+        """Procesa una línea de datos recibida por serie"""
         try:
             # Parsear datos usando el SerialReader
             parsed_data = self.serial_reader.parse_data_line(data_line)
@@ -235,17 +235,17 @@ class PPGAnalyzerApp(QMainWindow):
             self.acquisition_tab.log_message(f"Error procesando datos: {e}")
             
     def on_connection_changed(self, connected):
-        """Manejar cambio en estado de conexión del SerialReader"""
+        """Maneja el cambio en estado de conexión del SerialReader"""
         status = "Conectado" if connected else "Desconectado"
         self.connection_status_label.setText(status)
         
     def on_serial_error(self, error_msg):
-        """Manejar error en comunicación serie"""
+        """Maneja el error en comunicación serie"""
         self.acquisition_tab.log_message(f"Error serie: {error_msg}")
         self.disconnect_serial()
         
     def update_status_bar(self):
-        """Actualizar barra de estado"""
+        """Actualiza la barra de estado"""
         try:
             # Calcular velocidad de datos
             current_count = len(self.ppg_processor.time_buffer)
@@ -264,7 +264,7 @@ class PPGAnalyzerApp(QMainWindow):
             pass  # Ignorar errores de actualización de estado
             
     def closeEvent(self, event):
-        """Manejar cierre de la aplicación"""
+        """Maneja el cierre de la aplicación"""
         try:
             self.stop_acquisition()
             self.disconnect_serial()

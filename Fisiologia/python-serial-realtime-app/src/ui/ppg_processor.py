@@ -10,13 +10,18 @@ from scipy.signal import find_peaks
 class PPGProcessor(QObject):
     """Procesador de señales PPG con análisis en tiempo real"""
     
-    # Señales para comunicación con la UI
+    # Señales para comunicación con la UI 
+    
+    #: nueva señal procesada
     new_data_processed = pyqtSignal()
+    #: contenedor del análisis completo
     analysis_complete = pyqtSignal(dict)
+    #: segmento analizado
     segment_analyzed = pyqtSignal(dict)
+    #: buffer de datos
     buffer_full = pyqtSignal()
     
-    def __init__(self, sample_rate=125, buffer_size=7500):  # 60 segundos @ 125Hz
+    def __init__(self, sample_rate=100, buffer_size=7500):  # 60 segundos @ 100Hz
         super().__init__()
         self.sample_rate = sample_rate
         self.buffer_size = buffer_size
@@ -41,7 +46,7 @@ class PPGProcessor(QObject):
         self.current_hrv = 0
         
     def reset_data(self):
-        """Resetear todos los buffers de datos"""
+        """Resetea todos los buffers de datos"""
         self.time_buffer.clear()
         self.raw_buffer.clear()
         self.filtered_buffer.clear()
@@ -52,15 +57,15 @@ class PPGProcessor(QObject):
         self.current_hrv = 0
         
     def start_processing(self):
-        """Iniciar el procesamiento de datos"""
+        """Funcion del timer que inicia el procesamiento de datos"""
         self.analysis_timer.start(int(self.analysis_interval * 1000))
         
     def stop_processing(self):
-        """Detener el procesamiento de datos"""
+        """funcion del timer que detiene el procesamiento de datos"""
         self.analysis_timer.stop()
         
     def add_data_point(self, raw_value, filtered_value=None, normalized_value=None):
-        """Agregar un nuevo punto de datos"""
+        """Agrega un nuevo punto de datos"""
         try:
             current_time = time.time()
             
@@ -85,7 +90,7 @@ class PPGProcessor(QObject):
             print(f"Error procesando datos: {e}")
             
     def _periodic_analysis(self):
-        """Realizar análisis periódico de la señal"""
+        """Realiza el análisis periódico de la señal"""
         if len(self.filtered_buffer) < self.sample_rate * 2:  # Necesitamos al menos 2 segundos
             return
             
@@ -107,7 +112,9 @@ class PPGProcessor(QObject):
             print(f"Error en análisis periódico: {e}")
             
     def _analyze_segment(self, signal, time_data):
-        """Analizar un segmento de señal PPG"""
+        """Analiza un segmento de señal PPG
+        Se obtiene parámetros como fc, hrv y calidad de señal
+        """
         try:
             if len(signal) < 100:
                 return None
@@ -169,7 +176,7 @@ class PPGProcessor(QObject):
             return None
             
     def analyze_custom_segment(self, start_time, end_time):
-        """Analizar un segmento específico de la señal"""
+        """Analiza un segmento específico de la señal"""
         try:
             # Encontrar índices para el segmento
             time_array = np.array(self.time_buffer)
@@ -194,7 +201,11 @@ class PPGProcessor(QObject):
             return None
             
     def get_display_data(self, max_points=2500):
-        """Obtener datos para mostrar en gráficos"""
+        """Obtiene los datos para mostrar en un gráfico
+
+        Returns:
+            _type_: _description_
+        """
         if not self.time_buffer:
             return [], [], [], []
             
@@ -212,7 +223,7 @@ class PPGProcessor(QObject):
                    list(self.normalized_buffer)[-max_points:])
                    
     def get_current_stats(self):
-        """Obtener estadísticas actuales"""
+        """Obtiene las estadísticas actuales"""
         return {
             'heart_rate': self.current_hr,
             'hrv': self.current_hrv,
