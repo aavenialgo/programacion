@@ -1,3 +1,6 @@
+"""
+Funciones para cargar datos desde archivos CSV
+"""
 import pandas as pd
 import numpy as np
 

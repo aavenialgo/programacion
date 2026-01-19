@@ -25,7 +25,7 @@ class AcquisitionControls(QWidget):
         self.setup_ui()
         
     def setup_ui(self):
-        """Configurar la interfaz de usuario"""
+        """Configura la interfaz de usuario"""
         layout = QVBoxLayout()
         
         # Grupo de conexión serie
@@ -114,7 +114,7 @@ class AcquisitionControls(QWidget):
         self.setLayout(layout)
         
     def refresh_ports(self):
-        """Actualizar lista de puertos disponibles"""
+        """Actualiza la lista de puertos disponibles"""
         self.port_combo.clear()
         ports = serial.tools.list_ports.comports()
         
@@ -129,7 +129,7 @@ class AcquisitionControls(QWidget):
             self.port_combo.addItem(display_text)
             
     def toggle_connection(self):
-        """Alternar estado de conexión"""
+        """Alterna el estado de conexión"""
         if not self.connected:
             port_text = self.port_combo.currentText()
             if not port_text or "No hay puertos" in port_text:
@@ -150,14 +150,14 @@ class AcquisitionControls(QWidget):
             self.disconnection_requested.emit()
             
     def toggle_acquisition(self):
-        """Alternar estado de adquisición"""
+        """Alterna el estado de adquisición"""
         if not self.acquiring:
             self.start_acquisition.emit()
         else:
             self.stop_acquisition.emit()
             
     def set_connection_state(self, connected):
-        """Actualizar estado de conexión"""
+        """Actualiza el estado de conexión"""
         self.connected = connected
         if connected:
             self.connect_btn.setText("Desconectar")
@@ -198,7 +198,7 @@ class AcquisitionControls(QWidget):
             self.set_acquisition_state(False)
             
     def set_acquisition_state(self, acquiring):
-        """Actualizar estado de adquisición"""
+        """Actualiza el estado de adquisición"""
         self.acquiring = acquiring
         if acquiring:
             self.start_btn.setText("Detener Adquisición")

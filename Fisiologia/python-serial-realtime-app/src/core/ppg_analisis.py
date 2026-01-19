@@ -7,7 +7,7 @@ import heartpy as hp
 from scipy.signal import butter, filtfilt
 import pandas as pd
 
-# --- Filtros (Helpers) ---
+# --- Filtros ---
 
 def _butter_lowpass_filter(data, cutoff, fs, order=4):
     """
@@ -91,10 +91,11 @@ def get_ac_component(ppg_signal, fs, dc_cutoff=0.5, ac_noise_cutoff=4.0):
 
 
 if '__main__' == __name__:
-    fs = 125.0
+    #TODO: ver si funciona
+    fs = 125.0 # asi esta muestreada esa señal de prueba
     
     # Cargar datos usando pandas en lugar de hp.get_data()
-    df = pd.read_csv('./archivos_csv/analisis_ppg_prueba_1_senal_suavizada.csv')  # sep='\t' para archivos separados por tabulador
+    df = pd.read_csv('src/data/analisis_ppg_prueba_1_senal_suavizada.csv')  # sep='\t' para archivos separados por tabulador
     
     signal = df['ppg_suavizada'].values
     tiempo = df['tiempo_s'].values
@@ -106,7 +107,7 @@ if '__main__' == __name__:
     print(f"Primeros 5 valores: {signal[:5]}")
     print(f"Rango de valores: {signal.min():.2f} a {signal.max():.2f}")
     
-    # 2. Analisis de la señal usando nuestro módulo
+    # 2. Analisis de la señal usando el módulo
     print(f"\nAnalizando señal de {len(signal)/fs} segundos...\n")
 
     # --- Temporal (HeartPy) ---
