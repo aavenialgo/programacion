@@ -1,6 +1,6 @@
 """ 
 Modulo de analisis de señales PPG.
-Lo que haces es analizar señales PPG para extraer características temporales y de amplitud.
+Lo que hace es analizar señales PPG para extraer características temporales y de amplitud.
 Usa la librería HeartPy para el análisis temporal y SciPy para el análisis de amplitud """
 import numpy as np
 import heartpy as hp
@@ -54,17 +54,15 @@ def get_temporal_features(ppg_signal, fs):
     - measures: Diccionario de HeartPy con las métricas.
     """
     try:
-        # Usamos heartpy.process para obtener el análisis
+        # se usa heartpy.process para obtener el análisis
         working_data, measures = hp.process(ppg_signal, sample_rate=fs)
         
         fc_bpm = measures.get('bpm', np.nan)
         ppi_ms = measures.get('ibi', np.nan) # HeartPy lo llama 'ibi' (Inter-Beat Interval)
         
-        # Obtenemos la lista de picos sistólicos (índices)
+        # se obtiene la lista de picos sistólicos (índices)
         systolic_peaks_idx = working_data.get('peaklist', np.array([]))
         
-        # ¡¡CAMBIO IMPORTANTE!!
-        # Devolvemos todo para poder graficar después
         return fc_bpm, ppi_ms, systolic_peaks_idx, working_data, measures
         
     except Exception as e:
@@ -98,20 +96,17 @@ if '__main__' == __name__:
     # Cargar datos usando pandas en lugar de hp.get_data()
     df = pd.read_csv('./archivos_csv/analisis_ppg_prueba_1_senal_suavizada.csv')  # sep='\t' para archivos separados por tabulador
     
-    # Extraer solo la columna de la señal PPG
     signal = df['ppg_suavizada'].values
-    
-    # También puedes extraer el tiempo si lo necesitas
     tiempo = df['tiempo_s'].values
     
-    # Limitamos a n segundos
+    # Se limita a n segundos
     signal = signal[:int(9 * fs)]
     
     print(f"Datos cargados: {len(signal)} puntos")
     print(f"Primeros 5 valores: {signal[:5]}")
     print(f"Rango de valores: {signal.min():.2f} a {signal.max():.2f}")
     
-    # 2. Analizamos la señal usando nuestro módulo
+    # 2. Analisis de la señal usando nuestro módulo
     print(f"\nAnalizando señal de {len(signal)/fs} segundos...\n")
 
     # --- Temporal (HeartPy) ---

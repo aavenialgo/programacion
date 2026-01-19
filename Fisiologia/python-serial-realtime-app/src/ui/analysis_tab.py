@@ -301,7 +301,7 @@ class AnalysisTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error cargando datos de adquisición:\n{e}")
             self.log_message(f"Error cargando datos de adquisición: {e}")
-            
+    #TODO: cambiar la implementacion al modulo filter.py        
     def apply_filter(self):
         """Aplicar filtro Butterworth a los datos"""
         if self.current_data is None:
@@ -327,7 +327,7 @@ class AnalysisTab(QWidget):
             # Aplicar filtro
             self.filtered_data = apply_filter(self.current_data, lowcut, highcut, fs, order)
             
-            # Actualizar gráfico filtrado
+            # Actualizar el gráfico filtrado
             self.update_filtered_plot()
             
             # Log
@@ -341,7 +341,7 @@ class AnalysisTab(QWidget):
         """Alternar eliminación de línea base"""
         if state == Qt.Checked:
             if self.filtered_data is not None:
-                # Llamar función de sacar línea base (por implementar)
+                #TODO: ver si esta bien implementado 
                 self.sacar_linea_base()
                 self.baseline_removed = True
                 self.log_message("Línea base eliminada")
@@ -361,8 +361,8 @@ class AnalysisTab(QWidget):
         self.update_filtered_plot()
         #TODO: ver si esta bien implementado
         
-    def update_original_plot(self):
-       """Actualizar gráfico de señal original""" 
+    def update_original_plot(self): 
+        """Actualiza el gráfico de señal original""" 
         if self.current_data is not None:
             self.original_curve.setData(self.time_data, self.current_data)
             
