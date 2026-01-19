@@ -9,10 +9,6 @@ Este módulo contiene:
 """
 
 # Importar ventana principal
-try:
-    from .main_window import MainWindow
-except ImportError as e:
-    print(f"Warning: No se pudo importar MainWindow: {e}")
 
 # Importar pestañas
 try:
@@ -28,10 +24,8 @@ except ImportError as e:
 # Importar widgets personalizados
 try:
     from .widgets.acquisition_controls import AcquisitionControls
-    from .widgets.ppg_plot_widget import PPGPlotWidget
-    from .widgets.status_panel import StatusPanel
 except ImportError as e:
-    print(f"Warning: No se pudieron importar algunos widgets: {e}")
+    print(f"Warning: No se pudo importar AcquisitionControls: {e}")
 
 __all__ = [
     # Ventana principal
@@ -41,6 +35,4 @@ __all__ = [
     'AnalysisTab',
     # Widgets
     'AcquisitionControls',
-    'PPGPlotWidget',
-    'StatusPanel',
 ]

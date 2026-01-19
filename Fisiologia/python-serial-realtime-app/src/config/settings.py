@@ -1,5 +1,6 @@
 """
-Configuraciones generales de la aplicación PPG Analyzer
+Configuraciones generales. Incluye parametros del puerto serie, configuraciones de señal,
+filtros, análisis, interfaz y exportación de datos.
 """
 
 # === CONFIGURACIONES DEL PUERTO SERIE ===

@@ -46,11 +46,6 @@
               <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Módulo core</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#core.get_temporal_features"><code class="docutils literal notranslate"><span class="pre">get_temporal_features()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#core.get_dc_component"><code class="docutils literal notranslate"><span class="pre">get_dc_component()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#core.get_ac_component"><code class="docutils literal notranslate"><span class="pre">get_ac_component()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#core.apply_filter"><code class="docutils literal notranslate"><span class="pre">apply_filter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#core.linebase_removal"><code class="docutils literal notranslate"><span class="pre">linebase_removal()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#submodulos">Submódulos</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-core.filter">filter</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#core.filter.apply_filter"><code class="docutils literal notranslate"><span class="pre">apply_filter()</span></code></a></li>
@@ -103,77 +98,6 @@
 - Filtrado de señales (filter.py)
 - Procesamiento en tiempo real (ppg_processor.py)
 - Manejo de comunicación serial (serial_handler.py)</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="core.get_temporal_features">
-<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_temporal_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_temporal_features"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_temporal_features" title="Link to this definition"></a></dt>
-<dd><p>Calcula características temporales usando HeartPy.</p>
-<p>Devuelve:
-- FC (Frecuencia Cardíaca) en BPM.
-- PPI (Intervalo Pulso-Pulso) promedio en ms.
-- Índices de los picos sistólicos.
-- working_data: Diccionario de HeartPy con datos procesados.
-- measures: Diccionario de HeartPy con las métricas.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.get_dc_component">
-<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_dc_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_dc_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_dc_component" title="Link to this definition"></a></dt>
-<dd><p>Calcula el componente DC (Basal) de la señal PPG.
-Filtra la señal por debajo del “cutoff” (0.5 Hz por defecto) y calcula la media.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.get_ac_component">
-<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_ac_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ac_noise_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_ac_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_ac_component" title="Link to this definition"></a></dt>
-<dd><p>Calcula el componente AC (Pulsátil) de la señal PPG.
-Mide la amplitud pico a pico (max - min) de la señal pulsátil.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.apply_filter">
-<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#apply_filter"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.apply_filter" title="Link to this definition"></a></dt>
-<dd><p>Aplica un filtro butterworth pasa banda a los datos
-:param data: señal de entrada
-:type data: np.ndarray
-:param lowcut: frecuencia de corte baja
-:type lowcut: float
-:param highcut: frecuencia de corte alta
-:type highcut: float
-:param fs: frecuencia de muestreo
-:type fs: int
-:param order: orden del filtro. Defaults to 4.
-:type order: int, optional</p>
-<dl class="field-list simple">
-<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
-<dd class="field-odd"><p>señal filtrada</p>
-</dd>
-<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
-</dd>
-<dt class="field-odd">Muestra<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – si los parámetros no son válidos</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.linebase_removal">
-<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">linebase_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#linebase_removal"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.linebase_removal" title="Link to this definition"></a></dt>
-<dd><p>Elimina la línea base de la señal
-:param data: señal de entrada
-:type data: np.ndarray
-:param fs: frecuencia de muestreo
-:type fs: int</p>
-<dl class="field-list simple">
-<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
-<dd class="field-odd"><p>señal sin componente DC</p>
-</dd>
-<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
 <section id="submodulos">
 <h2>Submódulos<a class="headerlink" href="#submodulos" title="Link to this heading"></a></h2>
 <section id="module-core.filter">

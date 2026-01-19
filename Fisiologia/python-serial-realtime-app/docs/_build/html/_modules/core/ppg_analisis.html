@@ -117,7 +117,7 @@
 <span class="c1"># --- Funciones Principales del Módulo ---</span>
 
 <div class="viewcode-block" id="get_temporal_features">
-<a class="viewcode-back" href="../../modules/core.html#core.get_temporal_features">[documentos]</a>
+<a class="viewcode-back" href="../../modules/core.html#core.ppg_analisis.get_temporal_features">[documentos]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_features</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calcula características temporales usando HeartPy.</span>
@@ -148,7 +148,7 @@
 
 
 <div class="viewcode-block" id="get_dc_component">
-<a class="viewcode-back" href="../../modules/core.html#core.get_dc_component">[documentos]</a>
+<a class="viewcode-back" href="../../modules/core.html#core.ppg_analisis.get_dc_component">[documentos]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_dc_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calcula el componente DC (Basal) de la señal PPG.</span>
@@ -159,7 +159,7 @@
 
 
 <div class="viewcode-block" id="get_ac_component">
-<a class="viewcode-back" href="../../modules/core.html#core.get_ac_component">[documentos]</a>
+<a class="viewcode-back" href="../../modules/core.html#core.ppg_analisis.get_ac_component">[documentos]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_ac_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="o">=</span><span class="mf">4.0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calcula el componente AC (Pulsátil) de la señal PPG.</span>

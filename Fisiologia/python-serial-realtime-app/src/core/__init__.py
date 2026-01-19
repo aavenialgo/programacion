@@ -21,17 +21,6 @@ from .filter import (
     linebase_removal
 )
 
-# Importar clases principales
-try:
-    from .ppg_processor import PPGProcessor
-except ImportError as e:
-    print(f"Warning: No se pudo importar PPGProcessor: {e}")
-
-try:
-    from .serial_handler import SerialHandler
-except ImportError as e:
-    print(f"Warning: No se pudo importar SerialHandler: {e}")
-
 __all__ = [
     # Análisis PPG
     'get_temporal_features',
@@ -40,7 +29,4 @@ __all__ = [
     # Filtrado
     'apply_filter',
     'linebase_removal',
-    # Clases principales
-    'PPGProcessor',
-    'SerialHandler',
 ]

@@ -3,10 +3,7 @@ Módulo ui
 =========
 
 .. automodule:: ui
-   :members:
-   :undoc-members:
    :show-inheritance:
-
 
 Submódulos
 ----------

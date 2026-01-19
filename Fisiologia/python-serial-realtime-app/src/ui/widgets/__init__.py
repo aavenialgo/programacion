@@ -13,18 +13,8 @@ try:
 except ImportError as e:
     print(f"Warning: No se pudo importar AcquisitionControls: {e}")
 
-try:
-    from .ppg_plot_widget import PPGPlotWidget
-except ImportError as e:
-    print(f"Warning: No se pudo importar PPGPlotWidget: {e}")
 
-try:
-    from .status_panel import StatusPanel
-except ImportError as e:
-    print(f"Warning: No se pudo importar StatusPanel: {e}")
 
 __all__ = [
     'AcquisitionControls',
-    'PPGPlotWidget',
-    'StatusPanel',
 ]

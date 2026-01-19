@@ -20,7 +20,7 @@ def setup_sphinx():
     # Configuración automática
     config = {
         'project': 'Python Serial Realtime App',
-        'author': 'Tu Nombre',
+        'author': 'Andres Venialgo',
         'release': '1.0',
         'language': 'es',
         'sep': False,  # No separar source y build
@@ -58,8 +58,8 @@ sys.path.insert(0, os.path.abspath('../src'))
 
 # -- Project information -----------------------------------------------------
 project = 'Python Serial Realtime App'
-copyright = '2026, Tu Nombre'
-author = 'Tu Nombre'
+copyright = '2026, Andres Venialgo'
+author = 'Andres Venialgo'
 release = '1.0'
 
 # -- General configuration ---------------------------------------------------
@@ -134,24 +134,24 @@ Aplicación para adquisición y análisis de señales PPG en tiempo real.
     
     print("✅ index.rst creado")
 
+# ...existing code...
 def create_module_rst(module_name, submodules):
     """Crea archivos RST para cada módulo"""
     print(f"📝 Creando documentación para módulo {module_name}...")
     
-    content = f"""
+    # Si el módulo tiene submódulos (es paquete), no listamos sus miembros aquí
+    if submodules:
+        content = f"""
 Módulo {module_name}
 {'=' * (7 + len(module_name))}
 
 .. automodule:: {module_name}
-   :members:
-   :undoc-members:
    :show-inheritance:
 
+Submódulos
+----------
+
 """
-    
-    # Agregar submódulos
-    if submodules:
-        content += "\nSubmódulos\n----------\n\n"
         for submodule in submodules:
             content += f"""
 {submodule}
@@ -163,11 +163,24 @@ Módulo {module_name}
    :show-inheritance:
 
 """
+    # Si es un módulo simple (sin submódulos), sí listamos sus miembros
+    else:
+        content = f"""
+Módulo {module_name}
+{'=' * (7 + len(module_name))}
+
+.. automodule:: {module_name}
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+"""
     
     with open(f'docs/modules/{module_name}.rst', 'w', encoding='utf-8') as f:
         f.write(content)
     
     print(f"✅ Documentación de {module_name} creada")
+
 
 def scan_modules():
     """Escanea la estructura de módulos en src/"""
