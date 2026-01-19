@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui.widgets.acquisition_controls &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">ui.widgets.acquisition_controls</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para ui.widgets.acquisition_controls</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Widget de controles para la adquisición de datos</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">QWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> 
+                            <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QSpinBox</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span>
+                            <span class="n">QMessageBox</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyqtSignal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">serial.tools.list_ports</span>
+
+<div class="viewcode-block" id="AcquisitionControls">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AcquisitionControls</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Widget de control para la adquisición de datos del puerto serie&quot;&quot;&quot;</span>
+    
+    <span class="c1"># Señales</span>
+    <span class="n">connection_requested</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>  <span class="c1"># puerto, baudrate</span>
+    <span class="n">disconnection_requested</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="n">start_acquisition</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="n">stop_acquisition</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="n">reset_data</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="n">analyze_data</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>  <span class="c1"># Nueva señal para análisis</span>
+    
+<div class="viewcode-block" id="AcquisitionControls.__init__">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.__init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ui</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionControls.setup_ui">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.setup_ui">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configura la interfaz de usuario&quot;&quot;&quot;</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Grupo de conexión serie</span>
+        <span class="n">connection_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Conexión Serie&quot;</span><span class="p">)</span>
+        <span class="n">connection_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Puerto serie</span>
+        <span class="n">port_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">port_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Puerto:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_ports</span><span class="p">()</span>
+        <span class="n">port_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="p">)</span>
+        
+        <span class="n">refresh_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Actualizar&quot;</span><span class="p">)</span>
+        <span class="n">refresh_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh_ports</span><span class="p">)</span>
+        <span class="n">refresh_btn</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+        <span class="n">port_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">refresh_btn</span><span class="p">)</span>
+        <span class="n">connection_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">port_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Baudrate</span>
+        <span class="n">baudrate_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">baudrate_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Baudrate:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s1">&#39;9600&#39;</span><span class="p">,</span> <span class="s1">&#39;19200&#39;</span><span class="p">,</span> <span class="s1">&#39;38400&#39;</span><span class="p">,</span> <span class="s1">&#39;57600&#39;</span><span class="p">,</span> <span class="s1">&#39;115200&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="o">.</span><span class="n">setCurrentText</span><span class="p">(</span><span class="s1">&#39;115200&#39;</span><span class="p">)</span>
+        <span class="n">baudrate_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="p">)</span>
+        <span class="n">connection_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">baudrate_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Botones de conexión</span>
+        <span class="n">connection_buttons</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Conectar&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_connection</span><span class="p">)</span>
+        <span class="n">connection_buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="p">)</span>
+        
+        <span class="n">connection_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">connection_buttons</span><span class="p">)</span>
+        <span class="n">connection_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">connection_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">connection_group</span><span class="p">)</span>
+        
+        <span class="c1"># Grupo de adquisición</span>
+        <span class="n">acquisition_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Control de Adquisición&quot;</span><span class="p">)</span>
+        <span class="n">acquisition_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Botones de control</span>
+        <span class="n">control_buttons</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Iniciar Adquisición&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_acquisition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">control_buttons</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="p">)</span>
+        
+        <span class="n">acquisition_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">control_buttons</span><span class="p">)</span>
+        
+        <span class="c1"># Botón de reset</span>
+        <span class="n">reset_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Reset Datos&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_data</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="n">reset_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_btn</span><span class="p">)</span>
+        <span class="n">acquisition_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">reset_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Botón de análisis</span>
+        <span class="n">analysis_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyze_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Analizar Datos&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyze_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analyze_data</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyze_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            QPushButton {</span>
+<span class="s2">                background-color: #9B59B6;</span>
+<span class="s2">                color: white;</span>
+<span class="s2">                border: none;</span>
+<span class="s2">                padding: 8px;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                font-weight: bold;</span>
+<span class="s2">            }</span>
+<span class="s2">            QPushButton:hover {</span>
+<span class="s2">                background-color: #8E44AD;</span>
+<span class="s2">            }</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">analysis_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analyze_btn</span><span class="p">)</span>
+        <span class="n">acquisition_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">analysis_layout</span><span class="p">)</span>
+        
+        <span class="n">acquisition_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">acquisition_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">acquisition_group</span><span class="p">)</span>
+        
+        <span class="c1"># Espaciador</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addStretch</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionControls.refresh_ports">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.refresh_ports">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">refresh_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza la lista de puertos disponibles&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">list_ports</span><span class="o">.</span><span class="n">comports</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ports</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s2">&quot;No hay puertos disponibles&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+            
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">ports</span><span class="p">:</span>
+            <span class="n">display_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="s1">&#39;n/a&#39;</span><span class="p">:</span>
+                <span class="n">display_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="n">port</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">display_text</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionControls.toggle_connection">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.toggle_connection">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alterna el estado de conexión&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="p">:</span>
+            <span class="n">port_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">port_text</span> <span class="ow">or</span> <span class="s2">&quot;No hay puertos&quot;</span> <span class="ow">in</span> <span class="n">port_text</span><span class="p">:</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Seleccione un puerto serie válido&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+                
+            <span class="c1"># Extraer solo el nombre del puerto</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">port_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">baudrate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Baudrate inválido&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_requested</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disconnection_requested</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionControls.toggle_acquisition">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.toggle_acquisition">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alterna el estado de adquisición&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_acquisition</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionControls.set_connection_state">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.set_connection_state">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_connection_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connected</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza el estado de conexión&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="n">connected</span>
+        <span class="k">if</span> <span class="n">connected</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Desconectar&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                QPushButton {</span>
+<span class="s2">                    background-color: #E74C3C;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    border: none;</span>
+<span class="s2">                    padding: 8px;</span>
+<span class="s2">                    border-radius: 4px;</span>
+<span class="s2">                    font-weight: bold;</span>
+<span class="s2">                }</span>
+<span class="s2">                QPushButton:hover {</span>
+<span class="s2">                    background-color: #C0392B;</span>
+<span class="s2">                }</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Conectar&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connect_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                QPushButton {</span>
+<span class="s2">                    background-color: #27AE60;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    border: none;</span>
+<span class="s2">                    padding: 8px;</span>
+<span class="s2">                    border-radius: 4px;</span>
+<span class="s2">                    font-weight: bold;</span>
+<span class="s2">                }</span>
+<span class="s2">                QPushButton:hover {</span>
+<span class="s2">                    background-color: #229954;</span>
+<span class="s2">                }</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">port_combo</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">baudrate_combo</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_acquisition_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionControls.set_acquisition_state">
+<a class="viewcode-back" href="../../../modules/ui.html#ui.AcquisitionControls.set_acquisition_state">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_acquisition_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acquiring</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza el estado de adquisición&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">acquiring</span>
+        <span class="k">if</span> <span class="n">acquiring</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Detener Adquisición&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                QPushButton {</span>
+<span class="s2">                    background-color: #E67E22;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    border: none;</span>
+<span class="s2">                    padding: 8px;</span>
+<span class="s2">                    border-radius: 4px;</span>
+<span class="s2">                    font-weight: bold;</span>
+<span class="s2">                }</span>
+<span class="s2">                QPushButton:hover {</span>
+<span class="s2">                    background-color: #D35400;</span>
+<span class="s2">                }</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Iniciar Adquisición&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                QPushButton {</span>
+<span class="s2">                    background-color: #3498DB;</span>
+<span class="s2">                    color: white;</span>
+<span class="s2">                    border: none;</span>
+<span class="s2">                    padding: 8px;</span>
+<span class="s2">                    border-radius: 4px;</span>
+<span class="s2">                    font-weight: bold;</span>
+<span class="s2">                }</span>
+<span class="s2">                QPushButton:hover {</span>
+<span class="s2">                    background-color: #2980B9;</span>
+<span class="s2">                }</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

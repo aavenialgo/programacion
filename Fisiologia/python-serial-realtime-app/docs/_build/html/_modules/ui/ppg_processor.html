@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui.ppg_processor &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">ui.ppg_processor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para ui.ppg_processor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Módulo para el procesamiento de señales PPG en tiempo real</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QTimer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span>
+
+<div class="viewcode-block" id="PPGProcessor">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PPGProcessor</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Procesador de señales PPG con análisis en tiempo real&quot;&quot;&quot;</span>
+    
+    <span class="c1"># Señales para comunicación con la UI </span>
+    
+    <span class="c1">#: nueva señal procesada</span>
+    <span class="n">new_data_processed</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="c1">#: contenedor del análisis completo</span>
+    <span class="n">analysis_complete</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1">#: segmento analizado</span>
+    <span class="n">segment_analyzed</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1">#: buffer de datos</span>
+    <span class="n">buffer_full</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="PPGProcessor.__init__">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.__init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">buffer_size</span><span class="o">=</span><span class="mi">7500</span><span class="p">):</span>  <span class="c1"># 60 segundos @ 100Hz</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">=</span> <span class="n">sample_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">buffer_size</span>
+        
+        <span class="c1"># Buffers de datos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
+        
+        <span class="c1"># Variables de estado</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_analysis_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_interval</span> <span class="o">=</span> <span class="mf">5.0</span>  <span class="c1"># Analizar cada 5 segundos</span>
+        
+        <span class="c1"># Timer para análisis periódico</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodic_analysis</span><span class="p">)</span>
+        
+        <span class="c1"># Estadísticas en tiempo real</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_hr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_hrv</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+        
+<div class="viewcode-block" id="PPGProcessor.reset_data">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.reset_data">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resetea todos los buffers de datos&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_analysis_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_hr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_hrv</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+        
+<div class="viewcode-block" id="PPGProcessor.start_processing">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.start_processing">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Funcion del timer que inicia el procesamiento de datos&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_interval</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span></div>
+
+        
+<div class="viewcode-block" id="PPGProcessor.stop_processing">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.stop_processing">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;funcion del timer que detiene el procesamiento de datos&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="PPGProcessor.add_data_point">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.add_data_point">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_data_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_value</span><span class="p">,</span> <span class="n">filtered_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalized_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agrega un nuevo punto de datos&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">current_time</span>
+                
+            <span class="n">relative_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
+            
+            <span class="c1"># Agregar a buffers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relative_time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filtered_value</span> <span class="k">if</span> <span class="n">filtered_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">raw_value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalized_value</span> <span class="k">if</span> <span class="n">normalized_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">raw_value</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_data_processed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+            
+            <span class="c1"># Verificar si el buffer está lleno</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer_full</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error procesando datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+            
+    <span class="k">def</span><span class="w"> </span><span class="nf">_periodic_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Realiza el análisis periódico de la señal&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Necesitamos al menos 2 segundos</span>
+            <span class="k">return</span>
+            
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Obtener los últimos 5 segundos de datos</span>
+            <span class="n">segment_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">))</span>
+            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">segment_size</span><span class="p">:]</span>
+            <span class="n">time_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">segment_size</span><span class="p">:]</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Realizar análisis</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_segment</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">,</span> <span class="n">time_segment</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_hr</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_hrv</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hrv&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">analysis_complete</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error en análisis periódico: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analyze_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">time_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analiza un segmento de señal PPG</span>
+<span class="sd">        Se obtiene parámetros como fc, hrv y calidad de señal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+                
+            <span class="c1"># Convertir a arrays numpy</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+            <span class="n">time_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time_data</span><span class="p">)</span>
+            
+            <span class="c1"># Normalizar señal</span>
+            <span class="n">signal_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+            
+            <span class="c1"># Detectar picos</span>
+            <span class="c1"># Distancia mínima entre picos: ~0.4s (150 BPM máximo)</span>
+            <span class="n">min_distance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+            <span class="n">peaks</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">signal_norm</span><span class="p">,</span> 
+                                         <span class="n">height</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>  <span class="c1"># Altura mínima</span>
+                                         <span class="n">distance</span><span class="o">=</span><span class="n">min_distance</span><span class="p">)</span>
+            
+            <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;num_peaks&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">),</span>
+                <span class="s1">&#39;heart_rate&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;hrv&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;signal_quality&#39;</span><span class="p">:</span> <span class="s1">&#39;good&#39;</span>
+            <span class="p">}</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># Calcular intervalos RR (en segundos)</span>
+                <span class="n">rr_intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_data</span><span class="p">[</span><span class="n">peaks</span><span class="p">])</span>
+                
+                <span class="c1"># Calcular frecuencia cardíaca</span>
+                <span class="n">mean_rr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rr_intervals</span><span class="p">)</span>
+                <span class="n">heart_rate</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">/</span> <span class="n">mean_rr</span> <span class="k">if</span> <span class="n">mean_rr</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                
+                <span class="c1"># Calcular HRV (RMSSD)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rr_intervals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">rr_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">rr_intervals</span><span class="p">)</span>
+                    <span class="n">hrv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rr_diff</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span>  <span class="c1"># en ms</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">hrv</span> <span class="o">=</span> <span class="mi">0</span>
+                
+                <span class="n">results</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s1">&#39;heart_rate&#39;</span><span class="p">:</span> <span class="n">heart_rate</span><span class="p">,</span>
+                    <span class="s1">&#39;hrv&#39;</span><span class="p">:</span> <span class="n">hrv</span><span class="p">,</span>
+                    <span class="s1">&#39;rr_intervals&#39;</span><span class="p">:</span> <span class="n">rr_intervals</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="s1">&#39;peak_times&#39;</span><span class="p">:</span> <span class="n">time_data</span><span class="p">[</span><span class="n">peaks</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="s1">&#39;mean_rr&#39;</span><span class="p">:</span> <span class="n">mean_rr</span>
+                <span class="p">})</span>
+                
+                <span class="c1"># Evaluar calidad de la señal</span>
+                <span class="k">if</span> <span class="n">heart_rate</span> <span class="o">&lt;</span> <span class="mi">40</span> <span class="ow">or</span> <span class="n">heart_rate</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;signal_quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;poor&#39;</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;signal_quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;fair&#39;</span>
+                    
+            <span class="k">return</span> <span class="n">results</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error analizando segmento: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+            
+<div class="viewcode-block" id="PPGProcessor.analyze_custom_segment">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.analyze_custom_segment">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze_custom_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analiza un segmento específico de la señal&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Encontrar índices para el segmento</span>
+            <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">start_idx</span> <span class="o">&gt;=</span> <span class="n">end_idx</span> <span class="ow">or</span> <span class="n">end_idx</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+                
+            <span class="c1"># Extraer segmento</span>
+            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+            <span class="n">time_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>  <span class="c1"># Mínimo de datos requerido</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_segment</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">,</span> <span class="n">time_segment</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">segment_analyzed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">results</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error analizando segmento personalizado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+            
+<div class="viewcode-block" id="PPGProcessor.get_display_data">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.get_display_data">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_display_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_points</span><span class="o">=</span><span class="mi">2500</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtiene los datos para mostrar en un gráfico</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            _type_: _description_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+            
+        <span class="c1"># Limitar el número de puntos para mejor rendimiento</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">),</span> 
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">),</span> 
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">),</span>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Tomar los últimos max_points puntos</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:])</span></div>
+
+                   
+<div class="viewcode-block" id="PPGProcessor.get_current_stats">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.get_current_stats">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_current_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtiene las estadísticas actuales&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;heart_rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_hr</span><span class="p">,</span>
+            <span class="s1">&#39;hrv&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_hrv</span><span class="p">,</span>
+            <span class="s1">&#39;data_points&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">),</span>
+            <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">}</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

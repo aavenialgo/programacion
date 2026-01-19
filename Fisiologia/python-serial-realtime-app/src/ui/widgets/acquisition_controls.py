@@ -1,5 +1,8 @@
 """
-Widget de controles para la adquisición de datos
+Widget de controles para la adquisición de datos y
+Controles para conectar/desconectar, iniciar/detener adquisición, 
+resetear datos y analizar datos.
+
 """
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                             QComboBox, QLabel, QLineEdit, QSpinBox, QGroupBox,

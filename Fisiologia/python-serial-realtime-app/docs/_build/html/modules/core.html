@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo core &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+    <link rel="next" title="Módulo data" href="data.html" />
+    <link rel="prev" title="Documentación de Python Serial Realtime App" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Módulo core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core.get_temporal_features"><code class="docutils literal notranslate"><span class="pre">get_temporal_features()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.get_dc_component"><code class="docutils literal notranslate"><span class="pre">get_dc_component()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.get_ac_component"><code class="docutils literal notranslate"><span class="pre">get_ac_component()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.apply_filter"><code class="docutils literal notranslate"><span class="pre">apply_filter()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.linebase_removal"><code class="docutils literal notranslate"><span class="pre">linebase_removal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodulos">Submódulos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-core.filter">filter</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core.filter.apply_filter"><code class="docutils literal notranslate"><span class="pre">apply_filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#core.filter.linebase_removal"><code class="docutils literal notranslate"><span class="pre">linebase_removal()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-core.ppg_analisis">ppg_analisis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core.ppg_analisis.get_temporal_features"><code class="docutils literal notranslate"><span class="pre">get_temporal_features()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#core.ppg_analisis.get_dc_component"><code class="docutils literal notranslate"><span class="pre">get_dc_component()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#core.ppg_analisis.get_ac_component"><code class="docutils literal notranslate"><span class="pre">get_ac_component()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Módulo core</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/core.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-core">
+<span id="modulo-core"></span><h1>Módulo core<a class="headerlink" href="#module-core" title="Link to this heading"></a></h1>
+<p>Módulo core - Funciones principales de procesamiento y análisis de señales PPG.</p>
+<p>Este módulo contiene:
+- Análisis de señales PPG (ppg_analisis.py)
+- Filtrado de señales (filter.py)
+- Procesamiento en tiempo real (ppg_processor.py)
+- Manejo de comunicación serial (serial_handler.py)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.get_temporal_features">
+<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_temporal_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_temporal_features"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_temporal_features" title="Link to this definition"></a></dt>
+<dd><p>Calcula características temporales usando HeartPy.</p>
+<p>Devuelve:
+- FC (Frecuencia Cardíaca) en BPM.
+- PPI (Intervalo Pulso-Pulso) promedio en ms.
+- Índices de los picos sistólicos.
+- working_data: Diccionario de HeartPy con datos procesados.
+- measures: Diccionario de HeartPy con las métricas.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.get_dc_component">
+<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_dc_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_dc_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_dc_component" title="Link to this definition"></a></dt>
+<dd><p>Calcula el componente DC (Basal) de la señal PPG.
+Filtra la señal por debajo del “cutoff” (0.5 Hz por defecto) y calcula la media.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.get_ac_component">
+<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">get_ac_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ac_noise_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_ac_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.get_ac_component" title="Link to this definition"></a></dt>
+<dd><p>Calcula el componente AC (Pulsátil) de la señal PPG.
+Mide la amplitud pico a pico (max - min) de la señal pulsátil.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.apply_filter">
+<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#apply_filter"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.apply_filter" title="Link to this definition"></a></dt>
+<dd><p>Aplica un filtro butterworth pasa banda a los datos
+:param data: señal de entrada
+:type data: np.ndarray
+:param lowcut: frecuencia de corte baja
+:type lowcut: float
+:param highcut: frecuencia de corte alta
+:type highcut: float
+:param fs: frecuencia de muestreo
+:type fs: int
+:param order: orden del filtro. Defaults to 4.
+:type order: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
+<dd class="field-odd"><p>señal filtrada</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">Muestra<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – si los parámetros no son válidos</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.linebase_removal">
+<span class="sig-prename descclassname"><span class="pre">core.</span></span><span class="sig-name descname"><span class="pre">linebase_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#linebase_removal"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.linebase_removal" title="Link to this definition"></a></dt>
+<dd><p>Elimina la línea base de la señal
+:param data: señal de entrada
+:type data: np.ndarray
+:param fs: frecuencia de muestreo
+:type fs: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
+<dd class="field-odd"><p>señal sin componente DC</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="submodulos">
+<h2>Submódulos<a class="headerlink" href="#submodulos" title="Link to this heading"></a></h2>
+<section id="module-core.filter">
+<span id="filter"></span><h3>filter<a class="headerlink" href="#module-core.filter" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.filter.apply_filter">
+<span class="sig-prename descclassname"><span class="pre">core.filter.</span></span><span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#apply_filter"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.filter.apply_filter" title="Link to this definition"></a></dt>
+<dd><p>Aplica un filtro butterworth pasa banda a los datos
+:param data: señal de entrada
+:type data: np.ndarray
+:param lowcut: frecuencia de corte baja
+:type lowcut: float
+:param highcut: frecuencia de corte alta
+:type highcut: float
+:param fs: frecuencia de muestreo
+:type fs: int
+:param order: orden del filtro. Defaults to 4.
+:type order: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
+<dd class="field-odd"><p>señal filtrada</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">Muestra<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – si los parámetros no son válidos</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.filter.linebase_removal">
+<span class="sig-prename descclassname"><span class="pre">core.filter.</span></span><span class="sig-name descname"><span class="pre">linebase_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/filter.html#linebase_removal"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.filter.linebase_removal" title="Link to this definition"></a></dt>
+<dd><p>Elimina la línea base de la señal
+:param data: señal de entrada
+:type data: np.ndarray
+:param fs: frecuencia de muestreo
+:type fs: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
+<dd class="field-odd"><p>señal sin componente DC</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-core.ppg_analisis">
+<span id="ppg-analisis"></span><h3>ppg_analisis<a class="headerlink" href="#module-core.ppg_analisis" title="Link to this heading"></a></h3>
+<p>Modulo de analisis de señales PPG.
+Lo que hace es analizar señales PPG para extraer características temporales y de amplitud.
+Usa la librería HeartPy para el análisis temporal y SciPy para el análisis de amplitud</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.ppg_analisis.get_temporal_features">
+<span class="sig-prename descclassname"><span class="pre">core.ppg_analisis.</span></span><span class="sig-name descname"><span class="pre">get_temporal_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_temporal_features"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.ppg_analisis.get_temporal_features" title="Link to this definition"></a></dt>
+<dd><p>Calcula características temporales usando HeartPy.</p>
+<p>Devuelve:
+- FC (Frecuencia Cardíaca) en BPM.
+- PPI (Intervalo Pulso-Pulso) promedio en ms.
+- Índices de los picos sistólicos.
+- working_data: Diccionario de HeartPy con datos procesados.
+- measures: Diccionario de HeartPy con las métricas.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.ppg_analisis.get_dc_component">
+<span class="sig-prename descclassname"><span class="pre">core.ppg_analisis.</span></span><span class="sig-name descname"><span class="pre">get_dc_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_dc_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.ppg_analisis.get_dc_component" title="Link to this definition"></a></dt>
+<dd><p>Calcula el componente DC (Basal) de la señal PPG.
+Filtra la señal por debajo del “cutoff” (0.5 Hz por defecto) y calcula la media.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.ppg_analisis.get_ac_component">
+<span class="sig-prename descclassname"><span class="pre">core.ppg_analisis.</span></span><span class="sig-name descname"><span class="pre">get_ac_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ac_noise_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ppg_analisis.html#get_ac_component"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#core.ppg_analisis.get_ac_component" title="Link to this definition"></a></dt>
+<dd><p>Calcula el componente AC (Pulsátil) de la señal PPG.
+Mide la amplitud pico a pico (max - min) de la señal pulsátil.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Documentación de Python Serial Realtime App" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="data.html" class="btn btn-neutral float-right" title="Módulo data" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

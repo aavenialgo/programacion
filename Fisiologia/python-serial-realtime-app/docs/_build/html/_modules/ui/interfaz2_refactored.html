@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui.interfaz2_refactored &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">ui.interfaz2_refactored</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para ui.interfaz2_refactored</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Aplicación principal PPG Analyzer - Versión Refactorizada</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyqtgraph</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">serial</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span><span class="p">,</span> <span class="n">savgol_filter</span><span class="p">,</span> <span class="n">butter</span><span class="p">,</span> <span class="n">filtfilt</span>
+
+<span class="c1"># Importaciones de PyQt5</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span>
+    <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QSplitter</span><span class="p">,</span> <span class="n">QStatusBar</span><span class="p">,</span> <span class="n">QTabWidget</span><span class="p">,</span>
+    <span class="n">QLabel</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="p">,</span> <span class="n">QScrollArea</span><span class="p">,</span> <span class="n">QTableWidget</span><span class="p">,</span>
+    <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QInputDialog</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QTimer</span><span class="p">,</span> <span class="n">QRunnable</span><span class="p">,</span> <span class="n">QThreadPool</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QSize</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtGui</span><span class="w"> </span><span class="kn">import</span> <span class="n">QFont</span><span class="p">,</span> <span class="n">QColor</span>
+
+<span class="c1"># Importar módulos refactorizados</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.serial_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">SerialReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ppg_processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGProcessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.acquisition_tab</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.analysis_tab</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisTab</span>
+
+<span class="c1"># --- Configuraciones de PyQTGraph y Estilo ---</span>
+<span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">)</span>  <span class="c1"># Fondo blanco para los gráficos</span>
+<span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;foreground&#39;</span><span class="p">,</span> <span class="s1">&#39;#333333&#39;</span><span class="p">)</span>  <span class="c1"># Eje y texto gris oscuro</span>
+<span class="n">pg</span><span class="o">.</span><span class="n">setConfigOptions</span><span class="p">(</span><span class="n">antialias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">leftButtonPan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useOpenGL</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PPGAnalyzerApp">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PPGAnalyzerApp</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aplicación principal del Analizador PPG - Versión Refactorizada&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="PPGAnalyzerApp.__init__">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.__init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Analizador PPG en Tiempo Real - v2.0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">900</span><span class="p">)</span>
+        
+        <span class="c1"># Componentes principales</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span> <span class="o">=</span> <span class="n">SerialReader</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span> <span class="o">=</span> <span class="n">PPGProcessor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># Estados de la aplicación</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_connections</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_status_bar</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.setup_ui">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.setup_ui">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configura la interfaz del usuario&quot;&quot;&quot;</span>
+        <span class="n">central_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">central_widget</span><span class="p">)</span>
+        
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Crear pestañas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span> <span class="o">=</span> <span class="n">QTabWidget</span><span class="p">()</span>
+        
+        <span class="c1"># Pestaña de adquisición (nueva versión refactorizada)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span> <span class="o">=</span> <span class="n">AcquisitionTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="p">,</span> <span class="s2">&quot;Adquisición de Datos&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Pestaña de análisis (nueva versión completa)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span> <span class="o">=</span> <span class="n">AnalysisTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span><span class="p">,</span> <span class="s2">&quot;Análisis de Datos&quot;</span><span class="p">)</span>
+        
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="p">)</span>
+        <span class="n">central_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.setup_connections">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.setup_connections">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configura las conexiones entre componentes&quot;&quot;&quot;</span>
+        <span class="c1"># Conexiones del lector serie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">data_received</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_serial_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">connection_status_changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_connection_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">error_occurred</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_serial_error</span><span class="p">)</span>
+        
+        <span class="c1"># Conexiones de los controles de adquisición</span>
+        <span class="n">controls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">controls</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">connection_requested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connect_serial</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">disconnection_requested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disconnect_serial</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">start_acquisition</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_acquisition</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">reset_data</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_data</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">analyze_data</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">go_to_analysis</span><span class="p">)</span>  <span class="c1"># Nueva conexión</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.setup_status_bar">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.setup_status_bar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_status_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configura la barra de estado&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span> <span class="o">=</span> <span class="n">QStatusBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStatusBar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="p">)</span>
+        
+        <span class="c1"># Etiquetas de estado</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_status_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Desconectado&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;0 pts/s&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hr_status_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;FC: -- BPM&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Estado:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_status_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">addPermanentWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_rate_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_bar</span><span class="o">.</span><span class="n">addPermanentWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hr_status_label</span><span class="p">)</span>
+        
+        <span class="c1"># Timer para actualizar velocidad de datos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_status_bar</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>  <span class="c1"># Actualizar cada 2 segundos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_data_count</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.connect_serial">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.connect_serial">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conecta al puerto serie&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">controls</span><span class="o">.</span><span class="n">set_connection_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conectado a </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> @ </span><span class="si">{</span><span class="n">baudrate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Conectado&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">set_connection_status</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error de conexión: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error de Conexión&quot;</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.disconnect_serial">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.disconnect_serial">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disconnect_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Desconecta el puerto serie&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">controls</span><span class="o">.</span><span class="n">set_connection_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Desconectado&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Desconectado&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">set_connection_status</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error al desconectar: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.start_acquisition">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.start_acquisition">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inicia la adquisición de datos&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">start_reading</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serial_port</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">start_processing</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="kc">True</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">controls</span><span class="o">.</span><span class="n">set_acquisition_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Adquisición iniciada&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">set_connection_status</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error iniciando adquisición: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Advertencia&quot;</span><span class="p">,</span> <span class="s2">&quot;Debe conectarse primero al puerto serie&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.stop_acquisition">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.stop_acquisition">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detiene la adquisición de datos&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">stop_reading</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">controls</span><span class="o">.</span><span class="n">set_acquisition_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Adquisición detenida&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">set_connection_status</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error deteniendo adquisición: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.reset_data">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.reset_data">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resetea todos los datos&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">reset_data</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Datos reseteados&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Limpiar gráficos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">raw_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">([],</span> <span class="p">[])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">filtered_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">([],</span> <span class="p">[])</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error reseteando datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.go_to_analysis">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.go_to_analysis">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_to_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cambia a la pestaña de análisis y carga datos de adquisición&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Cambiar a la pestaña de análisis</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">setCurrentWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span><span class="p">)</span>
+            
+            <span class="c1"># Cargar datos de adquisición en la pestaña de análisis</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span><span class="o">.</span><span class="n">load_acquisition_data</span><span class="p">()</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Cambiando a pestaña de análisis&quot;</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error cambiando a análisis: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.process_serial_data">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.process_serial_data">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_serial_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_line</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Procesa una línea de datos recibida por serie&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Parsear datos usando el SerialReader</span>
+            <span class="n">parsed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">parse_data_line</span><span class="p">(</span><span class="n">data_line</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
+                <span class="n">raw</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span> <span class="n">normalized</span> <span class="o">=</span> <span class="n">parsed_data</span>
+                <span class="c1"># Enviar datos al procesador PPG</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">add_data_point</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span> <span class="n">normalized</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Si no es el formato esperado, intentar como número simple</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">add_data_point</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>  <span class="c1"># Ignorar líneas que no son números</span>
+                    
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error procesando datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.on_connection_changed">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.on_connection_changed">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_connection_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connected</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maneja el cambio en estado de conexión del SerialReader&quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;Conectado&quot;</span> <span class="k">if</span> <span class="n">connected</span> <span class="k">else</span> <span class="s2">&quot;Desconectado&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.on_serial_error">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.on_serial_error">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_serial_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maneja el error en comunicación serie&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error serie: </span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disconnect_serial</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="PPGAnalyzerApp.update_status_bar">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.update_status_bar">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_status_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza la barra de estado&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Calcular velocidad de datos</span>
+            <span class="n">current_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span>
+            <span class="n">data_rate</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_count</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_data_count</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>  <span class="c1"># pts/s</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_data_count</span> <span class="o">=</span> <span class="n">current_count</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_rate</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> pts/s&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Actualizar frecuencia cardíaca</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">get_current_stats</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hr_status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FC: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> BPM&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hr_status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;FC: -- BPM&quot;</span><span class="p">)</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Ignorar errores de actualización de estado</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.closeEvent">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.closeEvent">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maneja el cierre de la aplicación&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disconnect_serial</span><span class="p">()</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error cerrando aplicación: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.main">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Función principal para ejecutar la aplicación&quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    
+    <span class="c1"># Configurar estilo de la aplicación</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        QMainWindow {</span>
+<span class="s2">            background-color: #F8F9FA;</span>
+<span class="s2">        }</span>
+<span class="s2">        QTabWidget::pane {</span>
+<span class="s2">            border: 1px solid #BDC3C7;</span>
+<span class="s2">            background-color: white;</span>
+<span class="s2">        }</span>
+<span class="s2">        QTabBar::tab {</span>
+<span class="s2">            background-color: #ECF0F1;</span>
+<span class="s2">            border: 1px solid #BDC3C7;</span>
+<span class="s2">            padding: 8px 16px;</span>
+<span class="s2">            margin-right: 2px;</span>
+<span class="s2">        }</span>
+<span class="s2">        QTabBar::tab:selected {</span>
+<span class="s2">            background-color: white;</span>
+<span class="s2">            border-bottom: none;</span>
+<span class="s2">            font-weight: bold;</span>
+<span class="s2">        }</span>
+<span class="s2">        QGroupBox {</span>
+<span class="s2">            font-weight: bold;</span>
+<span class="s2">            border: 1px solid #BDC3C7;</span>
+<span class="s2">            border-radius: 4px;</span>
+<span class="s2">            margin-top: 10px;</span>
+<span class="s2">            padding-top: 10px;</span>
+<span class="s2">        }</span>
+<span class="s2">        QGroupBox::title {</span>
+<span class="s2">            subcontrol-origin: margin;</span>
+<span class="s2">            left: 10px;</span>
+<span class="s2">            padding: 0 5px 0 5px;</span>
+<span class="s2">        }</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Crear y mostrar ventana principal</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">PPGAnalyzerApp</span><span class="p">()</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+    <span class="c1"># Ejecutar aplicación</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

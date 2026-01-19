@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>core.ppg_analisis &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">core.ppg_analisis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para core.ppg_analisis</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">Modulo de analisis de señales PPG.</span>
+<span class="sd">Lo que hace es analizar señales PPG para extraer características temporales y de amplitud.</span>
+<span class="sd">Usa la librería HeartPy para el análisis temporal y SciPy para el análisis de amplitud &quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">heartpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">hp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">filtfilt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># --- Filtros ---</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aplica un filtro Butterworth low-pass de orden &#39;order&#39;.</span>
+<span class="sd">    Usa filtfilt para evitar desfase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>  <span class="c1"># Frecuencia de Nyquist</span>
+    <span class="n">normal_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">filtfilt</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+
+<span class="c1"># --- Funciones Principales del Módulo ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dc_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calcula el componente DC (Basal) de la señal PPG.</span>
+<span class="sd">    Filtra la señal por debajo del &#39;cutoff&#39; (0.5 Hz por defecto) y calcula la media.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dc_signal</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ac_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="o">=</span><span class="mf">4.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calcula el componente AC (Pulsátil) de la señal PPG.</span>
+<span class="sd">    Mide la amplitud pico a pico (max - min) de la señal pulsátil.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">ac_signal</span> <span class="o">=</span> <span class="n">ppg_signal</span> <span class="o">-</span> <span class="n">dc_signal</span>
+    <span class="n">ac_signal_filtered</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ac_signal</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span>
+<span class="c1"># --- Funciones Principales del Módulo ---</span>
+
+<div class="viewcode-block" id="get_temporal_features">
+<a class="viewcode-back" href="../../modules/core.html#core.get_temporal_features">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_features</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calcula características temporales usando HeartPy.</span>
+<span class="sd">    </span>
+<span class="sd">    Devuelve:</span>
+<span class="sd">    - FC (Frecuencia Cardíaca) en BPM.</span>
+<span class="sd">    - PPI (Intervalo Pulso-Pulso) promedio en ms.</span>
+<span class="sd">    - Índices de los picos sistólicos.</span>
+<span class="sd">    - working_data: Diccionario de HeartPy con datos procesados.</span>
+<span class="sd">    - measures: Diccionario de HeartPy con las métricas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># se usa heartpy.process para obtener el análisis</span>
+        <span class="n">working_data</span><span class="p">,</span> <span class="n">measures</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+        
+        <span class="n">fc_bpm</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bpm&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">ppi_ms</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ibi&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="c1"># HeartPy lo llama &#39;ibi&#39; (Inter-Beat Interval)</span>
+        
+        <span class="c1"># se obtiene la lista de picos sistólicos (índices)</span>
+        <span class="n">systolic_peaks_idx</span> <span class="o">=</span> <span class="n">working_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;peaklist&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span>
+        
+        <span class="k">return</span> <span class="n">fc_bpm</span><span class="p">,</span> <span class="n">ppi_ms</span><span class="p">,</span> <span class="n">systolic_peaks_idx</span><span class="p">,</span> <span class="n">working_data</span><span class="p">,</span> <span class="n">measures</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># HeartPy puede fallar si la señal es demasiado ruidosa</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error en el procesamiento de HeartPy: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="get_dc_component">
+<a class="viewcode-back" href="../../modules/core.html#core.get_dc_component">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dc_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calcula el componente DC (Basal) de la señal PPG.</span>
+<span class="sd">    Filtra la señal por debajo del &#39;cutoff&#39; (0.5 Hz por defecto) y calcula la media.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dc_signal</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_ac_component">
+<a class="viewcode-back" href="../../modules/core.html#core.get_ac_component">[documentos]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ac_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="o">=</span><span class="mf">4.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calcula el componente AC (Pulsátil) de la señal PPG.</span>
+<span class="sd">    Mide la amplitud pico a pico (max - min) de la señal pulsátil.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">ac_signal</span> <span class="o">=</span> <span class="n">ppg_signal</span> <span class="o">-</span> <span class="n">dc_signal</span>
+    <span class="n">ac_signal_filtered</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ac_signal</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span></div>
+
+
+
+
+<span class="k">if</span> <span class="s1">&#39;__main__&#39;</span> <span class="o">==</span> <span class="vm">__name__</span><span class="p">:</span>
+    <span class="c1">#TODO: ver si funciona</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mf">125.0</span> <span class="c1"># asi esta muestreada esa señal de prueba</span>
+    
+    <span class="c1"># Cargar datos usando pandas en lugar de hp.get_data()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;src/data/analisis_ppg_prueba_1_senal_suavizada.csv&#39;</span><span class="p">)</span>  <span class="c1"># sep=&#39;\t&#39; para archivos separados por tabulador</span>
+    
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;ppg_suavizada&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">tiempo</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tiempo_s&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    
+    <span class="c1"># Se limita a n segundos</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="mi">9</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)]</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Datos cargados: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span><span class="si">}</span><span class="s2"> puntos&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Primeros 5 valores: </span><span class="si">{</span><span class="n">signal</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rango de valores: </span><span class="si">{</span><span class="n">signal</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">signal</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 2. Analisis de la señal usando el módulo</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Analizando señal de </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span><span class="o">/</span><span class="n">fs</span><span class="si">}</span><span class="s2"> segundos...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- Temporal (HeartPy) ---</span>
+    <span class="n">fc</span><span class="p">,</span> <span class="n">ppi</span><span class="p">,</span> <span class="n">peaks</span><span class="p">,</span> <span class="n">working_data</span><span class="p">,</span> <span class="n">measures</span> <span class="o">=</span> <span class="n">get_temporal_features</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Características Temporales (HeartPy) ---&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frecuencia Cardíaca (FC): </span><span class="si">{</span><span class="n">fc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> BPM&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Intervalo Pulso-Pulso (PPI): </span><span class="si">{</span><span class="n">ppi</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ms&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Picos Sistólicos detectados: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="si">}</span><span class="s2"> picos</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- Amplitud (Scipy) ---</span>
+    <span class="n">dc_val</span> <span class="o">=</span> <span class="n">get_dc_component</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">ac_val</span> <span class="o">=</span> <span class="n">get_ac_component</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Características de Amplitud (Scipy) ---&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Componente DC (Media basal): </span><span class="si">{</span><span class="n">dc_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Componente AC (Amplitud P-P): </span><span class="si">{</span><span class="n">ac_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui.acquisition_tab &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">ui.acquisition_tab</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para ui.acquisition_tab</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Pestaña de adquisición de datos PPG en tiempo real</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">QWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QSplitter</span><span class="p">,</span>
+                            <span class="n">QTextEdit</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QTimer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyqtgraph</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.widgets.acquisition_controls</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionControls</span>
+
+<div class="viewcode-block" id="AcquisitionTab">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AcquisitionTab</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pestaña principal para la adquisición y visualización en tiempo real&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="AcquisitionTab.__init__">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.__init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppg_processor</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span> <span class="o">=</span> <span class="n">ppg_processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_connections</span><span class="p">()</span>
+        
+        <span class="c1"># Timer para actualización de gráficos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_plots</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>  <span class="c1"># Actualizar cada 25ms (40 FPS)</span>
+        <span class="c1">#TODO: ajuste a 25 ms como se solicito, ver luego si es necesario cambiar</span>
+        
+        <span class="c1"># Variables para manejo de datos de gráficos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_data_cache</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;filtered&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;normalized&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.setup_ui">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.setup_ui">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configurar la interfaz de usuario&quot;&quot;&quot;</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Splitter principal</span>
+        <span class="n">main_splitter</span> <span class="o">=</span> <span class="n">QSplitter</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        
+        <span class="c1"># Panel de control (izquierda)</span>
+        <span class="n">control_widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_control_panel</span><span class="p">()</span>
+        <span class="n">control_widget</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">350</span><span class="p">)</span>
+        <span class="n">control_widget</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">main_splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">control_widget</span><span class="p">)</span>
+        
+        <span class="c1"># Panel de gráficos (derecha)</span>
+        <span class="n">plots_widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_plots_panel</span><span class="p">()</span>
+        <span class="n">main_splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">plots_widget</span><span class="p">)</span>
+        
+        <span class="c1"># Configurar proporciones del splitter</span>
+        <span class="n">main_splitter</span><span class="o">.</span><span class="n">setSizes</span><span class="p">([</span><span class="mi">350</span><span class="p">,</span> <span class="mi">1000</span><span class="p">])</span>
+        
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">main_splitter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.create_control_panel">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.create_control_panel">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_control_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Crear panel de control izquierdo&quot;&quot;&quot;</span>
+        <span class="n">control_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">control_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Controles de adquisición</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controls</span> <span class="o">=</span> <span class="n">AcquisitionControls</span><span class="p">()</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span>
+        
+        <span class="c1"># Información de estado</span>
+        <span class="n">status_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Estado del Sistema&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>
+        
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Estado:&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Desconectado&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #E74C3C;&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Puntos de datos:&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold;&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points_label</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Tiempo:&quot;</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;0.0 s&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold;&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_label</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Frecuencia Cardíaca:&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hr_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;-- BPM&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hr_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #27AE60;&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hr_label</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;HRV (RMSSD):&quot;</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hrv_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;-- ms&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hrv_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #3498DB;&quot;</span><span class="p">)</span>
+        <span class="n">status_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hrv_label</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">status_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">status_layout</span><span class="p">)</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">status_group</span><span class="p">)</span>
+        
+        <span class="c1"># Log de eventos</span>
+        <span class="n">log_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Log de Eventos&quot;</span><span class="p">)</span>
+        <span class="n">log_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span> <span class="o">=</span> <span class="n">QTextEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setMaximumHeight</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            QTextEdit {</span>
+<span class="s2">                background-color: #F8F9FA;</span>
+<span class="s2">                border: 1px solid #BDC3C7;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                font-family: &#39;Courier New&#39;, monospace;</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">            }</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">log_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="p">)</span>
+        <span class="n">log_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">log_layout</span><span class="p">)</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">log_group</span><span class="p">)</span>
+        
+        <span class="n">control_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">control_layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">control_widget</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.create_plots_panel">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.create_plots_panel">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_plots_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Crear panel de gráficos&quot;&quot;&quot;</span>
+        <span class="n">plots_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">plots_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Configurar estilo de PyQtGraph</span>
+        <span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;foreground&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Gráfico de señal cruda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal PPG Cruda&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitud&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;Tiempo (s)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="s1">&#39;#FF6B6B&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setYRange</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span>  <span class="c1"># Rango inicial</span>
+        <span class="n">plots_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="p">)</span>
+        
+        <span class="c1"># Gráfico de señal filtrada</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal PPG Filtrada&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitud&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;Tiempo (s)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="s1">&#39;#4ECDC4&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">plots_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="p">)</span>
+        
+        <span class="n">plots_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">plots_layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plots_widget</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.setup_connections">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.setup_connections">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configurar conexiones de señales&quot;&quot;&quot;</span>
+        <span class="c1"># Conexiones del procesador PPG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">new_data_processed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">analysis_complete</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_complete</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">buffer_full</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_buffer_full</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.update_plots">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.update_plots">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza los gráficos con nuevos datos&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">time_data</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">filtered_data</span><span class="p">,</span> <span class="n">normalized_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">get_display_data</span><span class="p">(</span><span class="mi">2500</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Actualizar curvas</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">raw_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filtered_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">filtered_data</span><span class="p">)</span>
+                
+                <span class="c1"># Auto-scroll en el eje X (mostrar últimos 30 segundos)</span>
+                <span class="k">if</span> <span class="n">time_data</span><span class="p">:</span>
+                    <span class="n">latest_time</span> <span class="o">=</span> <span class="n">time_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">window_size</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># segundos</span>
+                    <span class="n">start_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">latest_time</span> <span class="o">-</span> <span class="n">window_size</span><span class="p">)</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setXRange</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">latest_time</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setXRange</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">latest_time</span><span class="p">)</span>
+                
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error actualizando gráficos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionTab.update_status">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.update_status">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza la información de estado&quot;&quot;&quot;</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">get_current_stats</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;data_points&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hr_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> BPM&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hr_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;-- BPM&quot;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;hrv&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hrv_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;hrv&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> ms&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hrv_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;-- ms&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionTab.on_analysis_complete">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.on_analysis_complete">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_analysis_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Manejar resultados de análisis completo&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">and</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">hr</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;heart_rate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">hrv</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hrv&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;signal_quality&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Análisis: FC=</span><span class="si">{</span><span class="n">hr</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> BPM, HRV=</span><span class="si">{</span><span class="n">hrv</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> ms, Calidad=</span><span class="si">{</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionTab.on_buffer_full">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.on_buffer_full">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_buffer_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Manejar buffer lleno&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Buffer lleno - datos más antiguos siendo sobrescritos&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.set_connection_status">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.set_connection_status">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_connection_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connected</span><span class="p">,</span> <span class="n">acquiring</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualizar estado de conexión en la UI&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">connected</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">acquiring</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Adquiriendo datos&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #27AE60;&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Conectado&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #3498DB;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Desconectado&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;font-weight: bold; color: #E74C3C;&quot;</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="AcquisitionTab.log_message">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.log_message">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agregar mensaje al log&quot;&quot;&quot;</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="n">formatted_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatted_message</span><span class="p">)</span>
+        
+        <span class="c1"># Auto-scroll al final</span>
+        <span class="n">scrollbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span>
+        <span class="n">scrollbar</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">maximum</span><span class="p">())</span></div>
+
+        
+<div class="viewcode-block" id="AcquisitionTab.clear_log">
+<a class="viewcode-back" href="../../modules/ui.html#ui.AcquisitionTab.clear_log">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Limpiar el log&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Log limpiado&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

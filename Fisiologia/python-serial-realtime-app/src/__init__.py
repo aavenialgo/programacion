@@ -39,5 +39,5 @@ __all__ = [
 
 # Metadatos del paquete
 __author__ = "Andrés Venialgo"
-__email__ = "andres.venialgo@ingenieria.uner.edu.ar"  # Cambia por tu email
+__email__ = "andres.venialgo@ingenieria.uner.edu.ar"  
 __description__ = "Paquete para análisis de señales PPG en tiempo real"
