@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Calidad - PPG Dashboard</title>
+    
+    <!-- Plotly.js para gráficos -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container diagnostics-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 Diagnóstico de Calidad de Transmisión</h1>
+            <div class="header-info">
+                <a href="/" class="btn btn-secondary">← Volver al Dashboard</a>
+            </div>
+        </header>
+
+        <div class="diagnostics-content">
+            <!-- Panel de Métricas Principales -->
+            <section class="metrics-panel">
+                <h2>📈 Métricas en Tiempo Real</h2>
+                
+                <div class="metrics-grid">
+                    <!-- Paquetes -->
+                    <div class="metric-card">
+                        <h3>📦 Paquetes</h3>
+                        <div class="metric-value" id="metric-packets-sent">0</div>
+                        <div class="metric-label">Enviados</div>
+                        <div class="metric-value" id="metric-packets-received">0</div>
+                        <div class="metric-label">Recibidos</div>
+                        <div class="metric-value error" id="metric-packets-lost">0</div>
+                        <div class="metric-label">Perdidos</div>
+                    </div>
+
+                    <!-- Tasa de Pérdida -->
+                    <div class="metric-card">
+                        <h3>📉 Tasa de Pérdida</h3>
+                        <div class="metric-value-large" id="metric-loss-rate">0.0%</div>
+                        <div class="quality-indicator" id="loss-indicator">
+                            <span class="quality-icon">⚪</span>
+                            <span class="quality-text">Midiendo...</span>
+                        </div>
+                    </div>
+
+                    <!-- Latencia -->
+                    <div class="metric-card">
+                        <h3>⏱️ Latencia</h3>
+                        <div class="metric-stats">
+                            <div>
+                                <span class="stat-label">Promedio:</span>
+                                <span class="stat-value" id="metric-latency-avg">0 ms</span>
+                            </div>
+                            <div>
+                                <span class="stat-label">Mínima:</span>
+                                <span class="stat-value" id="metric-latency-min">0 ms</span>
+                            </div>
+                            <div>
+                                <span class="stat-label">Máxima:</span>
+                                <span class="stat-value" id="metric-latency-max">0 ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jitter -->
+                    <div class="metric-card">
+                        <h3>📊 Jitter</h3>
+                        <div class="metric-value-large" id="metric-jitter">0 ms</div>
+                        <div class="metric-label">Variación de latencia</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gráfico Histórico -->
+            <section class="chart-section">
+                <h2>📉 Historial (últimos 60 segundos)</h2>
+                <div id="history-chart" class="chart-container"></div>
+            </section>
+
+            <!-- Información de Sesión -->
+            <section class="session-info">
+                <h2>ℹ️ Información de Sesión</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">ID de Cliente:</span>
+                        <span class="info-value" id="info-client-id">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tiempo Conectado:</span>
+                        <span class="info-value" id="info-uptime">0s</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Última Actualización:</span>
+                        <span class="info-value" id="info-last-update">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Acciones -->
+            <section class="actions-section">
+                <h2>🛠️ Acciones</h2>
+                <button id="btn-export-report" class="btn btn-primary">💾 Exportar Reporte</button>
+                <button id="btn-reset-stats" class="btn btn-secondary">🔄 Reiniciar Estadísticas</button>
+                <button id="btn-refresh" class="btn btn-secondary">🔃 Actualizar</button>
+            </section>
+
+            <!-- Recomendaciones -->
+            <section class="recommendations">
+                <h2>💡 Recomendaciones</h2>
+                <div id="recommendations-list" class="recommendations-list">
+                    <p class="recommendation">Esperando datos para generar recomendaciones...</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Script de diagnóstico -->
+    <script src="/static/quality.js"></script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+/**
+ * Estilos para Dashboard PPG - Responsive y Mobile-First
+ */
+
+/* ============================================================================
+   Variables CSS
+   ============================================================================ */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --border-color: #bdc3c7;
+    
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+}
+
+/* ============================================================================
+   Reset y Base
+   ============================================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+/* ============================================================================
+   Layout Principal
+   ============================================================================ */
+.container {
+    display: grid;
+    grid-template-areas:
+        "header"
+        "controls"
+        "chart";
+    grid-template-rows: auto auto 1fr;
+    min-height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Tablet y Desktop */
+@media (min-width: 768px) {
+    .container {
+        grid-template-areas:
+            "header header"
+            "controls chart";
+        grid-template-columns: 300px 1fr;
+        grid-template-rows: auto 1fr;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        grid-template-columns: 350px 1fr;
+    }
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+.header {
+    grid-area: header;
+    background: linear-gradient(135deg, var(--primary-color), #2980b9);
+    color: white;
+    padding: var(--spacing-lg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+}
+
+.header-info {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-sm);
+}
+
+.header-info span {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+/* Estados de conexión */
+.status-connected {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+.status-disconnected {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* ============================================================================
+   Panel de Control
+   ============================================================================ */
+.control-panel {
+    grid-area: controls;
+    background: white;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    border-right: 1px solid var(--border-color);
+    max-height: calc(100vh - 100px);
+}
+
+.control-panel h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--dark-color);
+}
+
+.control-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-section:last-child {
+    border-bottom: none;
+}
+
+.control-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-md);
+    color: #555;
+}
+
+/* ============================================================================
+   Formularios
+   ============================================================================ */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: border-color var(--transition-speed);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 0.5rem 0;
+}
+
+/* Checkboxes */
+.form-group input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    cursor: pointer;
+}
+
+/* ============================================================================
+   Botones
+   ============================================================================ */
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   Área de Gráficos
+   ============================================================================ */
+.chart-area {
+    grid-area: chart;
+    background: white;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-container {
+    flex: 1;
+    min-height: 400px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   Barra de Información
+   ============================================================================ */
+.info-bar {
+    display: flex;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.info-bar span {
+    font-weight: 500;
+    color: #555;
+}
+
+/* ============================================================================
+   Indicadores de Calidad
+   ============================================================================ */
+.quality-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-md) 0;
+}
+
+.quality-icon {
+    font-size: 1.5rem;
+}
+
+.quality-text {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* ============================================================================
+   Estadísticas
+   ============================================================================ */
+.stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+}
+
+.stat-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: var(--dark-color);
+}
+
+/* ============================================================================
+   Mensajes de Error
+   ============================================================================ */
+.error-message {
+    display: none;
+    padding: var(--spacing-md);
+    background: #ffe6e6;
+    color: var(--danger-color);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-sm);
+    border-left: 4px solid var(--danger-color);
+}
+
+/* ============================================================================
+   Página de Diagnóstico
+   ============================================================================ */
+.diagnostics-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.diagnostics-content {
+    padding: var(--spacing-lg);
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.metrics-panel {
+    margin-bottom: var(--spacing-xl);
+}
+
+.metrics-panel h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--dark-color);
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.metric-card {
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h3 {
+    margin-bottom: var(--spacing-md);
+    color: #555;
+    font-size: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.metric-value.error {
+    color: var(--danger-color);
+}
+
+.metric-value-large {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-align: center;
+    margin: var(--spacing-md) 0;
+}
+
+.metric-label {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.metric-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* ============================================================================
+   Secciones de Diagnóstico
+   ============================================================================ */
+.chart-section,
+.session-info,
+.actions-section,
+.recommendations {
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: var(--spacing-xl);
+}
+
+.chart-section h2,
+.session-info h2,
+.actions-section h2,
+.recommendations h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--dark-color);
+}
+
+/* ============================================================================
+   Información de Sesión
+   ============================================================================ */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.info-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.info-value {
+    font-weight: bold;
+    color: var(--dark-color);
+}
+
+/* ============================================================================
+   Acciones
+   ============================================================================ */
+.actions-section {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.actions-section h2 {
+    width: 100%;
+}
+
+/* ============================================================================
+   Recomendaciones
+   ============================================================================ */
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.recommendation {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 4px solid;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.recommendation-low {
+    background: #d4edda;
+    border-color: var(--secondary-color);
+}
+
+.recommendation-medium {
+    background: #fff3cd;
+    border-color: var(--warning-color);
+}
+
+.recommendation-high {
+    background: #f8d7da;
+    border-color: var(--danger-color);
+}
+
+.rec-icon {
+    font-size: 1.5rem;
+}
+
+/* ============================================================================
+   Responsive
+   ============================================================================ */
+@media (max-width: 767px) {
+    .control-panel {
+        max-height: none;
+    }
+    
+    .chart-container {
+        min-height: 300px;
+    }
+    
+    .info-bar {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-section {
+        flex-direction: column;
+    }
+    
+    .actions-section .btn {
+        width: 100%;
+    }
+}
+
+/* ============================================================================
+   Utilidades
+   ============================================================================ */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+
+.hidden {
+    display: none !important;
+}

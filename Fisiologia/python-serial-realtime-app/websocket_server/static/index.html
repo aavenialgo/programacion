@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard PPG - Visualización en Tiempo Real</title>
+    
+    <!-- Plotly.js para gráficos científicos -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 Dashboard PPG - Visualización en Tiempo Real</h1>
+            <div class="header-info">
+                <span id="connection-status" class="status-disconnected">⚫ Desconectado</span>
+                <span id="client-count">Clientes: 0</span>
+            </div>
+        </header>
+
+        <!-- Panel de Control -->
+        <aside class="control-panel">
+            <h2>⚙️ Panel de Control</h2>
+            
+            <!-- Autenticación -->
+            <section class="control-section" id="auth-section">
+                <h3>🔐 Autenticación</h3>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" placeholder="Ingrese contraseña">
+                    <button id="btn-connect" class="btn btn-primary">Conectar</button>
+                </div>
+                <div id="auth-error" class="error-message"></div>
+            </section>
+
+            <!-- Filtros -->
+            <section class="control-section" id="filter-section" style="display: none;">
+                <h3>🎛️ Filtros Butterworth</h3>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="filter-enabled" checked>
+                        Activar Filtro
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-lowcut">Frecuencia Baja (Hz):</label>
+                    <input type="number" id="filter-lowcut" value="0.5" step="0.1" min="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-highcut">Frecuencia Alta (Hz):</label>
+                    <input type="number" id="filter-highcut" value="45.0" step="0.5" min="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-order">Orden del Filtro:</label>
+                    <input type="number" id="filter-order" value="4" step="1" min="1" max="10">
+                </div>
+                
+                <button id="btn-update-filter" class="btn btn-secondary">Actualizar Filtro</button>
+                
+                <div class="form-group">
+                    <label for="signal-view">Ver Señal:</label>
+                    <select id="signal-view">
+                        <option value="both">Ambas</option>
+                        <option value="raw">Cruda</option>
+                        <option value="filtered">Filtrada</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Controles de Visualización -->
+            <section class="control-section" id="view-section" style="display: none;">
+                <h3>👁️ Visualización</h3>
+                
+                <div class="form-group">
+                    <button id="btn-play-pause" class="btn btn-primary">⏸️ Pausar</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="window-seconds">Ventana (segundos):</label>
+                    <input type="number" id="window-seconds" value="10" step="1" min="1" max="60">
+                </div>
+                
+                <div class="form-group">
+                    <label>Auto-escala Y:</label>
+                    <label>
+                        <input type="checkbox" id="autoscale-y" checked>
+                        Activar
+                    </label>
+                </div>
+            </section>
+
+            <!-- Gestión de Datos -->
+            <section class="control-section" id="data-section" style="display: none;">
+                <h3>💾 Gestión de Datos</h3>
+                
+                <div class="form-group">
+                    <button id="btn-save-data" class="btn btn-secondary">💾 Guardar CSV</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file-upload">Cargar CSV:</label>
+                    <input type="file" id="file-upload" accept=".csv">
+                    <button id="btn-load-data" class="btn btn-secondary">📂 Cargar</button>
+                </div>
+            </section>
+
+            <!-- Calidad de Conexión -->
+            <section class="control-section" id="quality-section" style="display: none;">
+                <h3>📡 Calidad de Conexión</h3>
+                
+                <div id="quality-indicator" class="quality-indicator">
+                    <span class="quality-icon">⚪</span>
+                    <span class="quality-text">Midiendo...</span>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Pérdida:</span>
+                        <span id="stat-loss" class="stat-value">0.0%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Latencia:</span>
+                        <span id="stat-latency" class="stat-value">0 ms</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Paquetes:</span>
+                        <span id="stat-packets" class="stat-value">0</span>
+                    </div>
+                </div>
+                
+                <button id="btn-diagnostics" class="btn btn-secondary">📊 Diagnóstico Completo</button>
+            </section>
+        </aside>
+
+        <!-- Área de Gráficos -->
+        <main class="chart-area">
+            <div id="chart" class="chart-container"></div>
+            
+            <!-- Información de Estado -->
+            <div class="info-bar">
+                <span id="info-samples">Muestras: 0</span>
+                <span id="info-rate">Tasa: 0 Hz</span>
+                <span id="info-time">Tiempo: 0.0s</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
