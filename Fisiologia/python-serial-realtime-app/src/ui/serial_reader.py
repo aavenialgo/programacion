@@ -28,12 +28,12 @@ class SerialReader(QObject):
         
         # Regex para extraer los valores del formato esperado
         self.pattern = re.compile(
-            r"Crudo:(-?\d+(?:\.\d+)?),Filtrado:(-?\d+(?:\.\d+)?),Normalizado:(-?\d+(?:\.\d+)?)", 
+            r"Raw:(-?\d+(?:\.\d+)?)", 
             re.IGNORECASE
         )
         
     def start_reading(self, serial_port):
-        """Iniciar la lectura del puerto serie"""
+        """Inicia la lectura del puerto serie"""
         if self.reading:
             return
             
@@ -44,7 +44,7 @@ class SerialReader(QObject):
         self.connection_status_changed.emit(True)
         
     def stop_reading(self):
-        """Detener la lectura del puerto serie"""
+        """Detiene la lectura del puerto serie"""
         self.reading = False
         if self.reading_thread and self.reading_thread.is_alive():
             self.reading_thread.join(timeout=1.0)
@@ -67,18 +67,16 @@ class SerialReader(QObject):
                 break
                 
     def is_reading(self):
-        """Verificar si está leyendo datos"""
+        """Verifica si está leyendo datos"""
         return self.reading
         
     def parse_data_line(self, line):
-        """Parsear línea de datos y extraer valores"""
+        """Parsea la línea de datos y extraer el valor Raw"""
         try:
             match = self.pattern.search(line)
             if match:
                 raw = float(match.group(1))
-                filtered = float(match.group(2))
-                normalized = float(match.group(3))
-                return raw, filtered, normalized
+                return raw
         except (ValueError, AttributeError):
             pass
         return None
