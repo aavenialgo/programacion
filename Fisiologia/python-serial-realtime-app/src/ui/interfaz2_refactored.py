@@ -190,9 +190,8 @@ class PPGAnalyzerApp(QMainWindow):
             self.ppg_processor.reset_data()
             self.acquisition_tab.log_message("Datos reseteados")
             
-            # Limpiar gráficos
+            # Limpiar gráfico
             self.acquisition_tab.raw_curve.setData([], [])
-            self.acquisition_tab.filtered_curve.setData([], [])
             
         except Exception as e:
             error_msg = f"Error reseteando datos: {e}"
@@ -219,10 +218,9 @@ class PPGAnalyzerApp(QMainWindow):
             # Parsear datos usando el SerialReader
             parsed_data = self.serial_reader.parse_data_line(data_line)
             
-            if parsed_data:
-                raw, filtered, normalized = parsed_data
-                # Enviar datos al procesador PPG
-                self.ppg_processor.add_data_point(raw, filtered, normalized)
+            if parsed_data is not None:
+                # Enviar datos al procesador PPG (solo canal raw)
+                self.ppg_processor.add_data_point(parsed_data)
             else:
                 # Si no es el formato esperado, intentar como número simple
                 try:

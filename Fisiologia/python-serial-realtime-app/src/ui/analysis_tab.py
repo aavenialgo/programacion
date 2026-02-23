@@ -322,8 +322,8 @@ class AnalysisTab(QWidget):
     def load_acquisition_data(self):
         """Carga de datos de la adquisición en tiempo real"""
         try:
-            # Obtener datos del procesador PPG
-            time_data, raw_data, filtered_data, _ = self.ppg_processor.get_display_data()
+            # Obtener datos del procesador PPG (solo canal raw)
+            time_data, raw_data = self.ppg_processor.get_display_data()
             
             if len(raw_data) > 0:
                 self.current_data = np.array(raw_data)

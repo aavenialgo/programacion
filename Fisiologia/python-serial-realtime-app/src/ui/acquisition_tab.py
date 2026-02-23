@@ -27,9 +27,7 @@ class AcquisitionTab(QWidget):
         # Variables para manejo de datos de gráficos
         self.plot_data_cache = {
             'time': [],
-            'raw': [],
-            'filtered': [],
-            'normalized': []
+            'raw': []
         }
         
     def setup_ui(self):
@@ -127,22 +125,14 @@ class AcquisitionTab(QWidget):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         
-        # Gráfico de señal cruda
-        self.raw_plot = pg.PlotWidget(title="Señal PPG Cruda")
+        # Gráfico de señal cruda (canal único)
+        self.raw_plot = pg.PlotWidget(title="Señal PPG - Canal Raw")
         self.raw_plot.setLabel('left', 'Amplitud')
         self.raw_plot.setLabel('bottom', 'Tiempo (s)')
         self.raw_plot.showGrid(x=True, y=True)
         self.raw_curve = self.raw_plot.plot(pen=pg.mkPen('#FF6B6B', width=2))
         self.raw_plot.setYRange(-1000, 4000)  # Rango inicial
         plots_layout.addWidget(self.raw_plot)
-        
-        # Gráfico de señal filtrada
-        self.filtered_plot = pg.PlotWidget(title="Señal PPG Filtrada")
-        self.filtered_plot.setLabel('left', 'Amplitud')
-        self.filtered_plot.setLabel('bottom', 'Tiempo (s)')
-        self.filtered_plot.showGrid(x=True, y=True)
-        self.filtered_curve = self.filtered_plot.plot(pen=pg.mkPen('#4ECDC4', width=2))
-        plots_layout.addWidget(self.filtered_plot)
         
         plots_widget.setLayout(plots_layout)
         return plots_widget
@@ -157,12 +147,11 @@ class AcquisitionTab(QWidget):
     def update_plots(self):
         """Actualiza los gráficos con nuevos datos"""
         try:
-            time_data, raw_data, filtered_data, normalized_data = self.ppg_processor.get_display_data(2500)
+            time_data, raw_data = self.ppg_processor.get_display_data(2500)
             
             if len(time_data) > 0:
-                # Actualizar curvas
+                # Actualizar curva
                 self.raw_curve.setData(time_data, raw_data)
-                self.filtered_curve.setData(time_data, filtered_data)
                 
                 # Auto-scroll en el eje X (mostrar últimos 30 segundos)
                 if time_data:
@@ -171,7 +160,6 @@ class AcquisitionTab(QWidget):
                     start_time = max(0, latest_time - window_size)
                     
                     self.raw_plot.setXRange(start_time, latest_time)
-                    self.filtered_plot.setXRange(start_time, latest_time)
                 
         except Exception as e:
             self.log_message(f"Error actualizando gráficos: {e}")

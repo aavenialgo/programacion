@@ -27,11 +27,9 @@ class PPGProcessor(QObject):
         self.buffer_size = buffer_size
         self.fs = sample_rate
         
-        # Buffers de datos
+        # Buffers de datos (solo canal raw)
         self.time_buffer = deque(maxlen=buffer_size)
         self.raw_buffer = deque(maxlen=buffer_size)
-        self.filtered_buffer = deque(maxlen=buffer_size)
-        self.normalized_buffer = deque(maxlen=buffer_size)
         
         # Variables de estado
         self.start_time = None
@@ -50,8 +48,6 @@ class PPGProcessor(QObject):
         """Resetea todos los buffers de datos"""
         self.time_buffer.clear()
         self.raw_buffer.clear()
-        self.filtered_buffer.clear()
-        self.normalized_buffer.clear()
         self.start_time = None
         self.last_analysis_time = 0
         self.current_hr = 0
@@ -65,8 +61,8 @@ class PPGProcessor(QObject):
         """funcion del timer que detiene el procesamiento de datos"""
         self.analysis_timer.stop()
         
-    def add_data_point(self, raw_value, filtered_value=None, normalized_value=None):
-        """Agrega un nuevo punto de datos"""
+    def add_data_point(self, raw_value):
+        """Agrega un nuevo punto de datos del canal raw"""
         try:
             current_time = time.time()
             
@@ -78,8 +74,6 @@ class PPGProcessor(QObject):
             # Agregar a buffers
             self.time_buffer.append(relative_time)
             self.raw_buffer.append(raw_value)
-            self.filtered_buffer.append(filtered_value if filtered_value is not None else raw_value)
-            self.normalized_buffer.append(normalized_value if normalized_value is not None else raw_value)
             
             self.new_data_processed.emit()
             
@@ -92,13 +86,13 @@ class PPGProcessor(QObject):
             
     def _periodic_analysis(self):
         """Realiza el análisis periódico de la señal"""
-        if len(self.filtered_buffer) < self.sample_rate * 2:  # Necesitamos al menos 2 segundos
+        if len(self.raw_buffer) < self.sample_rate * 2:  # Necesitamos al menos 2 segundos
             return
             
         try:
             # Obtener los últimos 5 segundos de datos
-            segment_size = min(self.sample_rate * 5, len(self.filtered_buffer))
-            signal_segment = list(self.filtered_buffer)[-segment_size:]
+            segment_size = min(self.sample_rate * 5, len(self.raw_buffer))
+            signal_segment = list(self.raw_buffer)[-segment_size:]
             time_segment = list(self.time_buffer)[-segment_size:]
             
             if len(signal_segment) > 0:
@@ -300,11 +294,11 @@ class PPGProcessor(QObject):
             start_idx = np.searchsorted(time_array, start_time)
             end_idx = np.searchsorted(time_array, end_time)
             
-            if start_idx >= end_idx or end_idx > len(self.filtered_buffer):
+            if start_idx >= end_idx or end_idx > len(self.raw_buffer):
                 return None
                 
             # Extraer segmento
-            signal_segment = list(self.filtered_buffer)[start_idx:end_idx]
+            signal_segment = list(self.raw_buffer)[start_idx:end_idx]
             time_segment = list(self.time_buffer)[start_idx:end_idx]
             
             if len(signal_segment) > 100:  # Mínimo de datos requerido
@@ -321,23 +315,19 @@ class PPGProcessor(QObject):
         """Obtiene los datos para mostrar en un gráfico
 
         Returns:
-            _type_: _description_
+            tuple: (time_data, raw_data) - Listas de tiempos y valores raw
         """
         if not self.time_buffer:
-            return [], [], [], []
+            return [], []
             
         # Limitar el número de puntos para mejor rendimiento
         if len(self.time_buffer) <= max_points:
             return (list(self.time_buffer), 
-                   list(self.raw_buffer), 
-                   list(self.filtered_buffer),
-                   list(self.normalized_buffer))
+                   list(self.raw_buffer))
         else:
             # Tomar los últimos max_points puntos
             return (list(self.time_buffer)[-max_points:],
-                   list(self.raw_buffer)[-max_points:],
-                   list(self.filtered_buffer)[-max_points:],
-                   list(self.normalized_buffer)[-max_points:])
+                   list(self.raw_buffer)[-max_points:])
                    
     def get_current_stats(self):
         """Obtiene las estadísticas actuales"""
