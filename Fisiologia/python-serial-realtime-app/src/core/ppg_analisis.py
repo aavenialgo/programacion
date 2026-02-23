@@ -22,26 +22,6 @@ def _butter_lowpass_filter(data, cutoff, fs, order=4):
 
 # --- Funciones Principales del Módulo ---
 
-
-def get_dc_component(ppg_signal, fs, cutoff=0.5):
-    """
-    Calcula el componente DC (Basal) de la señal PPG.
-    Filtra la señal por debajo del 'cutoff' (0.5 Hz por defecto) y calcula la media.
-    """
-    dc_signal = _butter_lowpass_filter(ppg_signal, cutoff, fs)
-    return np.mean(dc_signal)
-
-def get_ac_component(ppg_signal, fs, dc_cutoff=0.5, ac_noise_cutoff=4.0):
-    """
-    Calcula el componente AC (Pulsátil) de la señal PPG.
-    Mide la amplitud pico a pico (max - min) de la señal pulsátil.
-    """
-    dc_signal = _butter_lowpass_filter(ppg_signal, dc_cutoff, fs)
-    ac_signal = ppg_signal - dc_signal
-    ac_signal_filtered = _butter_lowpass_filter(ac_signal, ac_noise_cutoff, fs)
-    return np.max(ac_signal_filtered) - np.min(ac_signal_filtered)
-# --- Funciones Principales del Módulo ---
-
 def get_temporal_features(ppg_signal, fs):
     """
     Calcula características temporales usando HeartPy.
