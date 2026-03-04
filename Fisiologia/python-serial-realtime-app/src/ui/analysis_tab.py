@@ -9,7 +9,8 @@ import pyqtgraph as pg
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QGroupBox,
     QPushButton, QLabel, QLineEdit, QSpinBox, QDoubleSpinBox,
-    QFileDialog, QMessageBox, QCheckBox, QGridLayout, QTextEdit
+    QFileDialog, QMessageBox, QCheckBox, QGridLayout, QTextEdit,
+    QInputDialog
 )
 from PyQt5.QtCore import Qt
 from datetime import datetime
@@ -223,6 +224,32 @@ class AnalysisTab(QWidget):
         process_group.setLayout(process_layout)
         control_layout.addWidget(process_group)
         
+        # Grupo de exportación
+        export_group = QGroupBox("Exportar Datos")
+        export_layout = QVBoxLayout()
+        
+        # Botón para guardar datos filtrados
+        self.save_data_btn = QPushButton("Guardar Datos Filtrados")
+        self.save_data_btn.clicked.connect(self.save_filtered_data)
+        self.save_data_btn.setEnabled(False)
+        self.save_data_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #27AE60;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #229954;
+            }
+        """)
+        export_layout.addWidget(self.save_data_btn)
+        
+        export_group.setLayout(export_layout)
+        control_layout.addWidget(export_group)
+        
         # Log de análisis
         log_group = QGroupBox("Log de Análisis")
         log_layout = QVBoxLayout()
@@ -364,6 +391,9 @@ class AnalysisTab(QWidget):
             # Actualizar el gráfico filtrado
             self.update_filtered_plot()
             
+            # Habilitar botón de guardar datos
+            self.save_data_btn.setEnabled(True)
+            
             # Log
             self.log_message(f"Filtro aplicado: {lowcut}-{highcut} Hz, orden {order}")
             
@@ -420,6 +450,71 @@ class AnalysisTab(QWidget):
         scrollbar = self.analysis_log.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
         
+    def save_filtered_data(self):
+        """Guarda los datos filtrados y parámetros en archivos CSV"""
+        try:
+            # Verificar que haya datos filtrados
+            if self.filtered_data is None:
+                QMessageBox.warning(self, "Advertencia", 
+                                  "No hay datos filtrados para guardar. Aplique un filtro primero.")
+                return
+            
+            # Solicitar directorio donde guardar los archivos
+            directory = QFileDialog.getExistingDirectory(self, 
+                                                        "Seleccionar Carpeta para Guardar Datos", 
+                                                        "")
+            if not directory:
+                return
+            
+            # Solicitar nombre base para los archivos
+            base_name, ok = QInputDialog.getText(self, "Nombre de Archivos", 
+                                               "Ingrese un nombre base para los archivos:", 
+                                               text="datos_filtrados")
+            if not ok or not base_name:
+                return
+            
+            saved_files = []
+            
+            # 1. Guardar datos filtrados
+            df_filtered = pd.DataFrame({
+                'tiempo_s': self.time_data,
+                'valor_filt': self.filtered_data
+            })
+            filtered_path = os.path.join(directory, f"{base_name}_filtrado.csv")
+            df_filtered.to_csv(filtered_path, index=False)
+            saved_files.append(f"• {base_name}_filtrado.csv ({len(self.filtered_data)} puntos)")
+            
+            # 2. Guardar parámetros calculados (si hay análisis disponible)
+            # Intentar realizar un análisis para obtener parámetros
+            try:
+                analysis, parameters = self.ppg_processor.analyze_segment(
+                    self.time_data, self.filtered_data
+                )
+                
+                if parameters:
+                    df_params = pd.DataFrame(
+                        list(parameters.items()), 
+                        columns=['Parametro', 'Valor']
+                    )
+                    params_path = os.path.join(directory, f"{base_name}_parametros.csv")
+                    df_params.to_csv(params_path, index=False)
+                    saved_files.append(f"• {base_name}_parametros.csv")
+            except Exception as e:
+                self.log_message(f"No se pudieron calcular parámetros: {e}")
+            
+            # Mensaje de éxito
+            files_list = "\n".join(saved_files)
+            self.log_message(f"Datos guardados en: {directory}")
+            QMessageBox.information(self, "Guardado Exitoso", 
+                                  f"Datos guardados exitosamente en:\n{directory}\n\n"
+                                  f"Archivos creados:\n{files_list}")
+            
+        except Exception as e:
+            error_msg = f"Error guardando datos: {e}"
+            self.log_message(error_msg)
+            QMessageBox.critical(self, "Error al Guardar", 
+                               f"Error al guardar los datos: {e}")
+        
     def clear_data(self):
         """Limpia todos los datos"""
         self.current_data = None
@@ -434,6 +529,7 @@ class AnalysisTab(QWidget):
         # Actualizar UI
         self.data_info_label.setText("No hay datos cargados")
         self.apply_filter_btn.setEnabled(False)
+        self.save_data_btn.setEnabled(False)
         self.baseline_checkbox.setChecked(False)
         self.detect_fiducials_btn.setEnabled(False)
         self.reset_btn.setEnabled(False)

@@ -92,6 +92,7 @@ class PPGAnalyzerApp(QMainWindow):
         controls.start_acquisition.connect(self.start_acquisition)
         controls.stop_acquisition.connect(self.stop_acquisition)
         controls.reset_data.connect(self.reset_data)
+        controls.save_data.connect(self.save_acquisition_data)
         controls.analyze_data.connect(self.go_to_analysis)  # Nueva conexión
         
     def setup_status_bar(self):
@@ -196,6 +197,55 @@ class PPGAnalyzerApp(QMainWindow):
         except Exception as e:
             error_msg = f"Error reseteando datos: {e}"
             self.acquisition_tab.log_message(error_msg)
+            
+    def save_acquisition_data(self):
+        """Guarda los datos crudos de adquisición en archivo CSV"""
+        try:
+            # Verificar que haya datos
+            if len(self.ppg_processor.time_buffer) == 0:
+                QMessageBox.warning(self, "Advertencia", 
+                                  "No hay datos para guardar. Inicie la adquisición primero.")
+                return
+            
+            # Solicitar directorio donde guardar el archivo
+            directory = QFileDialog.getExistingDirectory(self, 
+                                                        "Seleccionar Carpeta para Guardar Datos", 
+                                                        "")
+            if not directory:
+                return
+            
+            # Solicitar nombre base para el archivo
+            base_name, ok = QInputDialog.getText(self, "Nombre de Archivo", 
+                                               "Ingrese un nombre base para el archivo:", 
+                                               text="datos_crudos")
+            if not ok or not base_name:
+                return
+            
+            # Obtener datos del procesador
+            time_data = list(self.ppg_processor.time_buffer)
+            raw_data = list(self.ppg_processor.raw_buffer)
+            
+            # Crear DataFrame
+            df = pd.DataFrame({
+                'tiempo_s': time_data,
+                'valor_raw': raw_data
+            })
+            
+            # Guardar archivo
+            file_path = os.path.join(directory, f"{base_name}.csv")
+            df.to_csv(file_path, index=False)
+            
+            # Mensaje de éxito
+            self.acquisition_tab.log_message(f"Datos guardados: {file_path}")
+            QMessageBox.information(self, "Guardado Exitoso", 
+                                  f"Datos guardados exitosamente en:\n{file_path}\n\n"
+                                  f"Total de puntos: {len(raw_data)}")
+            
+        except Exception as e:
+            error_msg = f"Error guardando datos: {e}"
+            self.acquisition_tab.log_message(error_msg)
+            QMessageBox.critical(self, "Error al Guardar", 
+                               f"Error al guardar los datos: {e}")
             
     def go_to_analysis(self):
         """Cambia a la pestaña de análisis y carga datos de adquisición"""

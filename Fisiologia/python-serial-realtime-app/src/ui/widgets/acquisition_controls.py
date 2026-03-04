@@ -24,6 +24,8 @@ class AcquisitionControls(QWidget):
     stop_acquisition = pyqtSignal()
     #: Señal emitida cuando se solicita resetear datos.
     reset_data = pyqtSignal()
+    #: Señal emitida cuando se solicita guardar datos.
+    save_data = pyqtSignal()
     #: Señal emitida cuando se solicita analizar datos.
     analyze_data = pyqtSignal()  
     
@@ -93,6 +95,26 @@ class AcquisitionControls(QWidget):
         self.reset_btn.clicked.connect(self.reset_data.emit)
         reset_layout.addWidget(self.reset_btn)
         acquisition_layout.addLayout(reset_layout)
+        
+        # Botón de guardar datos
+        save_layout = QHBoxLayout()
+        self.save_btn = QPushButton("Guardar Datos")
+        self.save_btn.clicked.connect(self.save_data.emit)
+        self.save_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #27AE60;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #229954;
+            }
+        """)
+        save_layout.addWidget(self.save_btn)
+        acquisition_layout.addLayout(save_layout)
         
         # Botón de análisis
         analysis_layout = QHBoxLayout()
