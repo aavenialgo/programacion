@@ -499,6 +499,28 @@ class AnalysisTab(QWidget):
                     params_path = os.path.join(directory, f"{base_name}_parametros.csv")
                     df_params.to_csv(params_path, index=False)
                     saved_files.append(f"• {base_name}_parametros.csv")
+
+                beat_rows = analysis.get('beats', []) if analysis else []
+                if beat_rows:
+                    rows = []
+                    for i, row in enumerate(beat_rows, start=1):
+                        rows.append({
+                            'latido': i,
+                            'onset_idx': row['onset_idx'],
+                            'onset_time': row['onset_time'],
+                            'onset_amp': row['onset_amp'],
+                            'sys_idx': row['sys_idx'],
+                            'sys_time': row['sys_time'],
+                            'sys_amp': row['sys_amp'],
+                        })
+
+                    df_fid = pd.DataFrame(
+                        rows,
+                        columns=['latido', 'onset_idx', 'onset_time', 'onset_amp', 'sys_idx', 'sys_time', 'sys_amp']
+                    )
+                    fid_path = os.path.join(directory, f"{base_name}_fiduciales.csv")
+                    df_fid.to_csv(fid_path, index=False)
+                    saved_files.append(f"• {base_name}_fiduciales.csv ({len(df_fid)} latidos)")
             except Exception as e:
                 self.log_message(f"No se pudieron calcular parámetros: {e}")
             

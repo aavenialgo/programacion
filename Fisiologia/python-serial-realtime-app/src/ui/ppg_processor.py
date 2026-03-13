@@ -205,17 +205,30 @@ class PPGProcessor(QObject):
 
         systolic_peak_idx = peaks
 
-        foot_idx = []
+        beat_rows = []
         for p_idx in systolic_peak_idx:
             foot_start = max(p_idx - int(self.fs * 0.5), 0)
             foot_end = p_idx
             if foot_start < foot_end:
                 valley_before_peak = np.argmin(ppg_smooth[foot_start:foot_end])
-                foot_idx.append(foot_start + valley_before_peak)
+                o_idx = foot_start + valley_before_peak
+                beat_rows.append({
+                    'onset_idx': int(o_idx),
+                    'onset_time': float(t_aligned[o_idx]),
+                    'onset_amp': float(ppg_segment[o_idx]),
+                    'sys_idx': int(p_idx),
+                    'sys_time': float(t_aligned[p_idx]),
+                    'sys_amp': float(ppg_segment[p_idx]),
+                })
+
+        foot_idx = np.array([row['onset_idx'] for row in beat_rows], dtype=int)
+        systolic_peak_idx_valid = np.array([row['sys_idx'] for row in beat_rows], dtype=int)
 
         fiducial_points = {
-            'systolic_peak': t_aligned[systolic_peak_idx],
+            'systolic_peak': t_aligned[systolic_peak_idx_valid],
             'foot': t_aligned[foot_idx],
+            'systolic_peak_idx': systolic_peak_idx_valid,
+            'foot_idx': foot_idx,
         }
 
         if len(systolic_peak_idx) > 1:
@@ -240,6 +253,7 @@ class PPGProcessor(QObject):
             'ppg_smooth': ppg_smooth,
             'd1': d1,
             'fiducials': fiducial_points,
+            'beats': beat_rows,
             'parameters': parameters
         }
 
