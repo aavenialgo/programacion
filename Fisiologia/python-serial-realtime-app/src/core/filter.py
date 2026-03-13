@@ -124,3 +124,4 @@ if __name__ == '__main__':
         plt.ylabel('Amplitude')
         plt.tight_layout()
         plt.show()
+        

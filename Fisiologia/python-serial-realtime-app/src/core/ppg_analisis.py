@@ -40,6 +40,7 @@ def get_temporal_features(ppg_signal, fs):
         fc_bpm = measures.get('bpm', np.nan)
         ppi_ms = measures.get('ibi', np.nan) # HeartPy lo llama 'ibi' (Inter-Beat Interval)
         
+        
         # se obtiene la lista de picos sistólicos (índices)
         systolic_peaks_idx = working_data.get('peaklist', np.array([]))
         
@@ -69,19 +70,19 @@ def get_ac_component(ppg_signal, fs, dc_cutoff=0.5, ac_noise_cutoff=4.0):
     return np.max(ac_signal_filtered) - np.min(ac_signal_filtered)
 
 
-
 if '__main__' == __name__:
+    
     #TODO: ver si funciona
-    fs = 125.0 # asi esta muestreada esa señal de prueba
+    fs = 100 # asi esta muestreada esa señal de prueba
     
     # Cargar datos usando pandas en lugar de hp.get_data()
-    df = pd.read_csv('src/data/analisis_ppg_prueba_1_senal_suavizada.csv')  # sep='\t' para archivos separados por tabulador
+    df = pd.read_csv('src/data/datos_filtrados_naza4_filtrado.csv')  # sep='\t' para archivos separados por tabulador
     
-    signal = df['ppg_suavizada'].values
+    signal = df['valor_filt'].values
     tiempo = df['tiempo_s'].values
     
     # Se limita a n segundos
-    signal = signal[:int(9 * fs)]
+    signal = signal[:int(10 * fs)]
     
     print(f"Datos cargados: {len(signal)} puntos")
     print(f"Primeros 5 valores: {signal[:5]}")
