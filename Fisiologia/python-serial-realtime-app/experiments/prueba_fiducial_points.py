@@ -198,12 +198,11 @@ def detectar_fiduciales_vpg(derivada, puntos_o, picos_s):
 base_dir = Path(__file__).resolve().parents[1]  # raíz del proyecto
 archivo = base_dir / "src" / "data" / "datos_filtrados_naza1_filtrado.csv"
 FS_CONFIGURADA = 100.0
-t, ppg, vpg, fs = cargar_y_procesar(str(archivo), fs=FS_CONFIGURADA)
-s, o, w_ppg = detectar_fiduciales_ppg(ppg, vpg, fs)
-u_vpg, v_vpg, w_vpg = detectar_fiduciales_vpg(vpg, o, s)
+t, ppg, fs = cargar_y_procesar(str(archivo), fs=FS_CONFIGURADA)
+s, o, w_ppg = detectar_fiduciales_ppg(ppg, fs)
 
 # 5. Visualización simultánea de PPG y VPG con sus fiduciales
-fig, axes = plt.subplots(2, 1, figsize=(12, 9), sharex=True)
+fig, axes = plt.subplots(1, 1, figsize=(12, 9), sharex=True)
 
 # PPG
 axes[0].plot(t, ppg, label='PPG Filtrada', color='black', alpha=0.7)
@@ -214,17 +213,6 @@ axes[0].set_title('PPG + Fiduciales')
 axes[0].set_ylabel('Amplitud')
 axes[0].legend(loc='upper right')
 axes[0].grid(True, alpha=0.3)
-
-# VPG
-axes[1].plot(t, vpg, label='VPG (1ra derivada)', color='purple', alpha=0.85)
-axes[1].scatter(t[u_vpg], vpg[u_vpg], color='orange', s=28, label='u (VPG)')
-axes[1].scatter(t[v_vpg], vpg[v_vpg], color='brown', marker='x', s=40, label='v (VPG)')
-axes[1].scatter(t[w_vpg], vpg[w_vpg], color='cyan', marker='+', s=40, label='w (VPG)')
-axes[1].set_title('VPG + Fiduciales')
-axes[1].set_xlabel('Tiempo (s)')
-axes[1].set_ylabel('Amplitud')
-axes[1].legend(loc='upper right')
-axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()

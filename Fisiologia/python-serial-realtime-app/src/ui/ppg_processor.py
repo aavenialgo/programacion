@@ -189,13 +189,15 @@ class PPGProcessor(QObject):
         if len(ppg_segment) < 100:
             return None, {}
 
+        t_aligned = np.asarray(t_segment)
+        ppg_segment = np.asarray(ppg_segment)
+
         try:
             ppg_smooth = savgol_filter(ppg_segment, window_length=int(self.fs / 5) + 1, polyorder=3)
         except Exception:
             ppg_smooth = ppg_segment
 
         d1 = self.calculate_derivative(ppg_smooth)
-        t_aligned = t_segment
 
         peaks, _ = find_peaks(ppg_smooth, height=np.mean(ppg_smooth), distance=int(self.fs / 2))
         if not list(peaks):
@@ -203,17 +205,17 @@ class PPGProcessor(QObject):
 
         systolic_peak_idx = peaks
 
-        dicrotic_notch_idx = []
+        foot_idx = []
         for p_idx in systolic_peak_idx:
-            search_start = min(p_idx + int(self.fs * 0.1), len(ppg_smooth) - 1)
-            search_end = min(p_idx + int(self.fs * 0.5), len(ppg_smooth))
-            if search_start < search_end:
-                valley_idx_local = np.argmin(ppg_smooth[search_start:search_end])
-                dicrotic_notch_idx.append(search_start + valley_idx_local)
+            foot_start = max(p_idx - int(self.fs * 0.5), 0)
+            foot_end = p_idx
+            if foot_start < foot_end:
+                valley_before_peak = np.argmin(ppg_smooth[foot_start:foot_end])
+                foot_idx.append(foot_start + valley_before_peak)
 
         fiducial_points = {
             'systolic_peak': t_aligned[systolic_peak_idx],
-            'dicrotic_notch': t_aligned[dicrotic_notch_idx],
+            'foot': t_aligned[foot_idx],
         }
 
         if len(systolic_peak_idx) > 1:

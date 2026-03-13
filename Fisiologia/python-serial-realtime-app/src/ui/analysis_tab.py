@@ -538,7 +538,7 @@ class AnalysisTab(QWidget):
         self.log_message("Datos limpiados")
 
     def detect_fiducials(self):
-        """Detecta puntos fiduciales (pico sistólico y muesca dicrotica) en la señal PPG filtrada."""
+        """Detecta puntos fiduciales (pico sistólico y foot) en la señal PPG filtrada."""
         if self.current_data is None or getattr(self, 'time_data', None) is None:
             QMessageBox.warning(self, "Sin datos", "Cargue datos antes de detectar fiduciales")
             return
@@ -557,7 +557,7 @@ class AnalysisTab(QWidget):
 
         fid = analysis.get('fiducials', {})
         systolic_t = fid.get('systolic_peak', [])
-        notch_t = fid.get('dicrotic_notch', [])
+        foot_t = fid.get('foot', [])
 
         times = []
         values = []
@@ -570,12 +570,12 @@ class AnalysisTab(QWidget):
                     values.append(signal[idx])
 
         add_points(systolic_t)
-        add_points(notch_t)
+        add_points(foot_t)
 
         self.fiducials = {'time': times, 'value': values}
         self.update_fiducial_plot()
 
-        self.log_message(f"Fiduciales detectados: {len(times)} puntos (picos sistólicos y muescas dicroticas)")
+        self.log_message(f"Fiduciales detectados: {len(times)} puntos (systolic_peak y foot)")
 
     def update_fiducial_plot(self):
         """Actualiza la capa de puntos fiduciales sobre la señal PPG."""
