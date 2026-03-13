@@ -196,7 +196,7 @@ def detectar_fiduciales_vpg(derivada, puntos_o, picos_s):
 
 # --- Ejecución ---
 base_dir = Path(__file__).resolve().parents[1]  # raíz del proyecto
-archivo = base_dir / "src" / "data" / "datos_filtrados_naza4_filtrado.csv"
+archivo = base_dir / "src" / "data" / "datos_filtrados_naza1_filtrado.csv"
 FS_CONFIGURADA = 100.0
 t, ppg, vpg, fs = cargar_y_procesar(str(archivo), fs=FS_CONFIGURADA)
 s, o, w_ppg = detectar_fiduciales_ppg(ppg, vpg, fs)

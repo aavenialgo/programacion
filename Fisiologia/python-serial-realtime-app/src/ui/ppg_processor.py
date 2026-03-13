@@ -122,10 +122,10 @@ class PPGProcessor(QObject):
             signal_norm = (signal - np.mean(signal)) / np.std(signal)
             
             # Detectar picos
-            # Distancia mínima entre picos: ~0.4s (150 BPM máximo)
+            # Distancia mínima entre picos: ~0.4s (150 BPM maximo)
             min_distance = int(0.4 * self.sample_rate)
             peaks, properties = find_peaks(signal_norm, 
-                                         height=0.3,  # Altura mínima
+                                         height=0.3,  # Altura minima
                                          distance=min_distance)
             
             results = {
@@ -170,17 +170,19 @@ class PPGProcessor(QObject):
             print(f"Error analizando segmento: {e}")
             return None
 
-    def calculate_derivatives(self, data):
-        """Calcula la primera y segunda derivada usando diferencias centrales."""
+    def calculate_derivative(self, data):
+        """Calcula la primera derivada usando diferencias centrales."""
         if len(data) < 3:
-            return np.array([]), np.array([])
+            return np.array([])
 
         dt = 1.0 / self.fs
-
         d1_dt = np.gradient(data, dt)
-        d2_dt2 = np.gradient(d1_dt, dt)
+        return d1_dt
 
-        return d1_dt, d2_dt2
+    def calculate_derivatives(self, data):
+        """Compatibilidad retroactiva: retorna d1 y un arreglo vacío para d2."""
+        d1_dt = self.calculate_derivative(data)
+        return d1_dt, np.array([])
 
     def analyze_segment(self, t_segment, ppg_segment):
         """Analiza morfología en una ventana PPG y calcula puntos/parametros."""
@@ -192,7 +194,7 @@ class PPGProcessor(QObject):
         except Exception:
             ppg_smooth = ppg_segment
 
-        d1, d2 = self.calculate_derivatives(ppg_smooth)
+        d1 = self.calculate_derivative(ppg_smooth)
         t_aligned = t_segment
 
         peaks, _ = find_peaks(ppg_smooth, height=np.mean(ppg_smooth), distance=int(self.fs / 2))
@@ -209,17 +211,9 @@ class PPGProcessor(QObject):
                 valley_idx_local = np.argmin(ppg_smooth[search_start:search_end])
                 dicrotic_notch_idx.append(search_start + valley_idx_local)
 
-        d2_peaks, _ = find_peaks(d2, distance=int(self.fs / 4))
-        d2_valleys, _ = find_peaks(-d2, distance=int(self.fs / 4))
-
         fiducial_points = {
             'systolic_peak': t_aligned[systolic_peak_idx],
             'dicrotic_notch': t_aligned[dicrotic_notch_idx],
-            'd2_a': t_aligned[d2_peaks[0]] if len(d2_peaks) > 0 else None,
-            'd2_b': t_aligned[d2_valleys[0]] if len(d2_valleys) > 0 else None,
-            'd2_c': t_aligned[d2_peaks[1]] if len(d2_peaks) > 1 else None,
-            'd2_d': t_aligned[d2_valleys[1]] if len(d2_valleys) > 1 else None,
-            'd2_e': t_aligned[d2_peaks[2]] if len(d2_peaks) > 2 else None,
         }
 
         if len(systolic_peak_idx) > 1:
@@ -232,46 +226,10 @@ class PPGProcessor(QObject):
             avg_ppi = np.nan
 
         ac = np.max(ppg_segment) - np.min(ppg_segment)
-        dc = np.mean(ppg_segment)
-
-        rt = np.nan
-        st_dt_ratio = np.nan
-
-        if len(systolic_peak_idx) > 0 and len(dicrotic_notch_idx) > 0:
-            pico_idx = systolic_peak_idx[0]
-            valle_idx = np.argmin(ppg_segment[:pico_idx])
-            notch_idx = dicrotic_notch_idx[0]
-
-            rt = (t_aligned[pico_idx] - t_aligned[valle_idx]) if valle_idx < pico_idx else np.nan
-
-            systolic_time = t_aligned[notch_idx] - t_aligned[pico_idx]
-            diastolic_time = (t_aligned[-1] - t_aligned[notch_idx]) if len(t_aligned) > 1 else np.nan
-
-            if not np.isnan(systolic_time) and not np.isnan(diastolic_time) and diastolic_time > 0:
-                st_dt_ratio = systolic_time / diastolic_time
-
-        a = ppg_smooth[d2_peaks[0]] if len(d2_peaks) > 0 else np.nan
-        b = ppg_smooth[d2_valleys[0]] if len(d2_valleys) > 0 else np.nan
-        c = ppg_smooth[d2_peaks[1]] if len(d2_peaks) > 1 else np.nan
-        d = ppg_smooth[d2_valleys[1]] if len(d2_valleys) > 1 else np.nan
-        e = ppg_smooth[d2_peaks[2]] if len(d2_peaks) > 2 else np.nan
-
-        ai = np.nan
-        if len(dicrotic_notch_idx) > 0:
-            ai = ppg_smooth[dicrotic_notch_idx[0]] / ppg_smooth[systolic_peak_idx[0]]
-
         parameters = {
             'FC (LPM)': f'{fc:.2f}' if not np.isnan(fc) else 'N/A',
             'PPI (s)': f'{avg_ppi:.3f}' if not np.isnan(avg_ppi) else 'N/A',
             'AC (Unidades)': f'{ac:.2f}',
-            'DC (Unidades)': f'{dc:.2f}',
-            'AI (Proxy)': f'{ai:.3f}' if not np.isnan(ai) else 'N/A',
-            'RT (ms)': f'{rt * 1000:.1f}' if not np.isnan(rt) else 'N/A',
-            'ST/DT': f'{st_dt_ratio:.2f}' if not np.isnan(st_dt_ratio) else 'N/A',
-            'Ratio b/a': f'{(b/a):.2f}' if not np.isnan(a) and not np.isnan(b) and a != 0 else 'N/A',
-            'Ratio c/a': f'{(c/a):.2f}' if not np.isnan(a) and not np.isnan(c) and a != 0 else 'N/A',
-            'Ratio d/a': f'{(d/a):.2f}' if not np.isnan(a) and not np.isnan(d) and a != 0 else 'N/A',
-            'Ratio e/a': f'{(e/a):.2f}' if not np.isnan(a) and not np.isnan(e) and a != 0 else 'N/A',
         }
 
         analysis_data = {
@@ -279,7 +237,6 @@ class PPGProcessor(QObject):
             'ppg': ppg_segment,
             'ppg_smooth': ppg_smooth,
             'd1': d1,
-            'd2': d2,
             'fiducials': fiducial_points,
             'parameters': parameters
         }
