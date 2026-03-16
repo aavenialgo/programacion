@@ -5,6 +5,7 @@ Este módulo contiene:
 - Ventana principal (main_window.py)
 - Pestaña de adquisición (acquisition_tab.py)
 - Pestaña de análisis (analysis_tab.py)
+- Pestaña de puntos fiduciales desde CSV (fiducial_tab.py)
 - Widgets personalizados (widgets/)
 """
 
@@ -21,6 +22,11 @@ try:
 except ImportError as e:
     print(f"Warning: No se pudo importar AnalysisTab: {e}")
 
+try:
+    from .fiducial_tab import FiducialTab
+except ImportError as e:
+    print(f"Warning: No se pudo importar FiducialTab: {e}")
+
 # Importar widgets personalizados
 try:
     from .widgets.acquisition_controls import AcquisitionControls
@@ -33,6 +39,7 @@ __all__ = [
     # Pestañas
     'AcquisitionTab',
     'AnalysisTab',
+    'FiducialTab',
     # Widgets
     'AcquisitionControls',
 ]

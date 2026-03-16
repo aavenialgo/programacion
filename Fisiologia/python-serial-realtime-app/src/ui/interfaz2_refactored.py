@@ -30,6 +30,7 @@ from .serial_reader import SerialReader
 from .ppg_processor import PPGProcessor
 from .acquisition_tab import AcquisitionTab
 from .analysis_tab import AnalysisTab
+from .fiducial_tab import FiducialTab
 
 # --- Configuraciones de PyQTGraph y Estilo ---
 pg.setConfigOption('background', '#FFFFFF')  # Fondo blanco para los gráficos
@@ -74,7 +75,11 @@ class PPGAnalyzerApp(QMainWindow):
         # Pestaña de análisis (nueva versión completa)
         self.analysis_tab = AnalysisTab(self.ppg_processor)
         self.tab_widget.addTab(self.analysis_tab, "Análisis de Datos")
-        
+
+        # Pestaña de puntos fiduciales desde CSV externo
+        self.fiducial_tab = FiducialTab(self.ppg_processor)
+        self.tab_widget.addTab(self.fiducial_tab, "Puntos Fiduciales")
+
         layout.addWidget(self.tab_widget)
         central_widget.setLayout(layout)
         
