@@ -201,17 +201,6 @@ class FiducialTab(QWidget):
 
         layout.addWidget(self.signal_plot)
 
-        # ── Gráfico inferior: señal suavizada ──────────────────────────── #
-        self.smooth_plot = pg.PlotWidget(title="Señal suavizada (Savitzky-Golay)")
-        self.smooth_plot.setLabel('left', 'Amplitud')
-        self.smooth_plot.setLabel('bottom', 'Tiempo (s)')
-        self.smooth_plot.showGrid(x=True, y=True)
-
-        self.smooth_curve = self.smooth_plot.plot(
-            pen=pg.mkPen('#F59E0B', width=2), name="Señal suavizada"
-        )
-        layout.addWidget(self.smooth_plot)
-
         widget.setLayout(layout)
         return widget
 
@@ -250,7 +239,6 @@ class FiducialTab(QWidget):
 
             # Actualizar gráfico de la señal
             self.signal_curve.setData(self.time_data, self.signal_data)
-            self.smooth_curve.setData([], [])
             self._clear_scatter()
 
             # Habilitar controles
@@ -295,11 +283,6 @@ class FiducialTab(QWidget):
             return
 
         self.analysis_result = analysis
-
-        # ── Graficar señal suavizada ───────────────────────────────── #
-        ppg_smooth = analysis.get('ppg_smooth', [])
-        if len(ppg_smooth):
-            self.smooth_curve.setData(self.time_data, ppg_smooth)
 
         # ── Graficar puntos fiduciales ─────────────────────────────── #
         fid = analysis.get('fiducials', {})
@@ -431,7 +414,6 @@ class FiducialTab(QWidget):
         self.analysis_result = None
 
         self.signal_curve.setData([], [])
-        self.smooth_curve.setData([], [])
         self._clear_scatter()
 
         self.file_info_label.setText("Ningún archivo cargado")
