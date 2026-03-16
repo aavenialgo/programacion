@@ -345,18 +345,7 @@ class FiducialTab(QWidget):
         saved = []
 
         try:
-            # 1. Señal suavizada
-            ppg_smooth = self.analysis_result.get('ppg_smooth', [])
-            if len(ppg_smooth):
-                df_smooth = pd.DataFrame({
-                    'tiempo_s': self.time_data,
-                    'senal_suavizada': ppg_smooth
-                })
-                path = os.path.join(directory, f"{base_name}_senal_suavizada.csv")
-                df_smooth.to_csv(path, index=False)
-                saved.append(f"• {base_name}_senal_suavizada.csv ({len(df_smooth)} pts)")
-
-            # 2. Parámetros
+            # 1. Parámetros
             parameters = self.analysis_result.get('parameters', {})
             if parameters:
                 df_params = pd.DataFrame(
@@ -367,7 +356,7 @@ class FiducialTab(QWidget):
                 df_params.to_csv(path, index=False)
                 saved.append(f"• {base_name}_parametros.csv")
 
-            # 3. Puntos fiduciales por latido
+            # 2. Puntos fiduciales por latido
             beat_rows = self.analysis_result.get('beats', [])
             if beat_rows:
                 rows = []
