@@ -105,9 +105,7 @@
         <span class="c1"># Variables para manejo de datos de gráficos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_data_cache</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s1">&#39;filtered&#39;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s1">&#39;normalized&#39;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="s1">&#39;raw&#39;</span><span class="p">:</span> <span class="p">[]</span>
         <span class="p">}</span></div>
 
         
@@ -214,22 +212,14 @@
         <span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;foreground&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
         
-        <span class="c1"># Gráfico de señal cruda</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal PPG Cruda&quot;</span><span class="p">)</span>
+        <span class="c1"># Gráfico de señal cruda (canal único)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal PPG - Canal Raw&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitud&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;Tiempo (s)&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="s1">&#39;#FF6B6B&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setYRange</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span>  <span class="c1"># Rango inicial</span>
         <span class="n">plots_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="p">)</span>
-        
-        <span class="c1"># Gráfico de señal filtrada</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal PPG Filtrada&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitud&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;Tiempo (s)&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="s1">&#39;#4ECDC4&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-        <span class="n">plots_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="p">)</span>
         
         <span class="n">plots_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">plots_layout</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plots_widget</span></div>
@@ -250,12 +240,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Actualiza los gráficos con nuevos datos&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">time_data</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">filtered_data</span><span class="p">,</span> <span class="n">normalized_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">get_display_data</span><span class="p">(</span><span class="mi">2500</span><span class="p">)</span>
+            <span class="n">time_data</span><span class="p">,</span> <span class="n">raw_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">get_display_data</span><span class="p">(</span><span class="mi">2500</span><span class="p">)</span>
             
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c1"># Actualizar curvas</span>
+                <span class="c1"># Actualizar curva</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">raw_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">filtered_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">filtered_data</span><span class="p">)</span>
                 
                 <span class="c1"># Auto-scroll en el eje X (mostrar últimos 30 segundos)</span>
                 <span class="k">if</span> <span class="n">time_data</span><span class="p">:</span>
@@ -264,7 +253,6 @@
                     <span class="n">start_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">latest_time</span> <span class="o">-</span> <span class="n">window_size</span><span class="p">)</span>
                     
                     <span class="bp">self</span><span class="o">.</span><span class="n">raw_plot</span><span class="o">.</span><span class="n">setXRange</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">latest_time</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">filtered_plot</span><span class="o">.</span><span class="n">setXRange</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">latest_time</span><span class="p">)</span>
                 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error actualizando gráficos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>

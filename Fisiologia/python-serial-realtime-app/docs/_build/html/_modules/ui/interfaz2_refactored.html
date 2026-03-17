@@ -104,6 +104,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.ppg_processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPGProcessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.acquisition_tab</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionTab</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.analysis_tab</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisTab</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.fiducial_tab</span><span class="w"> </span><span class="kn">import</span> <span class="n">FiducialTab</span>
 
 <span class="c1"># --- Configuraciones de PyQTGraph y Estilo ---</span>
 <span class="n">pg</span><span class="o">.</span><span class="n">setConfigOption</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">)</span>  <span class="c1"># Fondo blanco para los gráficos</span>
@@ -155,7 +156,11 @@
         <span class="c1"># Pestaña de análisis (nueva versión completa)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span> <span class="o">=</span> <span class="n">AnalysisTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_tab</span><span class="p">,</span> <span class="s2">&quot;Análisis de Datos&quot;</span><span class="p">)</span>
-        
+
+        <span class="c1"># Pestaña de puntos fiduciales desde CSV externo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fiducial_tab</span> <span class="o">=</span> <span class="n">FiducialTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fiducial_tab</span><span class="p">,</span> <span class="s2">&quot;Puntos Fiduciales&quot;</span><span class="p">)</span>
+
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_widget</span><span class="p">)</span>
         <span class="n">central_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
 
@@ -176,6 +181,7 @@
         <span class="n">controls</span><span class="o">.</span><span class="n">start_acquisition</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_acquisition</span><span class="p">)</span>
         <span class="n">controls</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_acquisition</span><span class="p">)</span>
         <span class="n">controls</span><span class="o">.</span><span class="n">reset_data</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_data</span><span class="p">)</span>
+        <span class="n">controls</span><span class="o">.</span><span class="n">save_data</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_acquisition_data</span><span class="p">)</span>
         <span class="n">controls</span><span class="o">.</span><span class="n">analyze_data</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">go_to_analysis</span><span class="p">)</span>  <span class="c1"># Nueva conexión</span></div>
 
         
@@ -292,13 +298,64 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">reset_data</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="s2">&quot;Datos reseteados&quot;</span><span class="p">)</span>
             
-            <span class="c1"># Limpiar gráficos</span>
+            <span class="c1"># Limpiar gráfico</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">raw_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">([],</span> <span class="p">[])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">filtered_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">([],</span> <span class="p">[])</span>
             
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error reseteando datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="PPGAnalyzerApp.save_acquisition_data">
+<a class="viewcode-back" href="../../modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.save_acquisition_data">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_acquisition_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Guarda los datos crudos de adquisición en archivo CSV&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Verificar que haya datos</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Advertencia&quot;</span><span class="p">,</span> 
+                                  <span class="s2">&quot;No hay datos para guardar. Inicie la adquisición primero.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            
+            <span class="c1"># Solicitar directorio donde guardar el archivo</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                                                        <span class="s2">&quot;Seleccionar Carpeta para Guardar Datos&quot;</span><span class="p">,</span> 
+                                                        <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
+                <span class="k">return</span>
+            
+            <span class="c1"># Solicitar nombre base para el archivo</span>
+            <span class="n">base_name</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Nombre de Archivo&quot;</span><span class="p">,</span> 
+                                               <span class="s2">&quot;Ingrese un nombre base para el archivo:&quot;</span><span class="p">,</span> 
+                                               <span class="n">text</span><span class="o">=</span><span class="s2">&quot;datos_crudos&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">base_name</span><span class="p">:</span>
+                <span class="k">return</span>
+            
+            <span class="c1"># Obtener datos del procesador</span>
+            <span class="n">time_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)</span>
+            
+            <span class="c1"># Crear DataFrame</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+                <span class="s1">&#39;tiempo_s&#39;</span><span class="p">:</span> <span class="n">time_data</span><span class="p">,</span>
+                <span class="s1">&#39;valor_raw&#39;</span><span class="p">:</span> <span class="n">raw_data</span>
+            <span class="p">})</span>
+            
+            <span class="c1"># Guardar archivo</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            
+            <span class="c1"># Mensaje de éxito</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Datos guardados: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Guardado Exitoso&quot;</span><span class="p">,</span> 
+                                  <span class="sa">f</span><span class="s2">&quot;Datos guardados exitosamente en:</span><span class="se">\n</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot;Total de puntos: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error guardando datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquisition_tab</span><span class="o">.</span><span class="n">log_message</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error al Guardar&quot;</span><span class="p">,</span> 
+                               <span class="sa">f</span><span class="s2">&quot;Error al guardar los datos: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
             
 <div class="viewcode-block" id="PPGAnalyzerApp.go_to_analysis">
@@ -327,10 +384,9 @@
             <span class="c1"># Parsear datos usando el SerialReader</span>
             <span class="n">parsed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial_reader</span><span class="o">.</span><span class="n">parse_data_line</span><span class="p">(</span><span class="n">data_line</span><span class="p">)</span>
             
-            <span class="k">if</span> <span class="n">parsed_data</span><span class="p">:</span>
-                <span class="n">raw</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span> <span class="n">normalized</span> <span class="o">=</span> <span class="n">parsed_data</span>
-                <span class="c1"># Enviar datos al procesador PPG</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">add_data_point</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span> <span class="n">normalized</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parsed_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Enviar datos al procesador PPG (solo canal raw)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">add_data_point</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Si no es el formato esperado, intentar como número simple</span>
                 <span class="k">try</span><span class="p">:</span>

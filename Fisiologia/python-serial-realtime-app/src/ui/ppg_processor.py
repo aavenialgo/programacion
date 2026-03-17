@@ -6,6 +6,8 @@ import numpy as np
 import time
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from scipy.signal import find_peaks, savgol_filter
+from config.settings import LOWCUT, HIGHCUT, FILTER_ORDER
+
 
 class PPGProcessor(QObject):
     """Procesador de señales PPG con análisis en tiempo real"""

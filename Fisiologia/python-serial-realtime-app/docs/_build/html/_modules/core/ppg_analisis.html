@@ -96,26 +96,6 @@
 
 <span class="c1"># --- Funciones Principales del Módulo ---</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">get_dc_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calcula el componente DC (Basal) de la señal PPG.</span>
-<span class="sd">    Filtra la señal por debajo del &#39;cutoff&#39; (0.5 Hz por defecto) y calcula la media.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dc_signal</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">get_ac_component</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="o">=</span><span class="mf">4.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calcula el componente AC (Pulsátil) de la señal PPG.</span>
-<span class="sd">    Mide la amplitud pico a pico (max - min) de la señal pulsátil.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dc_signal</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">dc_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-    <span class="n">ac_signal</span> <span class="o">=</span> <span class="n">ppg_signal</span> <span class="o">-</span> <span class="n">dc_signal</span>
-    <span class="n">ac_signal_filtered</span> <span class="o">=</span> <span class="n">_butter_lowpass_filter</span><span class="p">(</span><span class="n">ac_signal</span><span class="p">,</span> <span class="n">ac_noise_cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ac_signal_filtered</span><span class="p">)</span>
-<span class="c1"># --- Funciones Principales del Módulo ---</span>
-
 <div class="viewcode-block" id="get_temporal_features">
 <a class="viewcode-back" href="../../modules/core.html#core.ppg_analisis.get_temporal_features">[documentos]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_features</span><span class="p">(</span><span class="n">ppg_signal</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
@@ -135,6 +115,7 @@
         
         <span class="n">fc_bpm</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bpm&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="n">ppi_ms</span> <span class="o">=</span> <span class="n">measures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ibi&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="c1"># HeartPy lo llama &#39;ibi&#39; (Inter-Beat Interval)</span>
+        
         
         <span class="c1"># se obtiene la lista de picos sistólicos (índices)</span>
         <span class="n">systolic_peaks_idx</span> <span class="o">=</span> <span class="n">working_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;peaklist&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span>
@@ -172,19 +153,19 @@
 
 
 
-
 <span class="k">if</span> <span class="s1">&#39;__main__&#39;</span> <span class="o">==</span> <span class="vm">__name__</span><span class="p">:</span>
+    
     <span class="c1">#TODO: ver si funciona</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="mf">125.0</span> <span class="c1"># asi esta muestreada esa señal de prueba</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># asi esta muestreada esa señal de prueba</span>
     
     <span class="c1"># Cargar datos usando pandas en lugar de hp.get_data()</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;src/data/analisis_ppg_prueba_1_senal_suavizada.csv&#39;</span><span class="p">)</span>  <span class="c1"># sep=&#39;\t&#39; para archivos separados por tabulador</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;src/data/datos_filtrados_naza4_filtrado.csv&#39;</span><span class="p">)</span>  <span class="c1"># sep=&#39;\t&#39; para archivos separados por tabulador</span>
     
-    <span class="n">signal</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;ppg_suavizada&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;valor_filt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="n">tiempo</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tiempo_s&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     
     <span class="c1"># Se limita a n segundos</span>
-    <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="mi">9</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)]</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">fs</span><span class="p">)]</span>
     
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Datos cargados: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span><span class="si">}</span><span class="s2"> puntos&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Primeros 5 valores: </span><span class="si">{</span><span class="n">signal</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

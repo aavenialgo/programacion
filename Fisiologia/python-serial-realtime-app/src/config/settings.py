@@ -9,7 +9,7 @@ DEFAULT_BAUD = 115200
 TIMEOUT = 1
 
 # === CONFIGURACIONES DE SEÑAL ===
-SAMPLING_FREQUENCY = 125  # Hz
+SAMPLING_FREQUENCY = 100  # Hz
 MAX_POINTS = SAMPLING_FREQUENCY * 60  # Buffer de 60 segundos
 DEFAULT_WINDOW_SIZE = 5  # segundos para visualización
 
@@ -34,7 +34,7 @@ OVERLAP_PERCENTAGE = 50  # % de solapamiento entre segmentos
 # === CONFIGURACIONES DE INTERFAZ ===
 # Tamaños de ventana
 DEFAULT_WINDOW_WIDTH = 1200
-DEFAULT_WINDOW_HEIGHT = 800
+DEFAULT_WINDOW_HEIGHT = 700
 
 # Colores de la interfaz
 COLORS = {

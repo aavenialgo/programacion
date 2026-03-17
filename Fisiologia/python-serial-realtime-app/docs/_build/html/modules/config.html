@@ -76,6 +76,40 @@
 <span id="modulo-config"></span><h1>Módulo config<a class="headerlink" href="#module-config" title="Link to this heading"></a></h1>
 <section id="submodulos">
 <h2>Submódulos<a class="headerlink" href="#submodulos" title="Link to this heading"></a></h2>
+<section id="module-config.serial_config">
+<span id="serial-config"></span><h3>serial_config<a class="headerlink" href="#module-config.serial_config" title="Link to this heading"></a></h3>
+<p>Configuración específica del puerto serie</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="config.serial_config.SerialConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">config.serial_config.</span></span><span class="sig-name descname"><span class="pre">SerialConfig</span></span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Gestión de configuración del puerto serie</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="config.serial_config.SerialConfig.get_available_ports">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_available_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.get_available_ports"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.get_available_ports" title="Link to this definition"></a></dt>
+<dd><p>Obtiene lista de puertos serie disponibles</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.serial_config.SerialConfig.validate_port">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">115200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.validate_port"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.validate_port" title="Link to this definition"></a></dt>
+<dd><p>Valida si un puerto serie es accesible</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.serial_config.SerialConfig.get_default_port">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_default_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.get_default_port"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.get_default_port" title="Link to this definition"></a></dt>
+<dd><p>Obtiene el puerto por defecto según el sistema operativo</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-config.settings">
+<span id="settings"></span><h3>settings<a class="headerlink" href="#module-config.settings" title="Link to this heading"></a></h3>
+<p>Configuraciones generales. Incluye parametros del puerto serie, configuraciones de señal,
+filtros, análisis, interfaz y exportación de datos.</p>
+</section>
 <section id="module-config.constants">
 <span id="constants"></span><h3>constants<a class="headerlink" href="#module-config.constants" title="Link to this heading"></a></h3>
 <p>Constantes utilizadas en toda la aplicación</p>
@@ -188,40 +222,6 @@
 
 </dd></dl>
 
-</section>
-<section id="module-config.serial_config">
-<span id="serial-config"></span><h3>serial_config<a class="headerlink" href="#module-config.serial_config" title="Link to this heading"></a></h3>
-<p>Configuración específica del puerto serie</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="config.serial_config.SerialConfig">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">config.serial_config.</span></span><span class="sig-name descname"><span class="pre">SerialConfig</span></span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Gestión de configuración del puerto serie</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="config.serial_config.SerialConfig.get_available_ports">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_available_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.get_available_ports"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.get_available_ports" title="Link to this definition"></a></dt>
-<dd><p>Obtiene lista de puertos serie disponibles</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="config.serial_config.SerialConfig.validate_port">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">115200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.validate_port"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.validate_port" title="Link to this definition"></a></dt>
-<dd><p>Valida si un puerto serie es accesible</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="config.serial_config.SerialConfig.get_default_port">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_default_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/config/serial_config.html#SerialConfig.get_default_port"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#config.serial_config.SerialConfig.get_default_port" title="Link to this definition"></a></dt>
-<dd><p>Obtiene el puerto por defecto según el sistema operativo</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-config.settings">
-<span id="settings"></span><h3>settings<a class="headerlink" href="#module-config.settings" title="Link to this heading"></a></h3>
-<p>Configuraciones generales. Incluye parametros del puerto serie, configuraciones de señal,
-filtros, análisis, interfaz y exportación de datos.</p>
 </section>
 </section>
 </section>

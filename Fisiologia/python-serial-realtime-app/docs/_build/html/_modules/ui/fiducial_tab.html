@@ -1,0 +1,570 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui.fiducial_tab &mdash; documentación de Python Serial Realtime App - 1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=4936afed"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Python Serial Realtime App
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contenidos:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/core.html">Módulo core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/data.html">Módulo data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/ui.html">Módulo ui</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Serial Realtime App</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Código de módulo</a></li>
+      <li class="breadcrumb-item active">ui.fiducial_tab</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Código fuente para ui.fiducial_tab</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Pestaña para cálculo de puntos fiduciales sobre señal PPG filtrada</span>
+<span class="sd">cargada desde un archivo CSV externo.</span>
+
+<span class="sd">Flujo de uso:</span>
+<span class="sd">  1. Cargar un CSV con señal ya filtrada (columnas: tiempo, valor).</span>
+<span class="sd">  2. Graficar la señal.</span>
+<span class="sd">  3. Pulsar &quot;Calcular puntos fiduciales&quot; → se grafican onset y pico sistólico.</span>
+<span class="sd">  4. Pulsar &quot;Guardar resultados&quot; → se exportan los CSV de fiduciales,</span>
+<span class="sd">     parámetros y señal suavizada, igual que en AnalysisTab.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyqtgraph</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pg</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QSplitter</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span>
+    <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QTextEdit</span><span class="p">,</span>
+    <span class="n">QSpinBox</span><span class="p">,</span> <span class="n">QInputDialog</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+
+<div class="viewcode-block" id="FiducialTab">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab">[documentos]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FiducialTab</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pestaña de detección de puntos fiduciales a partir de CSV filtrado&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FiducialTab.__init__">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.__init__">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppg_processor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param ppg_processor: Instancia de PPGProcessor para reutilizar</span>
+<span class="sd">                              analyze_segment() sin tocar las otras pestañas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span> <span class="o">=</span> <span class="n">ppg_processor</span>
+
+        <span class="c1"># Estado interno</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span> <span class="o">=</span> <span class="kc">None</span>       <span class="c1"># array numpy con el eje temporal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># array numpy con la señal filtrada cargada</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># dict devuelto por analyze_segment</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ui</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+    <span class="c1">#  Construcción de la UI                                               #</span>
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+
+<div class="viewcode-block" id="FiducialTab.setup_ui">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.setup_ui">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construye el layout principal con splitter horizontal&quot;&quot;&quot;</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">QSplitter</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+
+        <span class="n">control</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_control_panel</span><span class="p">()</span>
+        <span class="n">control</span><span class="o">.</span><span class="n">setMaximumWidth</span><span class="p">(</span><span class="mi">340</span><span class="p">)</span>
+        <span class="n">control</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">280</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">control</span><span class="p">)</span>
+
+        <span class="n">plots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_plots_panel</span><span class="p">()</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">plots</span><span class="p">)</span>
+
+        <span class="n">splitter</span><span class="o">.</span><span class="n">setSizes</span><span class="p">([</span><span class="mi">340</span><span class="p">,</span> <span class="mi">1060</span><span class="p">])</span>
+
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_control_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Panel izquierdo con controles&quot;&quot;&quot;</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="c1"># ── Grupo: Cargar CSV ───────────────────────────────────────── #</span>
+        <span class="n">load_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Cargar CSV filtrado&quot;</span><span class="p">)</span>
+        <span class="n">load_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Abrir archivo CSV…&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_csv_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_btn_style</span><span class="p">(</span><span class="s2">&quot;#3498DB&quot;</span><span class="p">,</span> <span class="s2">&quot;#2980B9&quot;</span><span class="p">))</span>
+        <span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_btn</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Ningún archivo cargado&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color: #7F8C8D; font-size: 11px;&quot;</span><span class="p">)</span>
+        <span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Limpiar datos&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_all</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_btn_style</span><span class="p">(</span><span class="s2">&quot;#95A5A6&quot;</span><span class="p">,</span> <span class="s2">&quot;#7F8C8D&quot;</span><span class="p">))</span>
+        <span class="n">load_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="p">)</span>
+
+        <span class="n">load_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">load_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">load_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Grupo: Parámetros de muestreo ────────────────────────────── #</span>
+        <span class="n">fs_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Frecuencia de muestreo&quot;</span><span class="p">)</span>
+        <span class="n">fs_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+
+        <span class="n">fs_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Fs (Hz):&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span> <span class="o">=</span> <span class="n">QSpinBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span>
+            <span class="s2">&quot;Frecuencia de muestreo de la señal cargada.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Debe coincidir con la frecuencia con que fue adquirida.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">fs_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="p">)</span>
+
+        <span class="n">fs_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">fs_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">fs_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Grupo: Procesamiento ─────────────────────────────────────── #</span>
+        <span class="n">proc_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Procesamiento&quot;</span><span class="p">)</span>
+        <span class="n">proc_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Calcular puntos fiduciales&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detect_fiducials</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_btn_style</span><span class="p">(</span><span class="s2">&quot;#8B5CF6&quot;</span><span class="p">,</span> <span class="s2">&quot;#7C3AED&quot;</span><span class="p">))</span>
+        <span class="n">proc_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="p">)</span>
+
+        <span class="c1"># Información de resultados</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;color: #2C3E50; font-size: 11px;&quot;</span><span class="p">)</span>
+        <span class="n">proc_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="p">)</span>
+
+        <span class="n">proc_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">proc_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">proc_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Grupo: Exportar ──────────────────────────────────────────── #</span>
+        <span class="n">export_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Exportar Resultados&quot;</span><span class="p">)</span>
+        <span class="n">export_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Guardar resultados CSV&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_results</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_btn_style</span><span class="p">(</span><span class="s2">&quot;#27AE60&quot;</span><span class="p">,</span> <span class="s2">&quot;#229954&quot;</span><span class="p">))</span>
+        <span class="n">export_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="p">)</span>
+
+        <span class="n">export_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">export_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">export_group</span><span class="p">)</span>
+
+        <span class="c1"># ── Log ─────────────────────────────────────────────────────── #</span>
+        <span class="n">log_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Log&quot;</span><span class="p">)</span>
+        <span class="n">log_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span> <span class="o">=</span> <span class="n">QTextEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setMaximumHeight</span><span class="p">(</span><span class="mi">160</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            QTextEdit {</span>
+<span class="s2">                background-color: #F8F9FA;</span>
+<span class="s2">                border: 1px solid #BDC3C7;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                font-family: &#39;Courier New&#39;, monospace;</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">            }</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">log_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="p">)</span>
+        <span class="n">log_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">log_layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">log_group</span><span class="p">)</span>
+
+        <span class="n">layout</span><span class="o">.</span><span class="n">addStretch</span><span class="p">()</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_plots_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Panel derecho con dos gráficos apilados verticalmente&quot;&quot;&quot;</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+
+        <span class="c1"># ── Gráfico superior: señal filtrada + scatter fiduciales ─────── #</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">PlotWidget</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Señal filtrada cargada&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;Amplitud&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">setLabel</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;Tiempo (s)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">showGrid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="s1">&#39;#4ECDC4&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Señal filtrada&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Picos sistólicos: círculos rojos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_systolic</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">ScatterPlotItem</span><span class="p">(</span>
+            <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">brush</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkBrush</span><span class="p">(</span><span class="s1">&#39;#EF4444&#39;</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Pico sistólico&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scatter_systolic</span><span class="p">)</span>
+
+        <span class="c1"># Onset / foot: triángulos azules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_foot</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">ScatterPlotItem</span><span class="p">(</span>
+            <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">pen</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkPen</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">brush</span><span class="o">=</span><span class="n">pg</span><span class="o">.</span><span class="n">mkBrush</span><span class="p">(</span><span class="s1">&#39;#3B82F6&#39;</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Onset (foot)&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scatter_foot</span><span class="p">)</span>
+
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_plot</span><span class="p">)</span>
+
+        <span class="n">widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">widget</span>
+
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+    <span class="c1">#  Lógica de trabajo                                                   #</span>
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+
+<div class="viewcode-block" id="FiducialTab.load_csv_file">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.load_csv_file">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_csv_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Abre un CSV y carga las columnas de tiempo y señal&quot;&quot;&quot;</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Seleccionar CSV filtrado&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Archivos CSV (*.csv)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;El archivo debe tener al menos una columna de datos&quot;</span><span class="p">)</span>
+
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span><span class="p">)</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&lt;/b&gt;&lt;br&gt;&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> puntos · </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Actualizar gráfico de la señal</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signal_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clear_scatter</span><span class="p">()</span>
+
+            <span class="c1"># Habilitar controles</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV cargado: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> pts, </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s)&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error al cargar CSV&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error cargando CSV: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FiducialTab.detect_fiducials">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.detect_fiducials">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_fiducials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Llama a ppg_processor.analyze_segment() y visualiza los resultados&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Sin datos&quot;</span><span class="p">,</span> <span class="s2">&quot;Cargue un archivo CSV primero.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Sincronizar la frecuencia de muestreo del procesador con la del spinner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs_spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">analysis</span><span class="p">,</span> <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppg_processor</span><span class="o">.</span><span class="n">analyze_segment</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error en análisis&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error en analyze_segment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">analysis</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Sin resultado&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;No se pudieron detectar puntos fiduciales.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Verifique que la señal sea válida y la Fs sea correcta.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="s2">&quot;analyze_segment no encontró fiduciales.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span> <span class="o">=</span> <span class="n">analysis</span>
+
+        <span class="c1"># ── Graficar puntos fiduciales ─────────────────────────────── #</span>
+        <span class="n">fid</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fiducials&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">systolic_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;systolic_peak&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">foot_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;foot&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">make_spots</span><span class="p">(</span><span class="n">t_array</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">time_ref</span><span class="p">):</span>
+            <span class="n">spots</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">tv</span> <span class="ow">in</span> <span class="n">t_array</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">time_ref</span> <span class="o">-</span> <span class="n">tv</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">):</span>
+                    <span class="n">spots</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">time_ref</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">sig</span><span class="p">[</span><span class="n">idx</span><span class="p">])})</span>
+            <span class="k">return</span> <span class="n">spots</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_systolic</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span>
+            <span class="n">make_spots</span><span class="p">(</span><span class="n">systolic_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_foot</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span>
+            <span class="n">make_spots</span><span class="p">(</span><span class="n">foot_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ── Habilitar guardado y actualizar info ───────────────────── #</span>
+        <span class="n">n_beats</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;beats&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">fc_str</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FC (LPM)&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span>
+        <span class="n">ppi_str</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PPI (s)&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;Latidos detectados:&lt;/b&gt; </span><span class="si">{</span><span class="n">n_beats</span><span class="si">}</span><span class="s2">&lt;br&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;FC:&lt;/b&gt; </span><span class="si">{</span><span class="n">fc_str</span><span class="si">}</span><span class="s2"> LPM&lt;br&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;PPI:&lt;/b&gt; </span><span class="si">{</span><span class="n">ppi_str</span><span class="si">}</span><span class="s2"> s&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Fiduciales calculados — </span><span class="si">{</span><span class="n">n_beats</span><span class="si">}</span><span class="s2"> latidos · &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;FC=</span><span class="si">{</span><span class="n">fc_str</span><span class="si">}</span><span class="s2"> LPM · PPI=</span><span class="si">{</span><span class="n">ppi_str</span><span class="si">}</span><span class="s2"> s&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FiducialTab.save_results">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.save_results">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Guarda los resultados en archivos CSV dentro de una carpeta elegida&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Sin análisis&quot;</span><span class="p">,</span> <span class="s2">&quot;Calcule los puntos fiduciales primero.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Seleccionar carpeta de destino&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">base_name</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Nombre base de archivos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ingrese un prefijo para los archivos:&quot;</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;analisis_ppg&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">base_name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">base_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">saved</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 1. Parámetros</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+                <span class="n">df_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Parametro&#39;</span><span class="p">,</span> <span class="s1">&#39;Valor&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_parametros.csv&quot;</span><span class="p">)</span>
+                <span class="n">df_params</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">saved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_parametros.csv&quot;</span><span class="p">)</span>
+
+            <span class="c1"># 2. Puntos fiduciales por latido</span>
+            <span class="n">beat_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;beats&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="n">beat_rows</span><span class="p">:</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">beat_rows</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s1">&#39;latido&#39;</span><span class="p">:</span>      <span class="n">i</span><span class="p">,</span>
+                        <span class="s1">&#39;onset_idx&#39;</span><span class="p">:</span>   <span class="n">row</span><span class="p">[</span><span class="s1">&#39;onset_idx&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;onset_time&#39;</span><span class="p">:</span>  <span class="n">row</span><span class="p">[</span><span class="s1">&#39;onset_time&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;onset_amp&#39;</span><span class="p">:</span>   <span class="n">row</span><span class="p">[</span><span class="s1">&#39;onset_amp&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;sys_idx&#39;</span><span class="p">:</span>     <span class="n">row</span><span class="p">[</span><span class="s1">&#39;sys_idx&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;sys_time&#39;</span><span class="p">:</span>    <span class="n">row</span><span class="p">[</span><span class="s1">&#39;sys_time&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;sys_amp&#39;</span><span class="p">:</span>     <span class="n">row</span><span class="p">[</span><span class="s1">&#39;sys_amp&#39;</span><span class="p">],</span>
+                    <span class="p">})</span>
+                <span class="n">df_fid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="n">rows</span><span class="p">,</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;latido&#39;</span><span class="p">,</span> <span class="s1">&#39;onset_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;onset_time&#39;</span><span class="p">,</span> <span class="s1">&#39;onset_amp&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;sys_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;sys_time&#39;</span><span class="p">,</span> <span class="s1">&#39;sys_amp&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_fiduciales.csv&quot;</span><span class="p">)</span>
+                <span class="n">df_fid</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">saved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_fiduciales.csv (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_fid</span><span class="p">)</span><span class="si">}</span><span class="s2"> latidos)&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">files_list</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved</span><span class="p">)</span> <span class="k">if</span> <span class="n">saved</span> <span class="k">else</span> <span class="s2">&quot;Ningún archivo generado.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resultados guardados en: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Guardado exitoso&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Archivos creados en:</span><span class="se">\n</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">files_list</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error guardando resultados: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Error al guardar&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+    <span class="c1">#  Utilidades internas                                                 #</span>
+    <span class="c1"># ------------------------------------------------------------------ #</span>
+
+<div class="viewcode-block" id="FiducialTab.clear_all">
+<a class="viewcode-back" href="../../modules/ui.html#ui.FiducialTab.clear_all">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Limpia todos los datos y gráficos&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_curve</span><span class="o">.</span><span class="n">setData</span><span class="p">([],</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clear_scatter</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_info_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Ningún archivo cargado&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_btn</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="s2">&quot;Datos limpiados.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clear_scatter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_systolic</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scatter_foot</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agrega una entrada con timestamp al log&quot;&quot;&quot;</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_text</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span>
+        <span class="n">sb</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">sb</span><span class="o">.</span><span class="n">maximum</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_btn_style</span><span class="p">(</span><span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hover</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            QPushButton </span><span class="se">{{</span>
+<span class="s2">                background-color: </span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">                color: white;</span>
+<span class="s2">                border: none;</span>
+<span class="s2">                padding: 8px;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                font-weight: bold;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            QPushButton:hover </span><span class="se">{{</span>
+<span class="s2">                background-color: </span><span class="si">{</span><span class="n">hover</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            QPushButton:disabled </span><span class="se">{{</span>
+<span class="s2">                background-color: #BDC3C7;</span>
+<span class="s2">                color: #7F8C8D;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">        &quot;&quot;&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Tu Nombre.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

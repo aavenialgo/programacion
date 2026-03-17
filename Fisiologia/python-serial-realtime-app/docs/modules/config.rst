@@ -9,15 +9,6 @@ Submódulos
 ----------
 
 
-constants
-~~~~~~~~~
-
-.. automodule:: config.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 serial_config
 ~~~~~~~~~~~~~
 
@@ -31,6 +22,15 @@ settings
 ~~~~~~~~
 
 .. automodule:: config.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+constants
+~~~~~~~~~
+
+.. automodule:: config.constants
    :members:
    :undoc-members:
    :show-inheritance:

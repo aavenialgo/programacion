@@ -9,10 +9,19 @@ Submódulos
 ----------
 
 
-acquisition_tab
-~~~~~~~~~~~~~~~
+fiducial_tab
+~~~~~~~~~~~~
 
-.. automodule:: ui.acquisition_tab
+.. automodule:: ui.fiducial_tab
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+interfaz2
+~~~~~~~~~
+
+.. automodule:: ui.interfaz2
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,24 +45,6 @@ graficador_ppg_analisis
    :show-inheritance:
 
 
-interfaz2
-~~~~~~~~~
-
-.. automodule:: ui.interfaz2
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-interfaz2_refactored
-~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: ui.interfaz2_refactored
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 ppg_processor
 ~~~~~~~~~~~~~
 
@@ -63,10 +54,28 @@ ppg_processor
    :show-inheritance:
 
 
+acquisition_tab
+~~~~~~~~~~~~~~~
+
+.. automodule:: ui.acquisition_tab
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 serial_reader
 ~~~~~~~~~~~~~
 
 .. automodule:: ui.serial_reader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+interfaz2_refactored
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: ui.interfaz2_refactored
    :members:
    :undoc-members:
    :show-inheritance:

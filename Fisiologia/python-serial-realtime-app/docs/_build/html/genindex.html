@@ -110,6 +110,10 @@
 </li>
         <li><a href="modules/ui.html#ui.AnalysisTab.__init__">(método de ui.AnalysisTab)</a>
 </li>
+        <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.__init__">(método de ui.fiducial_tab.FiducialTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.FiducialTab.__init__">(método de ui.FiducialTab)</a>
+</li>
         <li><a href="modules/ui.html#ui.interfaz2.AcquisitionTab.__init__">(método de ui.interfaz2.AcquisitionTab)</a>
 </li>
         <li><a href="modules/ui.html#ui.interfaz2.AnalysisTab.__init__">(método de ui.interfaz2.AnalysisTab)</a>
@@ -168,7 +172,11 @@
       <li><a href="modules/ui.html#ui.AcquisitionControls.analyze_data">analyze_data (atributo de ui.AcquisitionControls)</a>
 </li>
       <li><a href="modules/ui.html#ui.interfaz2.PPGProcessor.analyze_segment">analyze_segment() (método de ui.interfaz2.PPGProcessor)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.ppg_processor.PPGProcessor.analyze_segment">(método de ui.ppg_processor.PPGProcessor)</a>
 </li>
+      </ul></li>
       <li><a href="modules/config.html#config.constants.AppStates.ANALYZING">ANALYZING (atributo de config.constants.AppStates)</a>
 </li>
       <li><a href="modules/core.html#core.filter.apply_filter">apply_filter() (en el módulo core.filter)</a>
@@ -195,18 +203,36 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/ui.html#ui.interfaz2.PPGProcessor.calculate_derivatives">calculate_derivatives() (método de ui.interfaz2.PPGProcessor)</a>
+      <li><a href="modules/ui.html#ui.ppg_processor.PPGProcessor.calculate_derivative">calculate_derivative() (método de ui.ppg_processor.PPGProcessor)</a>
 </li>
+      <li><a href="modules/ui.html#ui.interfaz2.PPGProcessor.calculate_derivatives">calculate_derivatives() (método de ui.interfaz2.PPGProcessor)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.ppg_processor.PPGProcessor.calculate_derivatives">(método de ui.ppg_processor.PPGProcessor)</a>
+</li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.interfaz2.AcquisitionTab.change_channel">change_channel() (método de ui.interfaz2.AcquisitionTab)</a>
 </li>
       <li><a href="modules/ui.html#ui.interfaz2.AnalysisTab.change_view">change_view() (método de ui.interfaz2.AnalysisTab)</a>
 </li>
+      <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.clear_all">clear_all() (método de ui.fiducial_tab.FiducialTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.FiducialTab.clear_all">(método de ui.FiducialTab)</a>
+</li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.clear_data">clear_data() (método de ui.analysis_tab.AnalysisTab)</a>
 
       <ul>
         <li><a href="modules/ui.html#ui.AnalysisTab.clear_data">(método de ui.AnalysisTab)</a>
 </li>
         <li><a href="modules/ui.html#ui.interfaz2.PPGProcessor.clear_data">(método de ui.interfaz2.PPGProcessor)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.clear_fiducials">clear_fiducials() (método de ui.analysis_tab.AnalysisTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.AnalysisTab.clear_fiducials">(método de ui.AnalysisTab)</a>
 </li>
       </ul></li>
       <li><a href="modules/ui.html#ui.acquisition_tab.AcquisitionTab.clear_log">clear_log() (método de ui.acquisition_tab.AcquisitionTab)</a>
@@ -249,6 +275,8 @@
         <li><a href="modules/config.html#module-config.settings">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/ui.html#ui.interfaz2.SerialReader.connect">connect() (método de ui.interfaz2.SerialReader)</a>
 </li>
       <li><a href="modules/ui.html#ui.interfaz2.PPGAnalyzerApp.connect_serial">connect_serial() (método de ui.interfaz2.PPGAnalyzerApp)</a>
@@ -259,8 +287,6 @@
         <li><a href="modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.connect_serial">(método de ui.interfaz2_refactored.PPGAnalyzerApp)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/config.html#config.constants.AppStates.CONNECTED">CONNECTED (atributo de config.constants.AppStates)</a>
 </li>
       <li><a href="modules/ui.html#ui.AcquisitionControls.connection_requested">connection_requested (atributo de ui.AcquisitionControls)</a>
@@ -272,6 +298,13 @@
 
       <ul>
         <li><a href="modules/core.html#module-core">module</a>
+</li>
+      </ul></li>
+      <li>
+    core.fiducial_points
+
+      <ul>
+        <li><a href="modules/core.html#module-core.fiducial_points">module</a>
 </li>
       </ul></li>
       <li>
@@ -335,12 +368,22 @@
         <li><a href="modules/data.html#module-data.read_data">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/config.html#config.constants.ErrorCodes.DATA_PROCESSING_ERROR">DATA_PROCESSING_ERROR (atributo de config.constants.ErrorCodes)</a>
 </li>
       <li><a href="modules/ui.html#ui.serial_reader.SerialReader.data_received">data_received (atributo de ui.serial_reader.SerialReader)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.detect_fiducials">detect_fiducials() (método de ui.analysis_tab.AnalysisTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.AnalysisTab.detect_fiducials">(método de ui.AnalysisTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.detect_fiducials">(método de ui.fiducial_tab.FiducialTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.FiducialTab.detect_fiducials">(método de ui.FiducialTab)</a>
+</li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.disconnect_serial">disconnect_serial() (método de ui.interfaz2_refactored.PPGAnalyzerApp)</a>
 </li>
       <li><a href="modules/config.html#config.constants.AppStates.DISCONNECTED">DISCONNECTED (atributo de config.constants.AppStates)</a>
@@ -365,10 +408,16 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/config.html#config.constants.ErrorCodes.FILE_IO_ERROR">FILE_IO_ERROR (atributo de config.constants.ErrorCodes)</a>
+      <li><a href="modules/ui.html#ui.FiducialTab">FiducialTab (clase en ui)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab">(clase en ui.fiducial_tab)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/config.html#config.constants.ErrorCodes.FILE_IO_ERROR">FILE_IO_ERROR (atributo de config.constants.ErrorCodes)</a>
+</li>
       <li><a href="modules/config.html#config.constants.SignalTypes.FILTERED">FILTERED (atributo de config.constants.SignalTypes)</a>
 </li>
       <li><a href="modules/config.html#config.constants.Units.FREQUENCY">FREQUENCY (atributo de config.constants.Units)</a>
@@ -442,6 +491,10 @@
       <ul>
         <li><a href="modules/ui.html#ui.AnalysisTab.load_csv_file">(método de ui.AnalysisTab)</a>
 </li>
+        <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.load_csv_file">(método de ui.fiducial_tab.FiducialTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.FiducialTab.load_csv_file">(método de ui.FiducialTab)</a>
+</li>
         <li><a href="modules/ui.html#ui.interfaz2.AcquisitionTab.load_csv_file">(método de ui.interfaz2.AcquisitionTab)</a>
 </li>
       </ul></li>
@@ -485,6 +538,8 @@
 </li>
         <li><a href="modules/core.html#module-core">core</a>
 </li>
+        <li><a href="modules/core.html#module-core.fiducial_points">core.fiducial_points</a>
+</li>
         <li><a href="modules/core.html#module-core.filter">core.filter</a>
 </li>
         <li><a href="modules/core.html#module-core.ppg_analisis">core.ppg_analisis</a>
@@ -500,6 +555,8 @@
         <li><a href="modules/ui.html#module-ui.acquisition_tab">ui.acquisition_tab</a>
 </li>
         <li><a href="modules/ui.html#module-ui.analysis_tab">ui.analysis_tab</a>
+</li>
+        <li><a href="modules/ui.html#module-ui.fiducial_tab">ui.fiducial_tab</a>
 </li>
         <li><a href="modules/ui.html#module-ui.interfaz2">ui.interfaz2</a>
 </li>
@@ -625,9 +682,27 @@
 </li>
       </ul></li>
       <li><a href="modules/ui.html#ui.interfaz2.PPGAnalyzerApp.save_acquisition_data">save_acquisition_data() (método de ui.interfaz2.PPGAnalyzerApp)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.interfaz2_refactored.PPGAnalyzerApp.save_acquisition_data">(método de ui.interfaz2_refactored.PPGAnalyzerApp)</a>
 </li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.interfaz2.AnalysisTab.save_analysis_data">save_analysis_data() (método de ui.interfaz2.AnalysisTab)</a>
 </li>
+      <li><a href="modules/ui.html#ui.AcquisitionControls.save_data">save_data (atributo de ui.AcquisitionControls)</a>
+</li>
+      <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.save_filtered_data">save_filtered_data() (método de ui.analysis_tab.AnalysisTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.AnalysisTab.save_filtered_data">(método de ui.AnalysisTab)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.save_results">save_results() (método de ui.fiducial_tab.FiducialTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.FiducialTab.save_results">(método de ui.FiducialTab)</a>
+</li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.ppg_processor.PPGProcessor.segment_analyzed">segment_analyzed (atributo de ui.ppg_processor.PPGProcessor)</a>
 </li>
       <li><a href="modules/config.html#config.constants.ErrorCodes.SERIAL_CONNECTION_ERROR">SERIAL_CONNECTION_ERROR (atributo de config.constants.ErrorCodes)</a>
@@ -670,6 +745,10 @@
         <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.setup_ui">(método de ui.analysis_tab.AnalysisTab)</a>
 </li>
         <li><a href="modules/ui.html#ui.AnalysisTab.setup_ui">(método de ui.AnalysisTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.fiducial_tab.FiducialTab.setup_ui">(método de ui.fiducial_tab.FiducialTab)</a>
+</li>
+        <li><a href="modules/ui.html#ui.FiducialTab.setup_ui">(método de ui.FiducialTab)</a>
 </li>
         <li><a href="modules/ui.html#ui.interfaz2.AcquisitionTab.setup_ui">(método de ui.interfaz2.AcquisitionTab)</a>
 </li>
@@ -764,6 +843,13 @@
 </li>
       </ul></li>
       <li>
+    ui.fiducial_tab
+
+      <ul>
+        <li><a href="modules/ui.html#module-ui.fiducial_tab">module</a>
+</li>
+      </ul></li>
+      <li>
     ui.interfaz2
 
       <ul>
@@ -799,6 +885,12 @@
 </li>
       <li><a href="modules/ui.html#ui.interfaz2.AcquisitionTab.update_elapsed_time">update_elapsed_time() (método de ui.interfaz2.AcquisitionTab)</a>
 </li>
+      <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.update_fiducial_plot">update_fiducial_plot() (método de ui.analysis_tab.AnalysisTab)</a>
+
+      <ul>
+        <li><a href="modules/ui.html#ui.AnalysisTab.update_fiducial_plot">(método de ui.AnalysisTab)</a>
+</li>
+      </ul></li>
       <li><a href="modules/ui.html#ui.analysis_tab.AnalysisTab.update_filtered_plot">update_filtered_plot() (método de ui.analysis_tab.AnalysisTab)</a>
 
       <ul>

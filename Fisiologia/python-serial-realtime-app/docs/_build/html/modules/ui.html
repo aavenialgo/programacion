@@ -75,7 +75,20 @@
 <li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.update_original_plot"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.update_original_plot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.update_filtered_plot"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.update_filtered_plot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.log_message"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.log_message()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.save_filtered_data"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.save_filtered_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.clear_data"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.clear_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.detect_fiducials"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.detect_fiducials()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.update_fiducial_plot"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.update_fiducial_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.AnalysisTab.clear_fiducials"><code class="docutils literal notranslate"><span class="pre">AnalysisTab.clear_fiducials()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ui.FiducialTab"><code class="docutils literal notranslate"><span class="pre">FiducialTab</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.__init__"><code class="docutils literal notranslate"><span class="pre">FiducialTab.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.setup_ui"><code class="docutils literal notranslate"><span class="pre">FiducialTab.setup_ui()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.load_csv_file"><code class="docutils literal notranslate"><span class="pre">FiducialTab.load_csv_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.detect_fiducials"><code class="docutils literal notranslate"><span class="pre">FiducialTab.detect_fiducials()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.save_results"><code class="docutils literal notranslate"><span class="pre">FiducialTab.save_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.FiducialTab.clear_all"><code class="docutils literal notranslate"><span class="pre">FiducialTab.clear_all()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ui.AcquisitionControls"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls</span></code></a><ul>
@@ -84,6 +97,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.start_acquisition"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.start_acquisition</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.stop_acquisition"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.stop_acquisition</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.reset_data"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.reset_data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.save_data"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.save_data</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.analyze_data"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.analyze_data</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.__init__"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ui.AcquisitionControls.setup_ui"><code class="docutils literal notranslate"><span class="pre">AcquisitionControls.setup_ui()</span></code></a></li>
@@ -95,15 +109,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodulos">Submódulos</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-ui.acquisition_tab">acquisition_tab</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ui.acquisition_tab.AcquisitionTab"><code class="docutils literal notranslate"><span class="pre">AcquisitionTab</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ui.fiducial_tab">fiducial_tab</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ui.fiducial_tab.FiducialTab"><code class="docutils literal notranslate"><span class="pre">FiducialTab</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ui.analysis_tab">analysis_tab</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ui.analysis_tab.AnalysisTab"><code class="docutils literal notranslate"><span class="pre">AnalysisTab</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#graficador-ppg-analisis">graficador_ppg_analisis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ui.interfaz2">interfaz2</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2.SerialReader"><code class="docutils literal notranslate"><span class="pre">SerialReader</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2.PPGProcessor"><code class="docutils literal notranslate"><span class="pre">PPGProcessor</span></code></a></li>
@@ -112,17 +121,26 @@
 <li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2.PPGAnalyzerApp"><code class="docutils literal notranslate"><span class="pre">PPGAnalyzerApp</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ui.interfaz2_refactored">interfaz2_refactored</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2_refactored.PPGAnalyzerApp"><code class="docutils literal notranslate"><span class="pre">PPGAnalyzerApp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2_refactored.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ui.analysis_tab">analysis_tab</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ui.analysis_tab.AnalysisTab"><code class="docutils literal notranslate"><span class="pre">AnalysisTab</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#graficador-ppg-analisis">graficador_ppg_analisis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ui.ppg_processor">ppg_processor</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ui.ppg_processor.PPGProcessor"><code class="docutils literal notranslate"><span class="pre">PPGProcessor</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ui.acquisition_tab">acquisition_tab</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ui.acquisition_tab.AcquisitionTab"><code class="docutils literal notranslate"><span class="pre">AcquisitionTab</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ui.serial_reader">serial_reader</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ui.serial_reader.SerialReader"><code class="docutils literal notranslate"><span class="pre">SerialReader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ui.interfaz2_refactored">interfaz2_refactored</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2_refactored.PPGAnalyzerApp"><code class="docutils literal notranslate"><span class="pre">PPGAnalyzerApp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ui.interfaz2_refactored.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -162,6 +180,7 @@
 - Ventana principal (main_window.py)
 - Pestaña de adquisición (acquisition_tab.py)
 - Pestaña de análisis (analysis_tab.py)
+- Pestaña de puntos fiduciales desde CSV (fiducial_tab.py)
 - Widgets personalizados (widgets/)</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ui.AcquisitionTab">
@@ -325,9 +344,81 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ui.AnalysisTab.save_filtered_data">
+<span class="sig-name descname"><span class="pre">save_filtered_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.save_filtered_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.AnalysisTab.save_filtered_data" title="Link to this definition"></a></dt>
+<dd><p>Guarda los datos filtrados y parámetros en archivos CSV</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ui.AnalysisTab.clear_data">
 <span class="sig-name descname"><span class="pre">clear_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.clear_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.AnalysisTab.clear_data" title="Link to this definition"></a></dt>
 <dd><p>Limpia todos los datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.AnalysisTab.detect_fiducials">
+<span class="sig-name descname"><span class="pre">detect_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.detect_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.AnalysisTab.detect_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Detecta puntos fiduciales (pico sistólico y foot) en la señal PPG filtrada.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.AnalysisTab.update_fiducial_plot">
+<span class="sig-name descname"><span class="pre">update_fiducial_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_fiducial_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.AnalysisTab.update_fiducial_plot" title="Link to this definition"></a></dt>
+<dd><p>Actualiza la capa de puntos fiduciales sobre la señal PPG.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.AnalysisTab.clear_fiducials">
+<span class="sig-name descname"><span class="pre">clear_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.clear_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.AnalysisTab.clear_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Limpia los puntos fiduciales del gráfico.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.FiducialTab">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.</span></span><span class="sig-name descname"><span class="pre">FiducialTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Pestaña de detección de puntos fiduciales a partir de CSV filtrado</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ppg_processor</strong> – Instancia de PPGProcessor para reutilizar
+analyze_segment() sin tocar las otras pestañas.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.setup_ui">
+<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.setup_ui" title="Link to this definition"></a></dt>
+<dd><p>Construye el layout principal con splitter horizontal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.load_csv_file">
+<span class="sig-name descname"><span class="pre">load_csv_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.load_csv_file"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.load_csv_file" title="Link to this definition"></a></dt>
+<dd><p>Abre un CSV y carga las columnas de tiempo y señal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.detect_fiducials">
+<span class="sig-name descname"><span class="pre">detect_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.detect_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.detect_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Llama a ppg_processor.analyze_segment() y visualiza los resultados</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.save_results"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.save_results" title="Link to this definition"></a></dt>
+<dd><p>Guarda los resultados en archivos CSV dentro de una carpeta elegida</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.FiducialTab.clear_all">
+<span class="sig-name descname"><span class="pre">clear_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.clear_all"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.FiducialTab.clear_all" title="Link to this definition"></a></dt>
+<dd><p>Limpia todos los datos y gráficos</p>
 </dd></dl>
 
 </dd></dl>
@@ -370,6 +461,12 @@
 <dt class="sig sig-object py" id="ui.AcquisitionControls.reset_data">
 <span class="sig-name descname"><span class="pre">reset_data</span></span><a class="headerlink" href="#ui.AcquisitionControls.reset_data" title="Link to this definition"></a></dt>
 <dd><p>Señal emitida cuando se solicita resetear datos.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.AcquisitionControls.save_data">
+<span class="sig-name descname"><span class="pre">save_data</span></span><a class="headerlink" href="#ui.AcquisitionControls.save_data" title="Link to this definition"></a></dt>
+<dd><p>Señal emitida cuando se solicita guardar datos.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -423,186 +520,68 @@
 
 <section id="submodulos">
 <h2>Submódulos<a class="headerlink" href="#submodulos" title="Link to this heading"></a></h2>
-<section id="module-ui.acquisition_tab">
-<span id="acquisition-tab"></span><h3>acquisition_tab<a class="headerlink" href="#module-ui.acquisition_tab" title="Link to this heading"></a></h3>
-<p>Pestaña de adquisición de datos PPG en tiempo real</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.acquisition_tab.</span></span><span class="sig-name descname"><span class="pre">AcquisitionTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
-<p>Pestaña principal para la adquisición y visualización en tiempo real</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.setup_ui">
-<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.setup_ui" title="Link to this definition"></a></dt>
-<dd><p>Configura la interfaz de usuario</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.create_control_panel">
-<span class="sig-name descname"><span class="pre">create_control_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.create_control_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.create_control_panel" title="Link to this definition"></a></dt>
-<dd><p>Crea el panel de control izquierdo</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.create_plots_panel">
-<span class="sig-name descname"><span class="pre">create_plots_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.create_plots_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.create_plots_panel" title="Link to this definition"></a></dt>
-<dd><p>Crea el panel de gráficos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.setup_connections">
-<span class="sig-name descname"><span class="pre">setup_connections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.setup_connections"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.setup_connections" title="Link to this definition"></a></dt>
-<dd><p>Configura  las conexiones de señales</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.update_plots">
-<span class="sig-name descname"><span class="pre">update_plots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.update_plots"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.update_plots" title="Link to this definition"></a></dt>
-<dd><p>Actualiza los gráficos con nuevos datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.update_status">
-<span class="sig-name descname"><span class="pre">update_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.update_status"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.update_status" title="Link to this definition"></a></dt>
-<dd><p>Actualiza la información de estado</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.on_analysis_complete">
-<span class="sig-name descname"><span class="pre">on_analysis_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.on_analysis_complete"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.on_analysis_complete" title="Link to this definition"></a></dt>
-<dd><p>Maneja los resultados de análisis completo</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.on_buffer_full">
-<span class="sig-name descname"><span class="pre">on_buffer_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.on_buffer_full"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.on_buffer_full" title="Link to this definition"></a></dt>
-<dd><p>Maneja buffer lleno</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.set_connection_status">
-<span class="sig-name descname"><span class="pre">set_connection_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acquiring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.set_connection_status"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.set_connection_status" title="Link to this definition"></a></dt>
-<dd><p>Actualiza el estado de conexión en la UI</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.log_message">
-<span class="sig-name descname"><span class="pre">log_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.log_message"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.log_message" title="Link to this definition"></a></dt>
-<dd><p>Agrega un mensaje al log</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.clear_log">
-<span class="sig-name descname"><span class="pre">clear_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.clear_log"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.clear_log" title="Link to this definition"></a></dt>
-<dd><p>Limpia el log</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-ui.analysis_tab">
-<span id="analysis-tab"></span><h3>analysis_tab<a class="headerlink" href="#module-ui.analysis_tab" title="Link to this heading"></a></h3>
-<p>Este archivo implementa la pestaña de adquisición de datos
-en tiempo real utilizando PyQt5 y PyQtGraph.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.analysis_tab.</span></span><span class="sig-name descname"><span class="pre">AnalysisTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
-<p>Pestaña para el análisis de datos</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.__init__" title="Link to this definition"></a></dt>
-<dd><p>Constructor de la pestaña de análisis</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ppg_processor</strong> – Instancia del procesador PPG</p>
+<section id="module-ui.fiducial_tab">
+<span id="fiducial-tab"></span><h3>fiducial_tab<a class="headerlink" href="#module-ui.fiducial_tab" title="Link to this heading"></a></h3>
+<p>Pestaña para cálculo de puntos fiduciales sobre señal PPG filtrada
+cargada desde un archivo CSV externo.</p>
+<dl class="simple">
+<dt>Flujo de uso:</dt><dd><ol class="arabic simple">
+<li><p>Cargar un CSV con señal ya filtrada (columnas: tiempo, valor).</p></li>
+<li><p>Graficar la señal.</p></li>
+<li><p>Pulsar «Calcular puntos fiduciales» → se grafican onset y pico sistólico.</p></li>
+<li><p>Pulsar «Guardar resultados» → se exportan los CSV de fiduciales,
+parámetros y señal suavizada, igual que en AnalysisTab.</p></li>
+</ol>
 </dd>
 </dl>
-<p>para obtener datos de adquisición</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.fiducial_tab.</span></span><span class="sig-name descname"><span class="pre">FiducialTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Pestaña de detección de puntos fiduciales a partir de CSV filtrado</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ppg_processor</strong> – Instancia de PPGProcessor para reutilizar
+analyze_segment() sin tocar las otras pestañas.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.setup_ui">
-<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.setup_ui" title="Link to this definition"></a></dt>
-<dd><p>Configuracion de la interfaz de usuario</p>
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.setup_ui">
+<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.setup_ui" title="Link to this definition"></a></dt>
+<dd><p>Construye el layout principal con splitter horizontal</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.create_control_panel">
-<span class="sig-name descname"><span class="pre">create_control_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.create_control_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.create_control_panel" title="Link to this definition"></a></dt>
-<dd><p>Crea el panel de control</p>
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.load_csv_file">
+<span class="sig-name descname"><span class="pre">load_csv_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.load_csv_file"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.load_csv_file" title="Link to this definition"></a></dt>
+<dd><p>Abre un CSV y carga las columnas de tiempo y señal</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.create_plots_panel">
-<span class="sig-name descname"><span class="pre">create_plots_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.create_plots_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.create_plots_panel" title="Link to this definition"></a></dt>
-<dd><p>Crea el panel de gráficos</p>
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.detect_fiducials">
+<span class="sig-name descname"><span class="pre">detect_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.detect_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.detect_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Llama a ppg_processor.analyze_segment() y visualiza los resultados</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.load_csv_file">
-<span class="sig-name descname"><span class="pre">load_csv_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.load_csv_file"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.load_csv_file" title="Link to this definition"></a></dt>
-<dd><p>Carga los datos desde archivo CSV</p>
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.save_results"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.save_results" title="Link to this definition"></a></dt>
+<dd><p>Guarda los resultados en archivos CSV dentro de una carpeta elegida</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.load_acquisition_data">
-<span class="sig-name descname"><span class="pre">load_acquisition_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.load_acquisition_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.load_acquisition_data" title="Link to this definition"></a></dt>
-<dd><p>Carga de datos de la adquisición en tiempo real</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.apply_filter">
-<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.apply_filter"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.apply_filter" title="Link to this definition"></a></dt>
-<dd><p>Aplicar filtro Butterworth a los datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.toggle_baseline_removal">
-<span class="sig-name descname"><span class="pre">toggle_baseline_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.toggle_baseline_removal"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.toggle_baseline_removal" title="Link to this definition"></a></dt>
-<dd><p>Alternar eliminación de línea base</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.sacar_linea_base">
-<span class="sig-name descname"><span class="pre">sacar_linea_base</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.sacar_linea_base"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.sacar_linea_base" title="Link to this definition"></a></dt>
-<dd><p>Función para eliminar línea base</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.update_original_plot">
-<span class="sig-name descname"><span class="pre">update_original_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_original_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.update_original_plot" title="Link to this definition"></a></dt>
-<dd><p>Actualiza el gráfico de señal original</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.update_filtered_plot">
-<span class="sig-name descname"><span class="pre">update_filtered_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_filtered_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.update_filtered_plot" title="Link to this definition"></a></dt>
-<dd><p>Actualizar gráfico de señal filtrada</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.log_message">
-<span class="sig-name descname"><span class="pre">log_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.log_message"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.log_message" title="Link to this definition"></a></dt>
-<dd><p>Agrega el mensaje al log de análisis</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.clear_data">
-<span class="sig-name descname"><span class="pre">clear_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.clear_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.clear_data" title="Link to this definition"></a></dt>
-<dd><p>Limpia todos los datos</p>
+<dt class="sig sig-object py" id="ui.fiducial_tab.FiducialTab.clear_all">
+<span class="sig-name descname"><span class="pre">clear_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/fiducial_tab.html#FiducialTab.clear_all"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.fiducial_tab.FiducialTab.clear_all" title="Link to this definition"></a></dt>
+<dd><p>Limpia todos los datos y gráficos</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="graficador-ppg-analisis">
-<h3>graficador_ppg_analisis<a class="headerlink" href="#graficador-ppg-analisis" title="Link to this heading"></a></h3>
 </section>
 <section id="module-ui.interfaz2">
 <span id="interfaz2"></span><h3>interfaz2<a class="headerlink" href="#module-ui.interfaz2" title="Link to this heading"></a></h3>
@@ -921,6 +900,380 @@ from the args and kwargs arguments, respectively.</p>
 </dd></dl>
 
 </section>
+<section id="module-ui.analysis_tab">
+<span id="analysis-tab"></span><h3>analysis_tab<a class="headerlink" href="#module-ui.analysis_tab" title="Link to this heading"></a></h3>
+<p>Este archivo implementa la pestaña de adquisición de datos
+en tiempo real utilizando PyQt5 y PyQtGraph.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.analysis_tab.</span></span><span class="sig-name descname"><span class="pre">AnalysisTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Pestaña para el análisis de datos</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.__init__" title="Link to this definition"></a></dt>
+<dd><p>Constructor de la pestaña de análisis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ppg_processor</strong> – Instancia del procesador PPG</p>
+</dd>
+</dl>
+<p>para obtener datos de adquisición</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.setup_ui">
+<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.setup_ui" title="Link to this definition"></a></dt>
+<dd><p>Configuracion de la interfaz de usuario</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.create_control_panel">
+<span class="sig-name descname"><span class="pre">create_control_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.create_control_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.create_control_panel" title="Link to this definition"></a></dt>
+<dd><p>Crea el panel de control</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.create_plots_panel">
+<span class="sig-name descname"><span class="pre">create_plots_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.create_plots_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.create_plots_panel" title="Link to this definition"></a></dt>
+<dd><p>Crea el panel de gráficos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.load_csv_file">
+<span class="sig-name descname"><span class="pre">load_csv_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.load_csv_file"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.load_csv_file" title="Link to this definition"></a></dt>
+<dd><p>Carga los datos desde archivo CSV</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.load_acquisition_data">
+<span class="sig-name descname"><span class="pre">load_acquisition_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.load_acquisition_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.load_acquisition_data" title="Link to this definition"></a></dt>
+<dd><p>Carga de datos de la adquisición en tiempo real</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.apply_filter">
+<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.apply_filter"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.apply_filter" title="Link to this definition"></a></dt>
+<dd><p>Aplicar filtro Butterworth a los datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.toggle_baseline_removal">
+<span class="sig-name descname"><span class="pre">toggle_baseline_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.toggle_baseline_removal"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.toggle_baseline_removal" title="Link to this definition"></a></dt>
+<dd><p>Alternar eliminación de línea base</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.sacar_linea_base">
+<span class="sig-name descname"><span class="pre">sacar_linea_base</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.sacar_linea_base"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.sacar_linea_base" title="Link to this definition"></a></dt>
+<dd><p>Función para eliminar línea base</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.update_original_plot">
+<span class="sig-name descname"><span class="pre">update_original_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_original_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.update_original_plot" title="Link to this definition"></a></dt>
+<dd><p>Actualiza el gráfico de señal original</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.update_filtered_plot">
+<span class="sig-name descname"><span class="pre">update_filtered_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_filtered_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.update_filtered_plot" title="Link to this definition"></a></dt>
+<dd><p>Actualizar gráfico de señal filtrada</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.log_message">
+<span class="sig-name descname"><span class="pre">log_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.log_message"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.log_message" title="Link to this definition"></a></dt>
+<dd><p>Agrega el mensaje al log de análisis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.save_filtered_data">
+<span class="sig-name descname"><span class="pre">save_filtered_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.save_filtered_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.save_filtered_data" title="Link to this definition"></a></dt>
+<dd><p>Guarda los datos filtrados y parámetros en archivos CSV</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.clear_data">
+<span class="sig-name descname"><span class="pre">clear_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.clear_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.clear_data" title="Link to this definition"></a></dt>
+<dd><p>Limpia todos los datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.detect_fiducials">
+<span class="sig-name descname"><span class="pre">detect_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.detect_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.detect_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Detecta puntos fiduciales (pico sistólico y foot) en la señal PPG filtrada.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.update_fiducial_plot">
+<span class="sig-name descname"><span class="pre">update_fiducial_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.update_fiducial_plot"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.update_fiducial_plot" title="Link to this definition"></a></dt>
+<dd><p>Actualiza la capa de puntos fiduciales sobre la señal PPG.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.analysis_tab.AnalysisTab.clear_fiducials">
+<span class="sig-name descname"><span class="pre">clear_fiducials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/analysis_tab.html#AnalysisTab.clear_fiducials"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.analysis_tab.AnalysisTab.clear_fiducials" title="Link to this definition"></a></dt>
+<dd><p>Limpia los puntos fiduciales del gráfico.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="graficador-ppg-analisis">
+<h3>graficador_ppg_analisis<a class="headerlink" href="#graficador-ppg-analisis" title="Link to this heading"></a></h3>
+</section>
+<section id="module-ui.ppg_processor">
+<span id="ppg-processor"></span><h3>ppg_processor<a class="headerlink" href="#module-ui.ppg_processor" title="Link to this heading"></a></h3>
+<p>Módulo para el procesamiento de señales PPG en tiempo real</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.ppg_processor.</span></span><span class="sig-name descname"><span class="pre">PPGProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
+<p>Procesador de señales PPG con análisis en tiempo real</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.new_data_processed">
+<span class="sig-name descname"><span class="pre">new_data_processed</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.new_data_processed" title="Link to this definition"></a></dt>
+<dd><p>nueva señal procesada</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.analysis_complete">
+<span class="sig-name descname"><span class="pre">analysis_complete</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.analysis_complete" title="Link to this definition"></a></dt>
+<dd><p>contenedor del análisis completo</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.segment_analyzed">
+<span class="sig-name descname"><span class="pre">segment_analyzed</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.segment_analyzed" title="Link to this definition"></a></dt>
+<dd><p>segmento analizado</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.buffer_full">
+<span class="sig-name descname"><span class="pre">buffer_full</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.buffer_full" title="Link to this definition"></a></dt>
+<dd><p>buffer de datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.reset_data">
+<span class="sig-name descname"><span class="pre">reset_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.reset_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.reset_data" title="Link to this definition"></a></dt>
+<dd><p>Resetea todos los buffers de datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.start_processing">
+<span class="sig-name descname"><span class="pre">start_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.start_processing"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.start_processing" title="Link to this definition"></a></dt>
+<dd><p>Funcion del timer que inicia el procesamiento de datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.stop_processing">
+<span class="sig-name descname"><span class="pre">stop_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.stop_processing"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.stop_processing" title="Link to this definition"></a></dt>
+<dd><p>funcion del timer que detiene el procesamiento de datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.add_data_point">
+<span class="sig-name descname"><span class="pre">add_data_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.add_data_point"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.add_data_point" title="Link to this definition"></a></dt>
+<dd><p>Agrega un nuevo punto de datos del canal raw</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.calculate_derivative">
+<span class="sig-name descname"><span class="pre">calculate_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.calculate_derivative"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.calculate_derivative" title="Link to this definition"></a></dt>
+<dd><p>Calcula la primera derivada usando diferencias centrales.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.calculate_derivatives">
+<span class="sig-name descname"><span class="pre">calculate_derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.calculate_derivatives"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.calculate_derivatives" title="Link to this definition"></a></dt>
+<dd><p>Compatibilidad retroactiva: retorna d1 y un arreglo vacío para d2.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.analyze_segment">
+<span class="sig-name descname"><span class="pre">analyze_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_segment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppg_segment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.analyze_segment"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.analyze_segment" title="Link to this definition"></a></dt>
+<dd><p>Analiza morfología en una ventana PPG y calcula puntos/parametros.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.analyze_custom_segment">
+<span class="sig-name descname"><span class="pre">analyze_custom_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.analyze_custom_segment"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.analyze_custom_segment" title="Link to this definition"></a></dt>
+<dd><p>Analiza un segmento específico de la señal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.get_display_data">
+<span class="sig-name descname"><span class="pre">get_display_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.get_display_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.get_display_data" title="Link to this definition"></a></dt>
+<dd><p>Obtiene los datos para mostrar en un gráfico</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(time_data, raw_data) - Listas de tiempos y valores raw</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.get_current_stats">
+<span class="sig-name descname"><span class="pre">get_current_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.get_current_stats"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.get_current_stats" title="Link to this definition"></a></dt>
+<dd><p>Obtiene las estadísticas actuales</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ui.acquisition_tab">
+<span id="acquisition-tab"></span><h3>acquisition_tab<a class="headerlink" href="#module-ui.acquisition_tab" title="Link to this heading"></a></h3>
+<p>Pestaña de adquisición de datos PPG en tiempo real</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.acquisition_tab.</span></span><span class="sig-name descname"><span class="pre">AcquisitionTab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Pestaña principal para la adquisición y visualización en tiempo real</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppg_processor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.setup_ui">
+<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.setup_ui"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.setup_ui" title="Link to this definition"></a></dt>
+<dd><p>Configura la interfaz de usuario</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.create_control_panel">
+<span class="sig-name descname"><span class="pre">create_control_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.create_control_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.create_control_panel" title="Link to this definition"></a></dt>
+<dd><p>Crea el panel de control izquierdo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.create_plots_panel">
+<span class="sig-name descname"><span class="pre">create_plots_panel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.create_plots_panel"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.create_plots_panel" title="Link to this definition"></a></dt>
+<dd><p>Crea el panel de gráficos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.setup_connections">
+<span class="sig-name descname"><span class="pre">setup_connections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.setup_connections"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.setup_connections" title="Link to this definition"></a></dt>
+<dd><p>Configura  las conexiones de señales</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.update_plots">
+<span class="sig-name descname"><span class="pre">update_plots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.update_plots"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.update_plots" title="Link to this definition"></a></dt>
+<dd><p>Actualiza los gráficos con nuevos datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.update_status">
+<span class="sig-name descname"><span class="pre">update_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.update_status"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.update_status" title="Link to this definition"></a></dt>
+<dd><p>Actualiza la información de estado</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.on_analysis_complete">
+<span class="sig-name descname"><span class="pre">on_analysis_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.on_analysis_complete"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.on_analysis_complete" title="Link to this definition"></a></dt>
+<dd><p>Maneja los resultados de análisis completo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.on_buffer_full">
+<span class="sig-name descname"><span class="pre">on_buffer_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.on_buffer_full"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.on_buffer_full" title="Link to this definition"></a></dt>
+<dd><p>Maneja buffer lleno</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.set_connection_status">
+<span class="sig-name descname"><span class="pre">set_connection_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acquiring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.set_connection_status"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.set_connection_status" title="Link to this definition"></a></dt>
+<dd><p>Actualiza el estado de conexión en la UI</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.log_message">
+<span class="sig-name descname"><span class="pre">log_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.log_message"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.log_message" title="Link to this definition"></a></dt>
+<dd><p>Agrega un mensaje al log</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.acquisition_tab.AcquisitionTab.clear_log">
+<span class="sig-name descname"><span class="pre">clear_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/acquisition_tab.html#AcquisitionTab.clear_log"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.acquisition_tab.AcquisitionTab.clear_log" title="Link to this definition"></a></dt>
+<dd><p>Limpia el log</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ui.serial_reader">
+<span id="serial-reader"></span><h3>serial_reader<a class="headerlink" href="#module-ui.serial_reader" title="Link to this heading"></a></h3>
+<p>Módulo para la lectura de datos del puerto serie en un hilo separado</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.serial_reader.</span></span><span class="sig-name descname"><span class="pre">SerialReader</span></span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
+<p>Clase para leer datos del puerto serie en un hilo separado</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.data_received">
+<span class="sig-name descname"><span class="pre">data_received</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.data_received" title="Link to this definition"></a></dt>
+<dd><p>Señal emitida cuando se reciben datos.
+Parámetro: línea de datos (str)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.connection_status_changed">
+<span class="sig-name descname"><span class="pre">connection_status_changed</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.connection_status_changed" title="Link to this definition"></a></dt>
+<dd><p>Señal emitida cuando cambia el estado de conexión.
+Parámetro: estado (bool)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.error_occurred">
+<span class="sig-name descname"><span class="pre">error_occurred</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.error_occurred" title="Link to this definition"></a></dt>
+<dd><p>Señal emitida cuando ocurre un error.
+Parámetro: mensaje de error (str)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.start_reading">
+<span class="sig-name descname"><span class="pre">start_reading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.start_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.start_reading" title="Link to this definition"></a></dt>
+<dd><p>Inicia la lectura del puerto serie</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.stop_reading">
+<span class="sig-name descname"><span class="pre">stop_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.stop_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.stop_reading" title="Link to this definition"></a></dt>
+<dd><p>Detiene la lectura del puerto serie</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.is_reading">
+<span class="sig-name descname"><span class="pre">is_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.is_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.is_reading" title="Link to this definition"></a></dt>
+<dd><p>Verifica si está leyendo datos</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.parse_data_line">
+<span class="sig-name descname"><span class="pre">parse_data_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.parse_data_line"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.parse_data_line" title="Link to this definition"></a></dt>
+<dd><p>Parsea la línea de datos y extraer el valor Raw</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-ui.interfaz2_refactored">
 <span id="interfaz2-refactored"></span><h3>interfaz2_refactored<a class="headerlink" href="#module-ui.interfaz2_refactored" title="Link to this heading"></a></h3>
 <p>Aplicación principal PPG Analyzer - Versión Refactorizada</p>
@@ -983,6 +1336,12 @@ from the args and kwargs arguments, respectively.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ui.interfaz2_refactored.PPGAnalyzerApp.save_acquisition_data">
+<span class="sig-name descname"><span class="pre">save_acquisition_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/interfaz2_refactored.html#PPGAnalyzerApp.save_acquisition_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.interfaz2_refactored.PPGAnalyzerApp.save_acquisition_data" title="Link to this definition"></a></dt>
+<dd><p>Guarda los datos crudos de adquisición en archivo CSV</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ui.interfaz2_refactored.PPGAnalyzerApp.go_to_analysis">
 <span class="sig-name descname"><span class="pre">go_to_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/interfaz2_refactored.html#PPGAnalyzerApp.go_to_analysis"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.interfaz2_refactored.PPGAnalyzerApp.go_to_analysis" title="Link to this definition"></a></dt>
 <dd><p>Cambia a la pestaña de análisis y carga datos de adquisición</p>
@@ -1024,157 +1383,6 @@ from the args and kwargs arguments, respectively.</p>
 <dt class="sig sig-object py" id="ui.interfaz2_refactored.main">
 <span class="sig-prename descclassname"><span class="pre">ui.interfaz2_refactored.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/interfaz2_refactored.html#main"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.interfaz2_refactored.main" title="Link to this definition"></a></dt>
 <dd><p>Función principal para ejecutar la aplicación</p>
-</dd></dl>
-
-</section>
-<section id="module-ui.ppg_processor">
-<span id="ppg-processor"></span><h3>ppg_processor<a class="headerlink" href="#module-ui.ppg_processor" title="Link to this heading"></a></h3>
-<p>Módulo para el procesamiento de señales PPG en tiempo real</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.ppg_processor.</span></span><span class="sig-name descname"><span class="pre">PPGProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
-<p>Procesador de señales PPG con análisis en tiempo real</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.new_data_processed">
-<span class="sig-name descname"><span class="pre">new_data_processed</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.new_data_processed" title="Link to this definition"></a></dt>
-<dd><p>nueva señal procesada</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.analysis_complete">
-<span class="sig-name descname"><span class="pre">analysis_complete</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.analysis_complete" title="Link to this definition"></a></dt>
-<dd><p>contenedor del análisis completo</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.segment_analyzed">
-<span class="sig-name descname"><span class="pre">segment_analyzed</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.segment_analyzed" title="Link to this definition"></a></dt>
-<dd><p>segmento analizado</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.buffer_full">
-<span class="sig-name descname"><span class="pre">buffer_full</span></span><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.buffer_full" title="Link to this definition"></a></dt>
-<dd><p>buffer de datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.reset_data">
-<span class="sig-name descname"><span class="pre">reset_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.reset_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.reset_data" title="Link to this definition"></a></dt>
-<dd><p>Resetea todos los buffers de datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.start_processing">
-<span class="sig-name descname"><span class="pre">start_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.start_processing"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.start_processing" title="Link to this definition"></a></dt>
-<dd><p>Funcion del timer que inicia el procesamiento de datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.stop_processing">
-<span class="sig-name descname"><span class="pre">stop_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.stop_processing"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.stop_processing" title="Link to this definition"></a></dt>
-<dd><p>funcion del timer que detiene el procesamiento de datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.add_data_point">
-<span class="sig-name descname"><span class="pre">add_data_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtered_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.add_data_point"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.add_data_point" title="Link to this definition"></a></dt>
-<dd><p>Agrega un nuevo punto de datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.analyze_custom_segment">
-<span class="sig-name descname"><span class="pre">analyze_custom_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.analyze_custom_segment"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.analyze_custom_segment" title="Link to this definition"></a></dt>
-<dd><p>Analiza un segmento específico de la señal</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.get_display_data">
-<span class="sig-name descname"><span class="pre">get_display_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.get_display_data"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.get_display_data" title="Link to this definition"></a></dt>
-<dd><p>Obtiene los datos para mostrar en un gráfico</p>
-<dl class="field-list simple">
-<dt class="field-odd">Devuelve<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_description_</p>
-</dd>
-<dt class="field-even">Tipo del valor devuelto<span class="colon">:</span></dt>
-<dd class="field-even"><p>_type_</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.ppg_processor.PPGProcessor.get_current_stats">
-<span class="sig-name descname"><span class="pre">get_current_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/ppg_processor.html#PPGProcessor.get_current_stats"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.ppg_processor.PPGProcessor.get_current_stats" title="Link to this definition"></a></dt>
-<dd><p>Obtiene las estadísticas actuales</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-ui.serial_reader">
-<span id="serial-reader"></span><h3>serial_reader<a class="headerlink" href="#module-ui.serial_reader" title="Link to this heading"></a></h3>
-<p>Módulo para la lectura de datos del puerto serie en un hilo separado</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ui.serial_reader.</span></span><span class="sig-name descname"><span class="pre">SerialReader</span></span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
-<p>Clase para leer datos del puerto serie en un hilo separado</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.data_received">
-<span class="sig-name descname"><span class="pre">data_received</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.data_received" title="Link to this definition"></a></dt>
-<dd><p>Señal emitida cuando se reciben datos.
-Parámetro: línea de datos (str)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.connection_status_changed">
-<span class="sig-name descname"><span class="pre">connection_status_changed</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.connection_status_changed" title="Link to this definition"></a></dt>
-<dd><p>Señal emitida cuando cambia el estado de conexión.
-Parámetro: estado (bool)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.error_occurred">
-<span class="sig-name descname"><span class="pre">error_occurred</span></span><a class="headerlink" href="#ui.serial_reader.SerialReader.error_occurred" title="Link to this definition"></a></dt>
-<dd><p>Señal emitida cuando ocurre un error.
-Parámetro: mensaje de error (str)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.__init__"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.start_reading">
-<span class="sig-name descname"><span class="pre">start_reading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.start_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.start_reading" title="Link to this definition"></a></dt>
-<dd><p>Iniciar la lectura del puerto serie</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.stop_reading">
-<span class="sig-name descname"><span class="pre">stop_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.stop_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.stop_reading" title="Link to this definition"></a></dt>
-<dd><p>Detener la lectura del puerto serie</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.is_reading">
-<span class="sig-name descname"><span class="pre">is_reading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.is_reading"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.is_reading" title="Link to this definition"></a></dt>
-<dd><p>Verificar si está leyendo datos</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ui.serial_reader.SerialReader.parse_data_line">
-<span class="sig-name descname"><span class="pre">parse_data_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ui/serial_reader.html#SerialReader.parse_data_line"><span class="viewcode-link"><span class="pre">[fuente]</span></span></a><a class="headerlink" href="#ui.serial_reader.SerialReader.parse_data_line" title="Link to this definition"></a></dt>
-<dd><p>Parsear línea de datos y extraer valores</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>

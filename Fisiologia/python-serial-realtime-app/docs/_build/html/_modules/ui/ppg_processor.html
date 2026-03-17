@@ -79,7 +79,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">PyQt5.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QTimer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span><span class="p">,</span> <span class="n">savgol_filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">config.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOWCUT</span><span class="p">,</span> <span class="n">HIGHCUT</span><span class="p">,</span> <span class="n">FILTER_ORDER</span>
+
 
 <div class="viewcode-block" id="PPGProcessor">
 <a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor">[documentos]</a>
@@ -103,12 +105,11 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">=</span> <span class="n">sample_rate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">buffer_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">=</span> <span class="n">sample_rate</span>
         
-        <span class="c1"># Buffers de datos</span>
+        <span class="c1"># Buffers de datos (solo canal raw)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">)</span>
         
         <span class="c1"># Variables de estado</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
@@ -130,8 +131,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resetea todos los buffers de datos&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_analysis_time</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_hr</span> <span class="o">=</span> <span class="mi">0</span>
@@ -154,8 +153,8 @@
         
 <div class="viewcode-block" id="PPGProcessor.add_data_point">
 <a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.add_data_point">[documentos]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_data_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_value</span><span class="p">,</span> <span class="n">filtered_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalized_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agrega un nuevo punto de datos&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_data_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agrega un nuevo punto de datos del canal raw&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             
@@ -167,8 +166,6 @@
             <span class="c1"># Agregar a buffers</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relative_time</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_value</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filtered_value</span> <span class="k">if</span> <span class="n">filtered_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">raw_value</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalized_value</span> <span class="k">if</span> <span class="n">normalized_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">raw_value</span><span class="p">)</span>
             
             <span class="bp">self</span><span class="o">.</span><span class="n">new_data_processed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
             
@@ -182,13 +179,13 @@
             
     <span class="k">def</span><span class="w"> </span><span class="nf">_periodic_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Realiza el análisis periódico de la señal&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Necesitamos al menos 2 segundos</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Necesitamos al menos 2 segundos</span>
             <span class="k">return</span>
             
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Obtener los últimos 5 segundos de datos</span>
-            <span class="n">segment_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">))</span>
-            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">segment_size</span><span class="p">:]</span>
+            <span class="n">segment_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">))</span>
+            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">segment_size</span><span class="p">:]</span>
             <span class="n">time_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">segment_size</span><span class="p">:]</span>
             
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -218,10 +215,10 @@
             <span class="n">signal_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
             
             <span class="c1"># Detectar picos</span>
-            <span class="c1"># Distancia mínima entre picos: ~0.4s (150 BPM máximo)</span>
+            <span class="c1"># Distancia mínima entre picos: ~0.4s (150 BPM maximo)</span>
             <span class="n">min_distance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
             <span class="n">peaks</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">signal_norm</span><span class="p">,</span> 
-                                         <span class="n">height</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>  <span class="c1"># Altura mínima</span>
+                                         <span class="n">height</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>  <span class="c1"># Altura minima</span>
                                          <span class="n">distance</span><span class="o">=</span><span class="n">min_distance</span><span class="p">)</span>
             
             <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
@@ -265,6 +262,104 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error analizando segmento: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="PPGProcessor.calculate_derivative">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.calculate_derivative">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_derivative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calcula la primera derivada usando diferencias centrales.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span>
+        <span class="n">d1_dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d1_dt</span></div>
+
+
+<div class="viewcode-block" id="PPGProcessor.calculate_derivatives">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.calculate_derivatives">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compatibilidad retroactiva: retorna d1 y un arreglo vacío para d2.&quot;&quot;&quot;</span>
+        <span class="n">d1_dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d1_dt</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span></div>
+
+
+<div class="viewcode-block" id="PPGProcessor.analyze_segment">
+<a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.analyze_segment">[documentos]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_segment</span><span class="p">,</span> <span class="n">ppg_segment</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analiza morfología en una ventana PPG y calcula puntos/parametros.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+
+        <span class="n">t_aligned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_segment</span><span class="p">)</span>
+        <span class="n">ppg_segment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ppg_smooth</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">ppg_smooth</span> <span class="o">=</span> <span class="n">ppg_segment</span>
+
+        <span class="n">d1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_derivative</span><span class="p">(</span><span class="n">ppg_smooth</span><span class="p">)</span>
+
+        <span class="n">peaks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">ppg_smooth</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ppg_smooth</span><span class="p">),</span> <span class="n">distance</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">peaks</span><span class="p">):</span>
+            <span class="n">peaks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">ppg_smooth</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">systolic_peak_idx</span> <span class="o">=</span> <span class="n">peaks</span>
+
+        <span class="n">beat_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p_idx</span> <span class="ow">in</span> <span class="n">systolic_peak_idx</span><span class="p">:</span>
+            <span class="n">foot_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p_idx</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">foot_end</span> <span class="o">=</span> <span class="n">p_idx</span>
+            <span class="k">if</span> <span class="n">foot_start</span> <span class="o">&lt;</span> <span class="n">foot_end</span><span class="p">:</span>
+                <span class="n">valley_before_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">ppg_smooth</span><span class="p">[</span><span class="n">foot_start</span><span class="p">:</span><span class="n">foot_end</span><span class="p">])</span>
+                <span class="n">o_idx</span> <span class="o">=</span> <span class="n">foot_start</span> <span class="o">+</span> <span class="n">valley_before_peak</span>
+                <span class="n">beat_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;onset_idx&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">o_idx</span><span class="p">),</span>
+                    <span class="s1">&#39;onset_time&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">t_aligned</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]),</span>
+                    <span class="s1">&#39;onset_amp&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]),</span>
+                    <span class="s1">&#39;sys_idx&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">p_idx</span><span class="p">),</span>
+                    <span class="s1">&#39;sys_time&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">t_aligned</span><span class="p">[</span><span class="n">p_idx</span><span class="p">]),</span>
+                    <span class="s1">&#39;sys_amp&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">[</span><span class="n">p_idx</span><span class="p">]),</span>
+                <span class="p">})</span>
+
+        <span class="n">foot_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;onset_idx&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">beat_rows</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">systolic_peak_idx_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;sys_idx&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">beat_rows</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">fiducial_points</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;systolic_peak&#39;</span><span class="p">:</span> <span class="n">t_aligned</span><span class="p">[</span><span class="n">systolic_peak_idx_valid</span><span class="p">],</span>
+            <span class="s1">&#39;foot&#39;</span><span class="p">:</span> <span class="n">t_aligned</span><span class="p">[</span><span class="n">foot_idx</span><span class="p">],</span>
+            <span class="s1">&#39;systolic_peak_idx&#39;</span><span class="p">:</span> <span class="n">systolic_peak_idx_valid</span><span class="p">,</span>
+            <span class="s1">&#39;foot_idx&#39;</span><span class="p">:</span> <span class="n">foot_idx</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">systolic_peak_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ppi_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">systolic_peak_idx</span><span class="p">)</span>
+            <span class="n">ppi_seconds</span> <span class="o">=</span> <span class="n">ppi_samples</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span>
+            <span class="n">avg_ppi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ppi_seconds</span><span class="p">)</span>
+            <span class="n">fc</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">/</span> <span class="n">avg_ppi</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">avg_ppi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ppg_segment</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;FC (LPM)&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">fc</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;N/A&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;PPI (s)&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">avg_ppi</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">avg_ppi</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;N/A&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;AC (Unidades)&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ac</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">analysis_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">t_aligned</span><span class="p">,</span>
+            <span class="s1">&#39;ppg&#39;</span><span class="p">:</span> <span class="n">ppg_segment</span><span class="p">,</span>
+            <span class="s1">&#39;ppg_smooth&#39;</span><span class="p">:</span> <span class="n">ppg_smooth</span><span class="p">,</span>
+            <span class="s1">&#39;d1&#39;</span><span class="p">:</span> <span class="n">d1</span><span class="p">,</span>
+            <span class="s1">&#39;fiducials&#39;</span><span class="p">:</span> <span class="n">fiducial_points</span><span class="p">,</span>
+            <span class="s1">&#39;beats&#39;</span><span class="p">:</span> <span class="n">beat_rows</span><span class="p">,</span>
+            <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">parameters</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">analysis_data</span><span class="p">,</span> <span class="n">parameters</span></div>
+
             
 <div class="viewcode-block" id="PPGProcessor.analyze_custom_segment">
 <a class="viewcode-back" href="../../modules/ui.html#ui.ppg_processor.PPGProcessor.analyze_custom_segment">[documentos]</a>
@@ -276,11 +371,11 @@
             <span class="n">start_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">start_time</span><span class="p">)</span>
             <span class="n">end_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
             
-            <span class="k">if</span> <span class="n">start_idx</span> <span class="o">&gt;=</span> <span class="n">end_idx</span> <span class="ow">or</span> <span class="n">end_idx</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">start_idx</span> <span class="o">&gt;=</span> <span class="n">end_idx</span> <span class="ow">or</span> <span class="n">end_idx</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">None</span>
                 
             <span class="c1"># Extraer segmento</span>
-            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+            <span class="n">signal_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
             <span class="n">time_segment</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
             
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal_segment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>  <span class="c1"># Mínimo de datos requerido</span>
@@ -300,23 +395,19 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtiene los datos para mostrar en un gráfico</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            _type_: _description_</span>
+<span class="sd">            tuple: (time_data, raw_data) - Listas de tiempos y valores raw</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
             
         <span class="c1"># Limitar el número de puntos para mejor rendimiento</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_points</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">),</span> 
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">),</span> 
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">),</span>
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="p">))</span>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Tomar los últimos max_points puntos</span>
             <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:],</span>
-                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:])</span></div>
+                   <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_buffer</span><span class="p">)[</span><span class="o">-</span><span class="n">max_points</span><span class="p">:])</span></div>
 
                    
 <div class="viewcode-block" id="PPGProcessor.get_current_stats">

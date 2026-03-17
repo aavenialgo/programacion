@@ -100,6 +100,8 @@
     <span class="n">stop_acquisition</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
     <span class="c1">#: Señal emitida cuando se solicita resetear datos.</span>
     <span class="n">reset_data</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="c1">#: Señal emitida cuando se solicita guardar datos.</span>
+    <span class="n">save_data</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
     <span class="c1">#: Señal emitida cuando se solicita analizar datos.</span>
     <span class="n">analyze_data</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>  
     
@@ -174,6 +176,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_data</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
         <span class="n">reset_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_btn</span><span class="p">)</span>
         <span class="n">acquisition_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">reset_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Botón de guardar datos</span>
+        <span class="n">save_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Guardar Datos&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_data</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            QPushButton {</span>
+<span class="s2">                background-color: #27AE60;</span>
+<span class="s2">                color: white;</span>
+<span class="s2">                border: none;</span>
+<span class="s2">                padding: 8px;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                font-weight: bold;</span>
+<span class="s2">            }</span>
+<span class="s2">            QPushButton:hover {</span>
+<span class="s2">                background-color: #229954;</span>
+<span class="s2">            }</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">save_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_btn</span><span class="p">)</span>
+        <span class="n">acquisition_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">save_layout</span><span class="p">)</span>
         
         <span class="c1"># Botón de análisis</span>
         <span class="n">analysis_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>

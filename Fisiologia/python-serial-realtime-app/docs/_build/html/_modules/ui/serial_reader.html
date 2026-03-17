@@ -106,7 +106,7 @@
         
         <span class="c1"># Regex para extraer los valores del formato esperado</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;Crudo:(-?\d+(?:\.\d+)?),Filtrado:(-?\d+(?:\.\d+)?),Normalizado:(-?\d+(?:\.\d+)?)&quot;</span><span class="p">,</span> 
+            <span class="sa">r</span><span class="s2">&quot;Raw:(-?\d+(?:\.\d+)?)&quot;</span><span class="p">,</span> 
             <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
         <span class="p">)</span></div>
 
@@ -114,7 +114,7 @@
 <div class="viewcode-block" id="SerialReader.start_reading">
 <a class="viewcode-back" href="../../modules/ui.html#ui.serial_reader.SerialReader.start_reading">[documentos]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_reading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_port</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iniciar la lectura del puerto serie&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inicia la lectura del puerto serie&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reading</span><span class="p">:</span>
             <span class="k">return</span>
             
@@ -128,7 +128,7 @@
 <div class="viewcode-block" id="SerialReader.stop_reading">
 <a class="viewcode-back" href="../../modules/ui.html#ui.serial_reader.SerialReader.stop_reading">[documentos]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stop_reading</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detener la lectura del puerto serie&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detiene la lectura del puerto serie&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reading</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reading_thread</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">reading_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reading_thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
@@ -154,21 +154,19 @@
 <div class="viewcode-block" id="SerialReader.is_reading">
 <a class="viewcode-back" href="../../modules/ui.html#ui.serial_reader.SerialReader.is_reading">[documentos]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_reading</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verificar si está leyendo datos&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica si está leyendo datos&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reading</span></div>
 
         
 <div class="viewcode-block" id="SerialReader.parse_data_line">
 <a class="viewcode-back" href="../../modules/ui.html#ui.serial_reader.SerialReader.parse_data_line">[documentos]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_data_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parsear línea de datos y extraer valores&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parsea la línea de datos y extraer el valor Raw&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
                 <span class="n">raw</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-                <span class="n">filtered</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-                <span class="n">normalized</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-                <span class="k">return</span> <span class="n">raw</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span> <span class="n">normalized</span>
+                <span class="k">return</span> <span class="n">raw</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
             <span class="k">pass</span>
         <span class="k">return</span> <span class="kc">None</span></div>

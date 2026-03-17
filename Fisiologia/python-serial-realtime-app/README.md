@@ -86,6 +86,7 @@ cd python-serial-realtime-app
 ```bash
 python -m venv env
 source env/bin/activate  # En Windows: env\Scripts\activate
+# si tenes problemas con powershell: env\Scripts\Activate.ps1
 ```
 
 3. **Instalar dependencias:**
@@ -226,8 +227,9 @@ O simplemente valores numéricos:
 
 ```
 src/
-├── config/           # Configuraciones
+├── config/          # Configuraciones
 ├── core/            # Lógica de negocio
+├── experiments      # 
 ├── ui/              # Interfaz de usuario
 ├── data/            # Gestión de datos
 └── tests/           # Pruebas unitarias
